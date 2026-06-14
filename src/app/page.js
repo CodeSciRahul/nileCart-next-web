@@ -4,6 +4,7 @@ import CategoriesSection from "@/components/category";
 import TrendingProducts from "@/components/trendingProducts";
 import Products from "@/components/products";
 import { fetchProducts } from "@/lib/data/products";
+import { fetchCategory } from "@/lib/data/category";
 
 export const metadata = {
   title: "LightCollection — Fashion Store",
@@ -18,20 +19,13 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  let products = [];
-
-  try {
-    const data = await fetchProducts();
-    products = data?.products || [];
-  } catch {
-    products = [];
-  }
+    const [{products = []}, {categories = []}] = await Promise.all([fetchProducts(), fetchCategory()]);
 
   return (
     <div>
       <Header />
       <Banner />
-      <CategoriesSection />
+      <CategoriesSection categories={categories} />
       <TrendingProducts />
       <Products products={products} />
     </div>

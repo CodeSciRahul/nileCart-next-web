@@ -1,4 +1,6 @@
 
+import Link from "next/link";
+
 const categories = [
   {
     name: "Dresses",
@@ -52,7 +54,7 @@ const categories = [
   },
 ];
 
-const CategoriesSection = () => {
+const CategoriesSection = ({ categories }) => {
   return (
     <section className="py-16 bg-gradient-to-b from-brand-cream to-brand-white">
       <div className="max-w-7xl mx-auto px-4">
@@ -73,18 +75,25 @@ const CategoriesSection = () => {
 
         {/* Categories */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {categories.map((category, index) => (
-            <div
-              key={`${category.name}-${index}`}
-              className="group cursor-pointer"
-              style={{
-                animationDelay: `${index * 100}ms`,
-              }}
-            >
+          {categories?.map((category, index) => {
+            const CardWrapper = category.slug ? Link : "div";
+            const cardProps = category.slug
+              ? { href: `/shop/${category.slug}` }
+              : {};
+
+            return (
+              <CardWrapper
+                key={category._id || `${category.name}-${index}`}
+                {...cardProps}
+                className="group cursor-pointer"
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                }}
+              >
               <div className="relative overflow-hidden rounded-[30px] shadow-lg bg-brand-white">
                 <div className="aspect-[3/4] overflow-hidden">
                   <img
-                    src={category.image}
+                    src={category?.image}
                     alt={category.name}
                     className="
                       w-full
@@ -140,8 +149,9 @@ const CategoriesSection = () => {
                 "
                 />
               </div>
-            </div>
-          ))}
+            </CardWrapper>
+            );
+          })}
         </div>
       </div>
     </section>

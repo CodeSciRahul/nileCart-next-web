@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   Menu,
   Search,
@@ -14,15 +15,31 @@ import {
   Zap,
   PackageCheck,
   LogOut,
+  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { getCategoryTree } from "@/services/categoryService.js";
+import {
+  DEPARTMENTS,
+  getDepartmentSubcategories,
+} from "@/lib/categoryHelpers.js";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [activeDepartment, setActiveDepartment] = useState(null);
+  const [mobileDepartment, setMobileDepartment] = useState(null);
   const userMenuRef = useRef(null);
   const router = useRouter();
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
+
+  const { data: categoryData } = useQuery({
+    queryKey: ["categories", "tree"],
+    queryFn: getCategoryTree,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const categoryTree = categoryData?.categories || [];
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -40,20 +57,84 @@ const Header = () => {
     router.push("/auth");
   };
 
-  const navLinks = [
-    "TOPS",
-    "BOTTOMS",
-    "DRESSES",
-    "ACCESSORIES",
-    "SALE",
-    "INCLUSIVE",
-    "BAGS",
-    "JEWELLERY",
-    "BEAUTY",
-    "SWIMWEAR",
-    "SPORTS & GYM",
-    "LINGERIE",
-  ];
+  const selectMobileDepartment = (key) => {
+    setMobileDepartment((current) => (current === key ? null : key));
+  };
+
+  const renderDepartmentDropdown = (variant = "desktop") => {
+    const isCompact = variant === "compact";
+
+    return DEPARTMENTS.map(({ key, label }) => {
+      const isActive = activeDepartment === key;
+      const subcategories = getDepartmentSubcategories(categoryTree, key);
+
+      return (
+        <div
+          key={key}
+          className="relative"
+          onMouseEnter={() => setActiveDepartment(key)}
+          onMouseLeave={() => setActiveDepartment(null)}
+        >
+          <Link
+            href={`/shop/${key}`}
+            onClick={() => setActiveDepartment(null)}
+            className={`flex items-center gap-1 font-bold tracking-wide transition ${
+              isCompact
+                ? "rounded-full px-3 py-1.5 text-xs"
+                : "px-2 py-1 text-sm"
+            } ${
+              isActive
+                ? "bg-brand-amber text-foreground"
+                : "text-foreground hover:bg-brand-cream hover:text-brand-amber"
+            }`}
+          >
+            {label}
+            {!isCompact && (
+              <ChevronDown
+                size={14}
+                className={`transition-transform ${isActive ? "rotate-180" : ""}`}
+              />
+            )}
+          </Link>
+
+          {isActive && !isCompact && (
+            <div className="absolute left-0 top-full z-50 pt-2">
+              <div className="min-w-[280px] rounded-xl border border-brand-amber/20 bg-brand-white p-4 shadow-xl">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gray">
+                Shop by category
+              </p>
+              {subcategories.length > 0 ? (
+                <div className="grid gap-1">
+                  {subcategories.map((sub) => (
+                    <Link
+                      key={sub._id}
+                      href={`/shop/${sub.slug}`}
+                      className="rounded-lg px-3 py-2 text-sm font-medium text-foreground transition hover:bg-brand-cream hover:text-brand-amber"
+                      onClick={() => setActiveDepartment(null)}
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="px-3 py-2 text-sm text-brand-gray">
+                  No subcategories yet. Add them under {label} in the admin panel.
+                </p>
+              )}
+              <Link
+                href={`/shop/${key}`}
+                className="mt-3 block border-t border-brand-cream pt-3 text-sm font-semibold text-brand-amber hover:underline"
+                onClick={() => setActiveDepartment(null)}
+              >
+                View all {label.toLowerCase()}
+              </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
 
   return (
     <>
@@ -67,7 +148,7 @@ const Header = () => {
         <div className="mx-auto">
           <div className="h-16 md:h-20 flex items-center justify-between px-4 md:px-8 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
             {/* Left Side */}
-            <div className="flex items-center gap-4 flex-1 max-w-md">
+            <div className="flex flex-1 items-center gap-3 md:gap-4 lg:max-w-2xl">
               <button
                 onClick={() => setOpen(true)}
                 className="text-foreground hover:text-brand-amber transition lg:hidden"
@@ -75,21 +156,21 @@ const Header = () => {
                 <Menu size={28} />
               </button>
 
-              <div className="hidden md:flex items-center flex-1 bg-brand-cream border border-brand-amber/20 rounded-full px-4 py-2">
-                <Search size={18} className="text-brand-amber" />
+              <div className="hidden items-center gap-1 md:flex">
+                {renderDepartmentDropdown("desktop")}
+              </div>
+
+              <div className="flex items-center gap-2 md:hidden">
+                {renderDepartmentDropdown("compact")}
+              </div>
+
+              <div className="hidden min-w-0 flex-1 items-center rounded-full border border-brand-amber/20 bg-brand-cream px-4 py-2 md:flex">
+                <Search size={18} className="shrink-0 text-brand-amber" />
 
                 <input
                   type="text"
                   placeholder="Search dresses, tops, beauty..."
-                  className="
-        flex-1
-        bg-transparent
-        outline-none
-        px-3
-        text-sm
-        text-foreground
-        placeholder:text-brand-gray
-      "
+                  className="min-w-0 flex-1 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-brand-gray"
                 />
               </div>
 
@@ -222,24 +303,6 @@ const Header = () => {
               </div>
             </div>
           </div>
-
-          {/* Desktop Categories */}
-          <div className="hidden lg:block border-b border-brand-amber/20 bg-brand-white">
-            <div className="max-w-[1440px] mx-auto overflow-x-auto">
-              <div className="flex items-center justify-center gap-8 px-8 py-3 whitespace-nowrap">
-                {navLinks.map((item) => (
-                  <button
-                    key={item}
-                    className="relative text-sm font-semibold text-foreground hover:text-brand-amber transition group"
-                  >
-                    {item}
-
-                    <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-brand-amber transition-all duration-300 group-hover:w-full" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -281,26 +344,56 @@ const Header = () => {
 
             {/* Categories */}
             <nav className="overflow-y-auto h-[calc(100%-130px)]">
-              {navLinks.map((item) => (
-                <button
-                  key={item}
-                  className="
-                    w-full
-                    text-left
-                    px-5
-                    py-4
-                    border-b
-                    border-brand-cream
-                    font-medium
-                    text-foreground
-                    hover:bg-brand-cream
-                    hover:text-brand-amber
-                    transition
-                  "
-                >
-                  {item}
-                </button>
-              ))}
+              <div className="border-b border-brand-amber/20 p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gray">
+                  Shop by department
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {DEPARTMENTS.map(({ key, label }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => selectMobileDepartment(key)}
+                      className={`rounded-xl px-4 py-3 text-sm font-bold tracking-wide transition ${
+                        mobileDepartment === key
+                          ? "bg-brand-amber text-foreground"
+                          : "bg-brand-cream text-foreground hover:bg-brand-amber/20"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {mobileDepartment && (
+                <div className="py-2">
+                  {getDepartmentSubcategories(categoryTree, mobileDepartment).length > 0 ? (
+                    getDepartmentSubcategories(categoryTree, mobileDepartment).map((sub) => (
+                      <Link
+                        key={sub._id}
+                        href={`/shop/${sub.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="block border-b border-brand-cream px-5 py-4 font-medium text-foreground transition hover:bg-brand-cream hover:text-brand-amber"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="px-5 py-4 text-sm text-brand-gray">
+                      No subcategories yet for this department.
+                    </p>
+                  )}
+
+                  <Link
+                    href={`/shop/${mobileDepartment}`}
+                    onClick={() => setOpen(false)}
+                    className="block px-5 py-4 text-sm font-semibold text-brand-amber"
+                  >
+                    View all {mobileDepartment}
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         </div>
