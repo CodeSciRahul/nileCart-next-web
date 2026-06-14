@@ -13,13 +13,13 @@ export async function generateMetadata({ params, searchParams }) {
     const product = data?.product;
 
     if (!product) {
-      return { title: "Product Not Found | LightCollection" };
+      return { title: "Product Not Found | NileCart" };
     }
 
     const imageUrl = getProductImageUrl(product);
     const description =
       product.description?.slice(0, 160) ||
-      `Shop ${product.title} at LightCollection.`;
+      `Shop ${product.title} at NileCart.`;
 
     return {
       title: product.title,
@@ -44,8 +44,8 @@ export async function generateMetadata({ params, searchParams }) {
     };
   } catch {
     return {
-      title: "Product | LightCollection",
-      description: "Discover fashion products at LightCollection.",
+      title: "Product | NileCart",
+      description: "Discover fashion products at NileCart.",
     };
   }
 }

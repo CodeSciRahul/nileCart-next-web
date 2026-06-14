@@ -24,7 +24,7 @@ export default function CheckoutHeader() {
     <header className="bg-brand-white border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="text-2xl font-black tracking-wide">
-          LIGHTCOLLECTION
+          NILECART
         </Link>
 
         <div className="hidden md:flex items-center gap-6">

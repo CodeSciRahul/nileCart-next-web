@@ -218,7 +218,7 @@ export default function AuthPage() {
           href="/"
           className="block text-center text-5xl font-bold mb-6 hover:opacity-80"
         >
-          LIGHTCOLLECTION
+          NILECART
         </Link>
 
         <div className="bg-brand-amber py-4 text-center mb-8">

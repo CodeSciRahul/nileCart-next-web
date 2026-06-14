@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
     return {
       title: category?.name || "Shop",
       description:
-        category?.description || `Shop ${category?.name} at LightCollection.`,
+        category?.description || `Shop ${category?.name} at NileCart.`,
     };
   } catch {
     return { title: "Shop" };

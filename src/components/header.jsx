@@ -187,7 +187,7 @@ const Header = () => {
             <Link href="/" className="absolute left-1/2 -translate-x-1/2">
               <h1 className="text-3xl md:text-4xl font-black tracking-tight">
                 <span className="bg-gradient-to-r from-brand-amber via-amber-400 to-brand-amber bg-clip-text text-transparent">
-                  LIGHTCOLLECTION
+                  NILECART
                 </span>
               </h1>
             </Link>

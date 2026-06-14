@@ -3,11 +3,11 @@ import "./globals.css";
 
 export const metadata = {
   title: {
-    default: "LightCollection",
-    template: "%s | LightCollection",
+    default: "NileCart",
+    template: "%s | NileCart",
   },
   description:
-    "Shop fashion at LightCollection — dresses, tops, accessories and more.",
+    "Shop fashion at NileCart — dresses, tops, accessories and more.",
 };
 
 export default function RootLayout({ children }) {

@@ -7,13 +7,13 @@ import { fetchProducts } from "@/lib/data/products";
 import { fetchCategory } from "@/lib/data/category";
 
 export const metadata = {
-  title: "LightCollection — Fashion Store",
+  title: "NileCart — Fashion Store",
   description:
     "Shop trending dresses, tops, accessories and more. Anniversary sale with up to 80% off and free shipping above ₹999.",
   openGraph: {
-    title: "LightCollection — Fashion Store",
+    title: "NileCart — Fashion Store",
     description:
-      "Shop trending dresses, tops, accessories and more at LightCollection.",
+      "Shop trending dresses, tops, accessories and more at NileCart.",
     type: "website",
   },
 };
