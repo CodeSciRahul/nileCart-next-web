@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MapPin,
   CreditCard,
@@ -9,6 +9,8 @@ import {
   CheckCircle,
 } from "lucide-react";
 import AddressModal from "@/components/addressModal";
+import CouponInput from "@/components/checkout/CouponInput";
+import PriceSummary from "@/components/checkout/PriceSummary";
 
 export default function PaymentPage({ addresses = [], cart }) {
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -27,28 +29,7 @@ export default function PaymentPage({ addresses = [], cart }) {
   };
 
   const items = cart?.cart?.items || [];
-
-  const priceDetails = useMemo(() => {
-    let totalMrp = 0;
-    let totalPrice = 0;
-
-    items?.forEach((item) => {
-      const variant = item?.product?.variants?.find(
-        (v) => v?.sku === item?.variantSku
-      );
-
-      if (!variant) return;
-
-      totalMrp += variant?.mrp * item?.quantity;
-      totalPrice += variant?.price * item?.quantity;
-    });
-
-    return {
-      totalMrp,
-      totalPrice,
-      discount: totalMrp - totalPrice,
-    };
-  }, [items]);
+  const orderTotal = cart?.total ?? cart?.subtotal ?? 0;
 
   const paymentMethods = [
     {
@@ -219,7 +200,7 @@ export default function PaymentPage({ addresses = [], cart }) {
                         type="button"
                         className="w-full bg-brand-amber text-brand-white py-3 rounded-lg font-medium"
                       >
-                        Pay ₹{priceDetails?.totalPrice}
+                        Pay ₹{orderTotal}
                       </button>
                     </div>
                   </div>
@@ -241,7 +222,7 @@ export default function PaymentPage({ addresses = [], cart }) {
                       type="button"
                       className="w-full bg-brand-amber text-brand-white py-3 rounded-lg font-medium"
                     >
-                      Confirm Order ₹{priceDetails?.totalPrice}
+                      Confirm Order ₹{orderTotal}
                     </button>
                   </div>
                 )}
@@ -251,32 +232,13 @@ export default function PaymentPage({ addresses = [], cart }) {
         </div>
 
         <div>
-          <div className="sticky top-24 rounded-lg border bg-brand-white p-5">
-            <h2 className="mb-4 font-semibold">PRICE DETAILS</h2>
+          <div className="sticky top-24 space-y-4 rounded-lg border bg-brand-white p-5">
+            <CouponInput
+              appliedCoupon={cart?.coupon}
+              subtotal={cart?.subtotal ?? 0}
+            />
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span>Total MRP</span>
-                <span>₹{priceDetails?.totalMrp}</span>
-              </div>
-
-              <div className="flex justify-between text-green-600">
-                <span>Discount on MRP</span>
-                <span>- ₹{priceDetails?.discount}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Shipping Fee</span>
-                <span className="text-green-600">FREE</span>
-              </div>
-
-              <hr />
-
-              <div className="flex justify-between text-base font-bold">
-                <span>Total Amount</span>
-                <span>₹{priceDetails?.totalPrice}</span>
-              </div>
-            </div>
+            <PriceSummary cart={cart} items={items} />
           </div>
         </div>
       </div>

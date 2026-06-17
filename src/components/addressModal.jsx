@@ -70,7 +70,7 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
       locality: "",
       city: "",
       state: "",
-      country: "India",
+      country: "Uganda",
       addressType: "Home",
       isDefault: false,
     },
@@ -101,7 +101,7 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
           <div>
             <label className="text-sm font-medium">Full Name</label>
 
-            <Input placeholder="Enter full name" {...register("fullName")} />
+            <Input placeholder="James Mukasa" {...register("fullName")} />
 
             {errors.fullName && (
               <p className="text-red-500 text-sm mt-1">
@@ -114,7 +114,7 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
             <div>
               <label className="text-sm font-medium">Mobile Number</label>
 
-              <Input placeholder="9876543210" {...register("mobileNumber")} />
+              <Input placeholder="0772123456" {...register("mobileNumber")} />
 
               {errors.mobileNumber && (
                 <p className="text-red-500 text-sm mt-1">
@@ -126,7 +126,7 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
             <div>
               <label className="text-sm font-medium">Pincode</label>
 
-              <Input placeholder="144001" {...register("pincode")} />
+              <Input placeholder="256002" {...register("pincode")} />
 
               {errors.pincode && (
                 <p className="text-red-500 text-sm mt-1">
@@ -141,7 +141,7 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
 
             <Textarea
               rows={4}
-              placeholder="House No, Street, Area..."
+              placeholder="Plot 15, Kampala Road, Nakasero"
               {...register("addressLine")}
             />
 
@@ -154,13 +154,13 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
 
           <div>
             <label className="text-sm font-medium">Locality</label>
-            <Input placeholder="Locality" {...register("locality")} />
+            <Input placeholder="Ntinda" {...register("locality")} />
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">City</label>
-              <Input placeholder="City" {...register("city")} />
+              <Input placeholder="Kampala" {...register("city")} />
 
               {errors.city && (
                 <p className="text-red-500 text-sm mt-1">
@@ -171,7 +171,7 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
 
             <div>
               <label className="text-sm font-medium">State</label>
-              <Input placeholder="State" {...register("state")} />
+              <Input placeholder="Central Region" {...register("state")} />
 
               {errors.state && (
                 <p className="text-red-500 text-sm mt-1">
@@ -183,7 +183,7 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
 
           <div>
             <label className="text-sm font-medium">Country</label>
-            <Input disabled {...register("country")} />
+            <Input placeholder="Uganda" {...register("country")} />
           </div>
 
           <div>
