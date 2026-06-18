@@ -10,3 +10,7 @@ export const findDepartmentCategory = (tree, key) =>
 
 export const getDepartmentSubcategories = (tree, key) =>
   findDepartmentCategory(tree, key)?.children || [];
+
+/** Flat list: keep only child categories (exclude top-level departments). */
+export const getSubcategories = (categories) =>
+  (categories || []).filter((category) => category.parent);

@@ -19,6 +19,7 @@ import {
 import ProfileMenu from "@/components/account/ProfileMenu";
 import UserAvatar from "@/components/account/UserAvatar";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/hooks/useCart";
 import { getCategoryTree } from "@/services/categoryService.js";
 import {
   DEPARTMENTS,
@@ -29,10 +30,11 @@ const Header = () => {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeDepartment, setActiveDepartment] = useState(null);
-  const [mobileDepartment, setMobileDepartment] = useState(null);
+  const [mobileDepartment, setMobileDepartment] = useState("men");
   const userMenuRef = useRef(null);
   const router = useRouter();
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
+  const { data: cartItemCount = 0 } = useCart();
 
   const { data: categoryData } = useQuery({
     queryKey: ["categories", "tree"],
@@ -79,7 +81,7 @@ const Header = () => {
           <Link
             href={`/shop/${key}`}
             onClick={() => setActiveDepartment(null)}
-            className={`flex items-center gap-1 font-bold tracking-wide transition ${
+            className={`items-center gap-1 font-bold tracking-wide transition hidden md:flex ${
               isCompact
                 ? "rounded-full px-3 py-1.5 text-xs"
                 : "px-2 py-1 text-sm"
@@ -165,7 +167,7 @@ const Header = () => {
                 {renderDepartmentDropdown("compact")}
               </div>
 
-              <div className="hidden min-w-0 flex-1 items-center rounded-full border border-brand-amber/20 bg-brand-cream px-4 py-2 md:flex">
+              {/* <div className="hidden min-w-0 flex-1 items-center rounded-full border border-brand-amber/20 bg-brand-cream px-4 py-2 md:flex">
                 <Search size={18} className="shrink-0 text-brand-amber" />
 
                 <input
@@ -173,15 +175,15 @@ const Header = () => {
                   placeholder="Search dresses, tops, beauty..."
                   className="min-w-0 flex-1 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-brand-gray"
                 />
-              </div>
+              </div> */}
 
               {/* Mobile Search Icon */}
-              <button className="md:hidden">
+              {/* <button className="md:hidden">
                 <Search
                   size={24}
                   className="text-foreground hover:text-brand-amber"
                 />
-              </button>
+              </button> */}
             </div>
 
             {/* Logo */}
@@ -240,11 +242,18 @@ const Header = () => {
                   size={22}
                   onClick={() => router.push("/checkout/bag")}
                   className="cursor-pointer text-foreground hover:text-brand-amber hover:scale-110 transition-all"
+                  aria-label={
+                    cartItemCount > 0
+                      ? `Shopping bag, ${cartItemCount} items`
+                      : "Shopping bag"
+                  }
                 />
 
-                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-brand-amber text-foreground text-[10px] flex items-center justify-center font-bold">
-                  2
-                </span>
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-amber px-1 text-[10px] font-bold text-foreground">
+                    {cartItemCount > 99 ? "99+" : cartItemCount}
+                  </span>
+                )}
               </div>
             </div>
           </div>
