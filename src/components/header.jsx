@@ -14,9 +14,10 @@ import {
   Truck,
   Zap,
   PackageCheck,
-  LogOut,
   ChevronDown,
 } from "lucide-react";
+import ProfileMenu from "@/components/account/ProfileMenu";
+import UserAvatar from "@/components/account/UserAvatar";
 import { useAuth } from "@/context/AuthContext";
 import { getCategoryTree } from "@/services/categoryService.js";
 import {
@@ -202,31 +203,18 @@ const Header = () => {
                       onClick={() => setUserMenuOpen((v) => !v)}
                       className="flex items-center gap-2 cursor-pointer text-foreground hover:text-brand-amber transition-all"
                       aria-label="Account menu"
+                      aria-expanded={userMenuOpen}
                     >
-                      <span className="w-8 h-8 rounded-full bg-brand-amber text-foreground text-sm font-bold flex items-center justify-center">
-                        {(user?.name || user?.email || "U")
-                          .charAt(0)
-                          .toUpperCase()}
-                      </span>
+                      <UserAvatar user={user} size="sm" />
                       <span className="hidden md:block text-sm font-medium max-w-[100px] truncate">
                         {user?.name || "Account"}
                       </span>
                     </button>
-                    {userMenuOpen && (
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-brand-white rounded-xl shadow-lg border border-brand-amber/20 py-2 z-50">
-                        <p className="px-4 py-2 text-sm text-brand-gray truncate border-b border-brand-cream">
-                          {user?.email}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-brand-cream hover:text-brand-amber"
-                        >
-                          <LogOut size={16} />
-                          Log out
-                        </button>
-                      </div>
-                    )}
+                    <ProfileMenu
+                      open={userMenuOpen}
+                      onClose={() => setUserMenuOpen(false)}
+                      onLogout={handleLogout}
+                    />
                   </>
                 ) : (
                   <Link

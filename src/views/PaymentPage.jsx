@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   MapPin,
   CreditCard,
@@ -11,8 +12,13 @@ import {
 import AddressModal from "@/components/addressModal";
 import CouponInput from "@/components/checkout/CouponInput";
 import PriceSummary from "@/components/checkout/PriceSummary";
+import { Button } from "@/components/ui/button";
+import { usePlaceOrder } from "@/hooks/useOrder";
+import { showErrorToast } from "@/lib/toast";
 
 export default function PaymentPage({ addresses = [], cart }) {
+  const router = useRouter();
+  const placeOrder = usePlaceOrder();
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("cod");
   const [isAddressModalOpen, setIsAddressModal] = useState(false);
@@ -30,6 +36,25 @@ export default function PaymentPage({ addresses = [], cart }) {
 
   const items = cart?.cart?.items || [];
   const orderTotal = cart?.total ?? cart?.subtotal ?? 0;
+  const hasItems = items.length > 0;
+  const isPlacingOrder = placeOrder.isPending;
+
+  const handlePlaceCodOrder = () => {
+    if (!hasItems) {
+      showErrorToast("Your bag is empty. Add items before placing an order.");
+      return;
+    }
+
+    if (!selectedAddress) {
+      showErrorToast("Please select a delivery address.");
+      return;
+    }
+
+    placeOrder.mutate({
+      addressId: selectedAddress,
+      paymentMethod: "cod",
+    });
+  };
 
   const paymentMethods = [
     {
@@ -45,6 +70,32 @@ export default function PaymentPage({ addresses = [], cart }) {
       desc: "Visa, Mastercard, Rupay",
     },
   ];
+
+  if (!cart) {
+    return (
+      <div className="container mx-auto max-w-7xl px-4 py-10 text-brand-gray">
+        Sign in to complete your order.
+      </div>
+    );
+  }
+
+  if (!hasItems) {
+    return (
+      <div className="container mx-auto max-w-7xl px-4 py-16 text-center">
+        <h1 className="text-xl font-semibold">Your bag is empty</h1>
+        <p className="text-brand-gray mt-2 text-sm">
+          Add items to your bag before proceeding to payment.
+        </p>
+        <Button
+          type="button"
+          className="mt-6 bg-brand-amber text-brand-white hover:bg-brand-amber/90"
+          onClick={() => router.push("/checkout/bag")}
+        >
+          Go to bag
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -174,12 +225,14 @@ export default function PaymentPage({ addresses = [], cart }) {
                         type="text"
                         placeholder="Card Number"
                         className="w-full border rounded-lg px-4 py-3"
+                        disabled
                       />
 
                       <input
                         type="text"
                         placeholder="Card Holder Name"
                         className="w-full border rounded-lg px-4 py-3"
+                        disabled
                       />
 
                       <div className="grid grid-cols-2 gap-4">
@@ -187,18 +240,25 @@ export default function PaymentPage({ addresses = [], cart }) {
                           type="text"
                           placeholder="MM/YY"
                           className="border rounded-lg px-4 py-3"
+                          disabled
                         />
 
                         <input
                           type="password"
                           placeholder="CVV"
                           className="border rounded-lg px-4 py-3"
+                          disabled
                         />
                       </div>
 
+                      <p className="text-brand-gray text-sm">
+                        Card payments are coming soon.
+                      </p>
+
                       <button
                         type="button"
-                        className="w-full bg-brand-amber text-brand-white py-3 rounded-lg font-medium"
+                        className="w-full bg-brand-amber/50 text-brand-white py-3 rounded-lg font-medium cursor-not-allowed"
+                        disabled
                       >
                         Pay ₹{orderTotal}
                       </button>
@@ -214,16 +274,27 @@ export default function PaymentPage({ addresses = [], cart }) {
 
                     <div className="bg-brand-cream border border-brand-amber/30 rounded-lg p-4 mb-5">
                       <p className="text-sm">
-                        Pay cash when your order is delivered.
+                        Pay cash when your order is delivered. No online payment
+                        required.
                       </p>
                     </div>
 
-                    <button
+                    <Button
                       type="button"
-                      className="w-full bg-brand-amber text-brand-white py-3 rounded-lg font-medium"
+                      className="w-full bg-brand-amber text-brand-white py-6 text-base font-medium hover:bg-brand-amber/90"
+                      onClick={handlePlaceCodOrder}
+                      disabled={isPlacingOrder || !selectedAddress}
                     >
-                      Confirm Order ₹{orderTotal}
-                    </button>
+                      {isPlacingOrder
+                        ? "Placing order..."
+                        : `Confirm Order ₹${orderTotal}`}
+                    </Button>
+
+                    {!selectedAddress && (
+                      <p className="text-brand-gray mt-2 text-xs">
+                        Select a delivery address to continue.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -243,7 +314,11 @@ export default function PaymentPage({ addresses = [], cart }) {
         </div>
       </div>
 
-      <AddressModal open={isAddressModalOpen} onClose={closeAddressModal} />
+      <AddressModal
+        open={isAddressModalOpen}
+        onClose={closeAddressModal}
+        onSuccess={() => router.refresh()}
+      />
     </div>
   );
 }

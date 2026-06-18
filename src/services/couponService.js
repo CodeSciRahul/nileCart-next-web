@@ -7,3 +7,5 @@ export const applyCouponToCart = (code) =>
   apiClient.post("/cart/coupon", { code });
 
 export const removeCartCoupon = () => apiClient.delete("/cart/coupon");
+
+export const getActiveCoupons = () => apiClient.get("/coupons/active");

@@ -46,7 +46,6 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
           });
         },
         onError: (error) => {
-          console.log(error);
           showErrorToast(error?.message);
           setPreview(null);
         }

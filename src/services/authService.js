@@ -15,4 +15,6 @@ export const fetchProfile = () => apiClient.get("/users/me");
 export const updateUserProfile = (profile) =>
   apiClient.put("/users/me", profile);
 
+export const deleteAccount = () => apiClient.delete("/users/me");
+
 export const logoutFromBackend = () => apiClient.post("/auth/logout");

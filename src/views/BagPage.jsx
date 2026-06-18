@@ -3,10 +3,30 @@
 import { useRouter } from "next/navigation";
 import CouponInput from "@/components/checkout/CouponInput";
 import PriceSummary from "@/components/checkout/PriceSummary";
+import { useUpdateCartItem } from "@/hooks/useCart";
+import { showErrorToast } from "@/lib/toast";
 
 export default function BagPage({ cart }) {
   const router = useRouter();
+  const updateCartItem = useUpdateCartItem();
   const items = cart?.cart?.items || [];
+
+  const handleQuantityChange = (item, variant, delta) => {
+    const nextQuantity = item.quantity + delta;
+
+    if (delta > 0 && nextQuantity > variant.stock) {
+      showErrorToast(`Only ${variant.stock} in stock`);
+      return;
+    }
+
+    updateCartItem.mutate({
+      itemId: item._id,
+      quantity: nextQuantity,
+    });
+  };
+
+  const isUpdating = (itemId) =>
+    updateCartItem.isPending && updateCartItem.variables?.itemId === itemId;
 
   if (!cart) {
     return (
@@ -31,6 +51,9 @@ export default function BagPage({ cart }) {
               );
 
               if (!variant) return null;
+
+              const atMax = item.quantity >= variant.stock;
+              const updating = isUpdating(item._id);
 
               return (
                 <div
@@ -66,11 +89,25 @@ export default function BagPage({ cart }) {
                     </div>
 
                     <div className="mt-4 flex items-center gap-3">
-                      <button type="button" className="h-8 w-8 rounded border">
+                      <button
+                        type="button"
+                        className="h-8 w-8 rounded border disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => handleQuantityChange(item, variant, -1)}
+                        disabled={updating}
+                        aria-label="Decrease quantity"
+                      >
                         -
                       </button>
-                      <span>{item?.quantity}</span>
-                      <button type="button" className="h-8 w-8 rounded border">
+                      <span className="min-w-6 text-center">
+                        {item?.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        className="h-8 w-8 rounded border disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => handleQuantityChange(item, variant, 1)}
+                        disabled={updating || atMax}
+                        aria-label="Increase quantity"
+                      >
                         +
                       </button>
                     </div>

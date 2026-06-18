@@ -1,10 +1,17 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { queryKeys } from "../lib/queryKeys.js";
 import { showSuccessToast } from "../lib/toast.js";
-import { createAddress } from "../services/addressService.js";
+import { createAddress, getAddresses } from "../services/addressService.js";
+
+export const useAddresses = () =>
+  useQuery({
+    queryKey: queryKeys.addresses,
+    queryFn: getAddresses,
+    select: (data) => data?.addresses || [],
+  });
 
 export const useCreateAddress = () => {
   const queryClient = useQueryClient();

@@ -10,4 +10,8 @@ export const queryKeys = {
   cart: ["cart"],
   addresses: ["addresses"],
   profile: ["profile"],
+  orders: (params) => ["orders", params],
+  coupons: {
+    active: ["coupons", "active"],
+  },
 };
