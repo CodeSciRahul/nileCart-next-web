@@ -1,16 +1,5 @@
 import { cookies } from "next/headers";
-
-const getServerApiBaseUrl = () => {
-  if (process.env.API_URL) {
-    return process.env.API_URL.replace(/\/$/, "");
-  }
-
-  if (process.env.NEXT_PUBLIC_API_URL?.startsWith("http")) {
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
-  }
-
-  return "http://localhost:5000/api";
-};
+import { getServerApiBaseUrl } from "./apiConfig.js";
 
 const buildApiError = (data, status) => {
   const error = new Error(data?.message || `Request failed (${status})`);

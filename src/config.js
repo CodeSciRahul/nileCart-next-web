@@ -1,3 +1,5 @@
+import { getClientApiBaseUrl } from "./lib/apiConfig.js";
+
 export const appConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -6,10 +8,5 @@ export const appConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-  apiUrl: process.env.NEXT_PUBLIC_API_URL,
-  serverApiUrl:
-    process.env.API_URL ||
-    (process.env.NEXT_PUBLIC_API_URL?.startsWith("http")
-      ? process.env.NEXT_PUBLIC_API_URL
-      : "http://localhost:5000/api"),
+  clientApiUrl: getClientApiBaseUrl(),
 };

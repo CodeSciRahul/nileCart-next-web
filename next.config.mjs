@@ -1,3 +1,5 @@
+import { getApiRewriteTarget } from "./src/lib/apiConfig.js";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactCompiler: true,
@@ -8,10 +10,16 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    const apiTarget = getApiRewriteTarget();
+
+    if (!apiTarget) {
+      return [];
+    }
+
     return [
       {
         source: "/api/:path*",
-        destination: "https://lightcollection-server.onrender.com/api/:path*",
+        destination: `${apiTarget}/:path*`,
       },
     ];
   },
