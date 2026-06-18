@@ -1,8 +1,9 @@
 "use client";
 
 import axios from "axios";
+import {appConfig} from "@/config";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+const API_URL = appConfig.serverApiUrl || "/api";
 const TOKEN_KEY = "saavana_token";
 
 export const getStoredToken = () => localStorage.getItem(TOKEN_KEY);
