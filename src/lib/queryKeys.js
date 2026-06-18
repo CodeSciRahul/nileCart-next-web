@@ -8,6 +8,7 @@ export const queryKeys = {
     byProduct: (productId) => ["reviews", productId],
   },
   cart: ["cart"],
+  wishlist: ["wishlist"],
   addresses: ["addresses"],
   profile: ["profile"],
   orders: (params) => ["orders", params],

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Heart } from "lucide-react";
 import { getProductImageUrl } from "@/lib/productHelpers";
+import WishlistButton from "@/components/wishlist/WishlistButton";
 import { useAddToCart } from "@/hooks/useCart";
 
 export default function ProductGallery({ product }) {
@@ -116,13 +116,11 @@ export function ProductPurchasePanel({ product }) {
           {addToCartMutation.isPending ? "Adding..." : "Add To Bag"}
         </button>
 
-        <button
-          type="button"
-          className="cursor-pointer rounded-2xl border p-4"
-          aria-label="Add to wishlist"
-        >
-          <Heart />
-        </button>
+        <WishlistButton
+          productId={product?._id}
+          variant="plain"
+          iconSize={22}
+        />
       </div>
     </>
   );

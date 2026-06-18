@@ -20,6 +20,7 @@ import ProfileMenu from "@/components/account/ProfileMenu";
 import UserAvatar from "@/components/account/UserAvatar";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
 import { getCategoryTree } from "@/services/categoryService.js";
 import {
   DEPARTMENTS,
@@ -35,6 +36,8 @@ const Header = () => {
   const router = useRouter();
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
   const { data: cartItemCount = 0 } = useCart();
+  const { data: wishlistData } = useWishlist();
+  const wishlistCount = wishlistData?.count ?? 0;
 
   const { data: categoryData } = useQuery({
     queryKey: ["categories", "tree"],
@@ -232,10 +235,22 @@ const Header = () => {
                 )}
               </div>
 
-              <Heart
-                size={22}
-                className="cursor-pointer text-foreground hover:text-brand-amber hover:scale-110 transition-all"
-              />
+              <Link
+                href="/wishlist"
+                className="relative text-foreground transition-all hover:scale-110 hover:text-brand-amber"
+                aria-label={
+                  wishlistCount > 0
+                    ? `Wishlist, ${wishlistCount} items`
+                    : "Wishlist"
+                }
+              >
+                <Heart size={22} />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-amber px-1 text-[10px] font-bold text-foreground">
+                    {wishlistCount > 99 ? "99+" : wishlistCount}
+                  </span>
+                )}
+              </Link>
 
               <div className="relative">
                 <ShoppingBag

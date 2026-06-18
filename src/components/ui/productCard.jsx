@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Heart, Star } from "lucide-react";
+import { Star } from "lucide-react";
+import WishlistButton from "@/components/wishlist/WishlistButton";
 import { getProductImageUrl } from "@/lib/productHelpers";
 
 const ProductCard = ({ product }) => {
@@ -23,12 +24,9 @@ const ProductCard = ({ product }) => {
           </div>
         )}
 
-        <span
-          className="absolute top-4 right-4 rounded-full bg-brand-white/90 p-2 shadow-md backdrop-blur-md"
-          aria-hidden
-        >
-          <Heart size={18} />
-        </span>
+        <div className="absolute top-4 right-4">
+          <WishlistButton productId={product?._id} />
+        </div>
       </div>
 
       <div className="p-4">
