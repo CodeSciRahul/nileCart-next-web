@@ -22,8 +22,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { getCategoryNavigation } from "@/services/categoryService.js";
-import { mapNavDepartments, findNavDepartment } from "@/lib/categoryHelpers.js";
+import { mapNavDepartments, getDepartmentNav } from "@/lib/categoryHelpers.js";
 import { DepartmentCategoryNav } from "@/components/DepartmentCategoryNav.jsx";
+import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -42,17 +43,19 @@ const Header = () => {
     queryFn: getCategoryNavigation,
     staleTime: 5 * 60 * 1000,
   });
+  console.log(navData);
 
   const navDepartments = useMemo(
     () => mapNavDepartments(navData?.departments),
     [navData?.departments]
   );
+  console.log(navDepartments);
 
   useEffect(() => {
-    if (navDepartments.length > 0 && !mobileDepartment) {
-      setMobileDepartment(navDepartments[0].key);
+    if (!mobileDepartment && DEPARTMENT_ORDER.length > 0) {
+      setMobileDepartment(DEPARTMENT_ORDER[0]);
     }
-  }, [navDepartments, mobileDepartment]);
+  }, [mobileDepartment]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -77,7 +80,9 @@ const Header = () => {
   const renderDepartmentDropdown = (variant = "desktop") => {
     const isCompact = variant === "compact";
 
-    return navDepartments.map(({ key, label, slug, categories }) => {
+    return DEPARTMENT_ORDER.map((key) => {
+      const label = DEPARTMENT_LABELS[key];
+      const deptNav = getDepartmentNav(navDepartments, key, label);
       const isActive = activeDepartment === key;
       const closeNav = () => setActiveDepartment(null);
 
@@ -85,13 +90,13 @@ const Header = () => {
         <div
           key={key}
           className="relative"
-          onMouseEnter={() => setActiveDepartment(key)}
-          onMouseLeave={() => setActiveDepartment(null)}
+          onMouseEnter={() => !isCompact && setActiveDepartment(key)}
+          onMouseLeave={() => !isCompact && setActiveDepartment(null)}
         >
           <Link
-            href={`/shop/${slug}`}
-            onClick={() => setActiveDepartment(null)}
-            className={`items-center gap-1 font-bold tracking-wide transition hidden md:flex ${
+            href={`/shop/${deptNav.slug || key}`}
+            onClick={closeNav}
+            className={`flex items-center gap-1 font-bold tracking-wide transition ${
               isCompact
                 ? "rounded-full px-3 py-1.5 text-xs"
                 : "px-2 py-1 text-sm"
@@ -114,12 +119,12 @@ const Header = () => {
             <div className="absolute left-0 top-full z-50 pt-2">
               <div className="min-w-[320px] max-w-[520px] rounded-xl border border-brand-amber/20 bg-brand-white p-4 shadow-xl">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gray">
-                  Shop by category
+                  {label} — Shop by category
                 </p>
                 <DepartmentCategoryNav
-                  categories={categories}
+                  categories={deptNav.categories}
                   departmentLabel={label}
-                  departmentSlug={slug}
+                  departmentSlug={deptNav.slug || key}
                   onNavigate={closeNav}
                   variant="popover"
                   isLoading={navLoading}
@@ -351,51 +356,55 @@ const Header = () => {
                   Shop by department
                 </p>
                 <div className="grid grid-cols-2 gap-2">
-                  {navDepartments.map(({ key, label }) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => selectMobileDepartment(key)}
-                      className={`rounded-xl px-4 py-3 text-sm font-bold tracking-wide transition ${
-                        mobileDepartment === key
-                          ? "bg-brand-amber text-foreground"
-                          : "bg-brand-cream text-foreground hover:bg-brand-amber/20"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  {DEPARTMENT_ORDER.map((key) => {
+                    const label = DEPARTMENT_LABELS[key];
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => selectMobileDepartment(key)}
+                        className={`rounded-xl px-4 py-3 text-sm font-bold tracking-wide transition ${
+                          mobileDepartment === key
+                            ? "bg-brand-amber text-foreground"
+                            : "bg-brand-cream text-foreground hover:bg-brand-amber/20"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {mobileDepartment && (
                 <div className="py-2">
-                  <DepartmentCategoryNav
-                    categories={
-                      findNavDepartment(navDepartments, mobileDepartment)?.categories || []
-                    }
-                    departmentLabel={
-                      findNavDepartment(navDepartments, mobileDepartment)?.label ||
-                      mobileDepartment
-                    }
-                    departmentSlug={
-                      findNavDepartment(navDepartments, mobileDepartment)?.slug ||
-                      mobileDepartment
-                    }
-                    onNavigate={() => setOpen(false)}
-                    variant="mobile"
-                    isLoading={navLoading}
-                  />
+                  {(() => {
+                    const deptNav = getDepartmentNav(
+                      navDepartments,
+                      mobileDepartment,
+                      DEPARTMENT_LABELS[mobileDepartment]
+                    );
+                    return (
+                      <>
+                        <DepartmentCategoryNav
+                          categories={deptNav.categories}
+                          departmentLabel={deptNav.label}
+                          departmentSlug={deptNav.slug || mobileDepartment}
+                          onNavigate={() => setOpen(false)}
+                          variant="mobile"
+                          isLoading={navLoading}
+                        />
 
-                  <Link
-                    href={`/shop/${navDepartments.find((d) => d.key === mobileDepartment)?.slug || mobileDepartment}`}
-                    onClick={() => setOpen(false)}
-                    className="block px-5 py-4 text-sm font-semibold text-brand-amber"
-                  >
-                    View all{" "}
-                    {navDepartments.find((d) => d.key === mobileDepartment)?.label?.toLowerCase() ||
-                      mobileDepartment}
-                  </Link>
+                        <Link
+                          href={`/shop/${deptNav.slug || mobileDepartment}`}
+                          onClick={() => setOpen(false)}
+                          className="block px-5 py-4 text-sm font-semibold text-brand-amber"
+                        >
+                          View all {deptNav.label.toLowerCase()}
+                        </Link>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </nav>

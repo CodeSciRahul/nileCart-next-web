@@ -39,21 +39,21 @@ export function DepartmentCategoryNav({
           <Link
             href={`/shop/${category.slug}`}
             onClick={onNavigate}
-            className={`block font-bold text-foreground transition hover:text-brand-amber ${
-              isMobile ? "text-base" : "text-sm"
+            className={`block font-bold tracking-wide text-foreground transition hover:text-brand-amber ${
+              isMobile ? "text-base" : "text-sm uppercase"
             }`}
           >
             {category.name}
           </Link>
 
           {category.subcategories?.length > 0 && (
-            <ul className={`space-y-0.5 ${isMobile ? "pl-3" : "border-l-2 border-brand-cream pl-3"}`}>
+            <ul className={`space-y-0.5 ${isMobile ? "pl-1 pt-1" : "pl-0 pt-1"}`}>
               {category.subcategories.map((sub) => (
                 <li key={sub._id}>
                   <Link
                     href={`/shop/${sub.slug}`}
                     onClick={onNavigate}
-                    className="block py-1 text-sm text-brand-gray transition hover:text-brand-amber"
+                    className="block py-0.5 text-sm font-normal text-brand-gray transition hover:text-brand-amber"
                   >
                     {sub.name}
                   </Link>
