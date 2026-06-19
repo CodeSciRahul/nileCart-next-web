@@ -24,6 +24,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { getCategoryNavigation } from "@/services/categoryService.js";
 import { mapNavDepartments, getDepartmentNav } from "@/lib/categoryHelpers.js";
 import { DepartmentCategoryNav } from "@/components/DepartmentCategoryNav.jsx";
+import { MobileCategorySidebar } from "@/components/MobileCategorySidebar.jsx";
 import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
 
 const Header = () => {
@@ -43,13 +44,11 @@ const Header = () => {
     queryFn: getCategoryNavigation,
     staleTime: 5 * 60 * 1000,
   });
-  console.log(navData);
 
   const navDepartments = useMemo(
     () => mapNavDepartments(navData?.departments),
     [navData?.departments]
   );
-  console.log(navDepartments);
 
   useEffect(() => {
     if (!mobileDepartment && DEPARTMENT_ORDER.length > 0) {
@@ -74,7 +73,7 @@ const Header = () => {
   };
 
   const selectMobileDepartment = (key) => {
-    setMobileDepartment((current) => (current === key ? null : key));
+    setMobileDepartment(key);
   };
 
   const renderDepartmentDropdown = (variant = "desktop") => {
@@ -94,17 +93,15 @@ const Header = () => {
           onMouseLeave={() => !isCompact && setActiveDepartment(null)}
         >
           <Link
-            href={`/shop/${deptNav.slug || key}`}
+            href={`#`}
             onClick={closeNav}
-            className={`flex items-center gap-1 font-bold tracking-wide transition ${
-              isCompact
+            className={`flex items-center gap-1 font-bold tracking-wide transition ${isCompact
                 ? "rounded-full px-3 py-1.5 text-xs"
                 : "px-2 py-1 text-sm"
-            } ${
-              isActive
+              } ${isActive
                 ? "bg-brand-amber text-foreground"
                 : "text-foreground hover:bg-brand-cream hover:text-brand-amber"
-            }`}
+              }`}
           >
             {label}
             {!isCompact && (
@@ -116,11 +113,8 @@ const Header = () => {
           </Link>
 
           {isActive && !isCompact && (
-            <div className="absolute left-0 top-full z-50 pt-2">
-              <div className="min-w-[320px] max-w-[520px] rounded-xl border border-brand-amber/20 bg-brand-white p-4 shadow-xl">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gray">
-                  {label} — Shop by category
-                </p>
+            <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-2 lg:left-0 lg:translate-x-0">
+              <div className="animate-in fade-in slide-in-from-top-1 duration-200 w-[min(92vw,720px)] overflow-hidden rounded-2xl border border-brand-amber/20 bg-brand-white/95 shadow-2xl shadow-brand-amber/10 backdrop-blur-md">
                 <DepartmentCategoryNav
                   categories={deptNav.categories}
                   departmentLabel={label}
@@ -319,95 +313,34 @@ const Header = () => {
           }`}
         >
           <div
-            className={`absolute left-0 top-0 h-full w-[320px] bg-brand-white/95 backdrop-blur-xl shadow-xl transition-transform duration-300 ${
+            className={`absolute left-0 top-0 flex h-full w-[min(100vw,400px)] flex-col bg-brand-white shadow-xl transition-transform duration-300 ${
               open ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between p-5 border-b border-brand-amber/20">
-              <h2 className="font-bold text-xl bg-gradient-to-r from-brand-amber to-amber-400 bg-clip-text text-transparent">
+            <div className="flex shrink-0 items-center justify-between border-b border-brand-amber/20 px-4 py-4">
+              <h2 className="text-lg font-bold bg-gradient-to-r from-brand-amber to-amber-400 bg-clip-text text-transparent">
                 Categories
               </h2>
-
               <button
                 onClick={() => setOpen(false)}
-                className="text-foreground hover:text-brand-amber"
+                className="rounded-full p-1 text-foreground transition-colors hover:bg-brand-cream hover:text-brand-amber"
+                aria-label="Close menu"
               >
-                <X size={24} />
+                <X size={22} />
               </button>
             </div>
 
-            {/* Search */}
-            <div className="p-4 border-b border-brand-amber/20">
-              <div className="flex items-center gap-3 bg-brand-cream rounded-full px-4 py-3">
-                <Search size={18} className="text-brand-amber" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="bg-transparent outline-none flex-1 text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Categories */}
-            <nav className="overflow-y-auto h-[calc(100%-130px)]">
-              <div className="border-b border-brand-amber/20 p-4">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gray">
-                  Shop by department
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {DEPARTMENT_ORDER.map((key) => {
-                    const label = DEPARTMENT_LABELS[key];
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => selectMobileDepartment(key)}
-                        className={`rounded-xl px-4 py-3 text-sm font-bold tracking-wide transition ${
-                          mobileDepartment === key
-                            ? "bg-brand-amber text-foreground"
-                            : "bg-brand-cream text-foreground hover:bg-brand-amber/20"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
+            <div className="min-h-0 flex-1">
               {mobileDepartment && (
-                <div className="py-2">
-                  {(() => {
-                    const deptNav = getDepartmentNav(
-                      navDepartments,
-                      mobileDepartment,
-                      DEPARTMENT_LABELS[mobileDepartment]
-                    );
-                    return (
-                      <>
-                        <DepartmentCategoryNav
-                          categories={deptNav.categories}
-                          departmentLabel={deptNav.label}
-                          departmentSlug={deptNav.slug || mobileDepartment}
-                          onNavigate={() => setOpen(false)}
-                          variant="mobile"
-                          isLoading={navLoading}
-                        />
-
-                        <Link
-                          href={`/shop/${deptNav.slug || mobileDepartment}`}
-                          onClick={() => setOpen(false)}
-                          className="block px-5 py-4 text-sm font-semibold text-brand-amber"
-                        >
-                          View all {deptNav.label.toLowerCase()}
-                        </Link>
-                      </>
-                    );
-                  })()}
-                </div>
+                <MobileCategorySidebar
+                  navDepartments={navDepartments}
+                  selectedKey={mobileDepartment}
+                  onSelectDepartment={selectMobileDepartment}
+                  onNavigate={() => setOpen(false)}
+                  isLoading={navLoading}
+                />
               )}
-            </nav>
+            </div>
           </div>
         </div>
       </header>

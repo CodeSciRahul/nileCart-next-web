@@ -1,11 +1,9 @@
-import { getCategoryNavigation } from "@/services/categoryService.js";
-
 /** Map navigation API departments for header links. */
 export const mapNavDepartments = (departments = []) =>
   departments.map((dept) => ({
-    key: dept.slug,
-    label: dept.label,
-    slug: dept.slug,
+    key: dept.department || dept.slug,
+    label: dept.label || dept.department,
+    slug: dept.slug || dept.department,
     department: dept.department,
     categories: dept.categories || [],
   }));
@@ -32,3 +30,10 @@ export const getDepartmentNav = (departments, key, fallbackLabel) => {
 /** Flat list: keep only child categories (exclude top-level departments). */
 export const getSubcategories = (categories) =>
   (categories || []).filter((category) => category.parent);
+
+/** Resolve category image from API (string URL or stored image object). */
+export const getCategoryImageSrc = (image) => {
+  if (!image) return null;
+  if (typeof image === "string") return image;
+  return image.url || null;
+};
