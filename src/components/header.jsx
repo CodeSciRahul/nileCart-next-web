@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -21,17 +21,15 @@ import UserAvatar from "@/components/account/UserAvatar";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
-import { getCategoryTree } from "@/services/categoryService.js";
-import {
-  DEPARTMENTS,
-  getDepartmentSubcategories,
-} from "@/lib/categoryHelpers.js";
+import { getCategoryNavigation } from "@/services/categoryService.js";
+import { mapNavDepartments, findNavDepartment } from "@/lib/categoryHelpers.js";
+import { DepartmentCategoryNav } from "@/components/DepartmentCategoryNav.jsx";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeDepartment, setActiveDepartment] = useState(null);
-  const [mobileDepartment, setMobileDepartment] = useState("men");
+  const [mobileDepartment, setMobileDepartment] = useState(null);
   const userMenuRef = useRef(null);
   const router = useRouter();
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
@@ -39,13 +37,22 @@ const Header = () => {
   const { data: wishlistData } = useWishlist();
   const wishlistCount = wishlistData?.count ?? 0;
 
-  const { data: categoryData } = useQuery({
-    queryKey: ["categories", "tree"],
-    queryFn: getCategoryTree,
+  const { data: navData, isLoading: navLoading } = useQuery({
+    queryKey: ["categories", "navigation"],
+    queryFn: getCategoryNavigation,
     staleTime: 5 * 60 * 1000,
   });
 
-  const categoryTree = categoryData?.categories || [];
+  const navDepartments = useMemo(
+    () => mapNavDepartments(navData?.departments),
+    [navData?.departments]
+  );
+
+  useEffect(() => {
+    if (navDepartments.length > 0 && !mobileDepartment) {
+      setMobileDepartment(navDepartments[0].key);
+    }
+  }, [navDepartments, mobileDepartment]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -70,9 +77,9 @@ const Header = () => {
   const renderDepartmentDropdown = (variant = "desktop") => {
     const isCompact = variant === "compact";
 
-    return DEPARTMENTS.map(({ key, label }) => {
+    return navDepartments.map(({ key, label, slug, categories }) => {
       const isActive = activeDepartment === key;
-      const subcategories = getDepartmentSubcategories(categoryTree, key);
+      const closeNav = () => setActiveDepartment(null);
 
       return (
         <div
@@ -82,7 +89,7 @@ const Header = () => {
           onMouseLeave={() => setActiveDepartment(null)}
         >
           <Link
-            href={`/shop/${key}`}
+            href={`/shop/${slug}`}
             onClick={() => setActiveDepartment(null)}
             className={`items-center gap-1 font-bold tracking-wide transition hidden md:flex ${
               isCompact
@@ -105,35 +112,18 @@ const Header = () => {
 
           {isActive && !isCompact && (
             <div className="absolute left-0 top-full z-50 pt-2">
-              <div className="min-w-[280px] rounded-xl border border-brand-amber/20 bg-brand-white p-4 shadow-xl">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gray">
-                Shop by category
-              </p>
-              {subcategories.length > 0 ? (
-                <div className="grid gap-1">
-                  {subcategories.map((sub) => (
-                    <Link
-                      key={sub._id}
-                      href={`/shop/${sub.slug}`}
-                      className="rounded-lg px-3 py-2 text-sm font-medium text-foreground transition hover:bg-brand-cream hover:text-brand-amber"
-                      onClick={() => setActiveDepartment(null)}
-                    >
-                      {sub.name}
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="px-3 py-2 text-sm text-brand-gray">
-                  No subcategories yet. Add them under {label} in the admin panel.
+              <div className="min-w-[320px] max-w-[520px] rounded-xl border border-brand-amber/20 bg-brand-white p-4 shadow-xl">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand-gray">
+                  Shop by category
                 </p>
-              )}
-              <Link
-                href={`/shop/${key}`}
-                className="mt-3 block border-t border-brand-cream pt-3 text-sm font-semibold text-brand-amber hover:underline"
-                onClick={() => setActiveDepartment(null)}
-              >
-                View all {label.toLowerCase()}
-              </Link>
+                <DepartmentCategoryNav
+                  categories={categories}
+                  departmentLabel={label}
+                  departmentSlug={slug}
+                  onNavigate={closeNav}
+                  variant="popover"
+                  isLoading={navLoading}
+                />
               </div>
             </div>
           )}
@@ -361,7 +351,7 @@ const Header = () => {
                   Shop by department
                 </p>
                 <div className="grid grid-cols-2 gap-2">
-                  {DEPARTMENTS.map(({ key, label }) => (
+                  {navDepartments.map(({ key, label }) => (
                     <button
                       key={key}
                       type="button"
@@ -380,29 +370,31 @@ const Header = () => {
 
               {mobileDepartment && (
                 <div className="py-2">
-                  {getDepartmentSubcategories(categoryTree, mobileDepartment).length > 0 ? (
-                    getDepartmentSubcategories(categoryTree, mobileDepartment).map((sub) => (
-                      <Link
-                        key={sub._id}
-                        href={`/shop/${sub.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="block border-b border-brand-cream px-5 py-4 font-medium text-foreground transition hover:bg-brand-cream hover:text-brand-amber"
-                      >
-                        {sub.name}
-                      </Link>
-                    ))
-                  ) : (
-                    <p className="px-5 py-4 text-sm text-brand-gray">
-                      No subcategories yet for this department.
-                    </p>
-                  )}
+                  <DepartmentCategoryNav
+                    categories={
+                      findNavDepartment(navDepartments, mobileDepartment)?.categories || []
+                    }
+                    departmentLabel={
+                      findNavDepartment(navDepartments, mobileDepartment)?.label ||
+                      mobileDepartment
+                    }
+                    departmentSlug={
+                      findNavDepartment(navDepartments, mobileDepartment)?.slug ||
+                      mobileDepartment
+                    }
+                    onNavigate={() => setOpen(false)}
+                    variant="mobile"
+                    isLoading={navLoading}
+                  />
 
                   <Link
-                    href={`/shop/${mobileDepartment}`}
+                    href={`/shop/${navDepartments.find((d) => d.key === mobileDepartment)?.slug || mobileDepartment}`}
                     onClick={() => setOpen(false)}
                     className="block px-5 py-4 text-sm font-semibold text-brand-amber"
                   >
-                    View all {mobileDepartment}
+                    View all{" "}
+                    {navDepartments.find((d) => d.key === mobileDepartment)?.label?.toLowerCase() ||
+                      mobileDepartment}
                   </Link>
                 </div>
               )}
