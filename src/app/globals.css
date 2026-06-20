@@ -1,12 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: "Geist Variable", sans-serif;
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
   --color-brand-amber: #ffbf00;
   --color-brand-cream: #fff5d1;
   --color-brand-gray: #777777;
@@ -63,6 +63,9 @@
   }
   body {
     @apply bg-brand-white text-foreground antialiased;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
