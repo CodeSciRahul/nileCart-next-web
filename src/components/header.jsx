@@ -1,39 +1,67 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Menu,
-  Search,
-  User,
-  Heart,
-  ShoppingBag,
-  X,
-  Truck,
-  Zap,
-  PackageCheck,
-  ChevronDown,
-} from "lucide-react";
+import { Menu, User, Heart, ShoppingBag, X, Truck, Zap, PackageCheck } from "lucide-react";
 import ProfileMenu from "@/components/account/ProfileMenu";
 import UserAvatar from "@/components/account/UserAvatar";
+import { BrandLogo } from "@/components/BrandLogo.jsx";
+import { HeaderSearch } from "@/components/HeaderSearch.jsx";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { getCategoryNavigation } from "@/services/categoryService.js";
 import { mapNavDepartments, getDepartmentNav } from "@/lib/categoryHelpers.js";
-import { DepartmentCategoryNav } from "@/components/DepartmentCategoryNav.jsx";
+import { DepartmentNavItem } from "@/components/DepartmentNavItem.jsx";
 import { MobileCategorySidebar } from "@/components/MobileCategorySidebar.jsx";
 import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
+
+const ANNOUNCEMENT_KEY = "nilecart-announcement-dismissed";
+const ANNOUNCEMENT_TEXT =
+  "🎉 Anniversary Sale • Up To 80% OFF + Free Shipping Above ₹999";
+
+function HeaderIconButton({ href, onClick, label, children, badge }) {
+  const className =
+    "relative flex h-9 w-9 items-center justify-center rounded-full bg-brand-cream/50 text-foreground ring-1 ring-brand-amber/10 transition hover:bg-brand-amber/15 hover:text-brand-amber hover:ring-brand-amber/25 sm:h-10 sm:w-10";
+
+  const content = (
+    <>
+      {children}
+      {badge > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-amber px-1 text-[9px] font-bold text-foreground sm:h-[18px] sm:min-w-[18px] sm:text-[10px]">
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={className} aria-label={label}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onClick} className={className} aria-label={label}>
+      {content}
+    </button>
+  );
+}
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeDepartment, setActiveDepartment] = useState(null);
+  const [pinnedDepartment, setPinnedDepartment] = useState(null);
   const [mobileDepartment, setMobileDepartment] = useState(null);
+  const [showAnnouncement, setShowAnnouncement] = useState(false);
   const userMenuRef = useRef(null);
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
   const { data: cartItemCount = 0 } = useCart();
   const { data: wishlistData } = useWishlist();
@@ -51,6 +79,14 @@ const Header = () => {
   );
 
   useEffect(() => {
+    if (pathname !== "/") {
+      setShowAnnouncement(false);
+      return;
+    }
+    setShowAnnouncement(sessionStorage.getItem(ANNOUNCEMENT_KEY) !== "1");
+  }, [pathname]);
+
+  useEffect(() => {
     if (!mobileDepartment && DEPARTMENT_ORDER.length > 0) {
       setMobileDepartment(DEPARTMENT_ORDER[0]);
     }
@@ -61,10 +97,23 @@ const Header = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setUserMenuOpen(false);
       }
+      if (
+        pinnedDepartment &&
+        !e.target.closest("[data-dept-nav]") &&
+        !e.target.closest("[data-dept-popover]")
+      ) {
+        setPinnedDepartment(null);
+        setActiveDepartment(null);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [pinnedDepartment]);
+
+  const dismissAnnouncement = () => {
+    sessionStorage.setItem(ANNOUNCEMENT_KEY, "1");
+    setShowAnnouncement(false);
+  };
 
   const handleLogout = async () => {
     setUserMenuOpen(false);
@@ -76,131 +125,115 @@ const Header = () => {
     setMobileDepartment(key);
   };
 
-  const renderDepartmentDropdown = (variant = "desktop") => {
-    const isCompact = variant === "compact";
+  const closeDepartmentNav = () => {
+    setPinnedDepartment(null);
+    setActiveDepartment(null);
+  };
 
-    return DEPARTMENT_ORDER.map((key) => {
+  const handleDepartmentOpen = (key) => {
+    setActiveDepartment(key);
+  };
+
+  const handleDepartmentClose = () => {
+    if (pinnedDepartment) return;
+    setActiveDepartment(null);
+  };
+
+  const handleDepartmentClick = (e, key) => {
+    e.preventDefault();
+    if (pinnedDepartment === key && activeDepartment === key) {
+      closeDepartmentNav();
+    } else {
+      setPinnedDepartment(key);
+      setActiveDepartment(key);
+    }
+  };
+
+  const renderDepartmentDropdown = () =>
+    DEPARTMENT_ORDER.map((key) => {
       const label = DEPARTMENT_LABELS[key];
       const deptNav = getDepartmentNav(navDepartments, key, label);
-      const isActive = activeDepartment === key;
-      const closeNav = () => setActiveDepartment(null);
+      const shopHref = deptNav.slug ? `/shop/${deptNav.slug}` : `/shop/${key}`;
 
       return (
-        <div
+        <DepartmentNavItem
           key={key}
-          className="relative"
-          onMouseEnter={() => !isCompact && setActiveDepartment(key)}
-          onMouseLeave={() => !isCompact && setActiveDepartment(null)}
-        >
-          <Link
-            href={`#`}
-            onClick={closeNav}
-            className={`flex items-center gap-1 font-bold tracking-wide transition ${isCompact
-                ? "rounded-full px-3 py-1.5 text-xs"
-                : "px-2 py-1 text-sm"
-              } ${isActive
-                ? "bg-brand-amber text-foreground"
-                : "text-foreground hover:bg-brand-cream hover:text-brand-amber"
-              }`}
-          >
-            {label}
-            {!isCompact && (
-              <ChevronDown
-                size={14}
-                className={`transition-transform ${isActive ? "rotate-180" : ""}`}
-              />
-            )}
-          </Link>
-
-          {isActive && !isCompact && (
-            <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-2 lg:left-0 lg:translate-x-0">
-              <div className="animate-in fade-in slide-in-from-top-1 duration-200 w-[min(92vw,720px)] overflow-hidden rounded-2xl border border-brand-amber/20 bg-brand-white/95 shadow-2xl shadow-brand-amber/10 backdrop-blur-md">
-                <DepartmentCategoryNav
-                  categories={deptNav.categories}
-                  departmentLabel={label}
-                  departmentSlug={deptNav.slug || key}
-                  onNavigate={closeNav}
-                  variant="popover"
-                  isLoading={navLoading}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+          deptKey={key}
+          label={label}
+          shopHref={shopHref}
+          deptNav={deptNav}
+          isActive={activeDepartment === key}
+          isPinned={pinnedDepartment === key}
+          onOpen={() => handleDepartmentOpen(key)}
+          onClose={handleDepartmentClose}
+          onToggleClick={(e) => handleDepartmentClick(e, key)}
+          onNavigate={closeDepartmentNav}
+          isLoading={navLoading}
+        />
       );
     });
-  };
 
   return (
     <>
-      {/* Announcement Bar */}
-      <div className="bg-gradient-to-r from-brand-amber via-amber-400 to-brand-amber text-foreground text-center py-2 text-xs md:text-sm font-medium">
-        🎉 Anniversary Sale • Up To 80% OFF + Free Shipping Above ₹999
-      </div>
+      {showAnnouncement && (
+        <div className="relative bg-gradient-to-r from-brand-amber via-amber-400 to-brand-amber py-2 pl-4 pr-10 text-center text-xs font-medium text-foreground md:text-sm">
+          <p className="truncate">{ANNOUNCEMENT_TEXT}</p>
+          <button
+            type="button"
+            onClick={dismissAnnouncement}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-foreground/80 transition hover:bg-black/10 hover:text-foreground"
+            aria-label="Dismiss announcement"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
-      <header className="sticky top-0 z-50 bg-brand-white/95 backdrop-blur-md shadow-sm w-full">
-        {/* Main Header */}
-        <div className="mx-auto">
-          <div className="h-16 md:h-20 flex items-center justify-between px-4 md:px-8 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
-            {/* Left Side */}
-            <div className="flex flex-1 items-center gap-3 md:gap-4 lg:max-w-2xl">
+      <header className="sticky top-0 z-50 w-full bg-brand-white/95 shadow-sm backdrop-blur-md">
+        <div className="border-b border-brand-amber/10 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
+          <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6">
+            {/* Logo + mobile menu */}
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <button
+                type="button"
                 onClick={() => setOpen(true)}
-                className="text-foreground hover:text-brand-amber transition lg:hidden"
+                className="shrink-0 rounded-full p-2 text-foreground transition hover:bg-brand-cream hover:text-brand-amber lg:hidden"
+                aria-label="Open menu"
               >
-                <Menu size={28} />
+                <Menu size={22} />
               </button>
-
-              <div className="hidden items-center gap-1 md:flex">
-                {renderDepartmentDropdown("desktop")}
-              </div>
-
-              <div className="flex items-center gap-2 md:hidden">
-                {renderDepartmentDropdown("compact")}
-              </div>
-
-              {/* <div className="hidden min-w-0 flex-1 items-center rounded-full border border-brand-amber/20 bg-brand-cream px-4 py-2 md:flex">
-                <Search size={18} className="shrink-0 text-brand-amber" />
-
-                <input
-                  type="text"
-                  placeholder="Search dresses, tops, beauty..."
-                  className="min-w-0 flex-1 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-brand-gray"
-                />
-              </div> */}
-
-              {/* Mobile Search Icon */}
-              {/* <button className="md:hidden">
-                <Search
-                  size={24}
-                  className="text-foreground hover:text-brand-amber"
-                />
-              </button> */}
+              <BrandLogo className="min-w-0" />
             </div>
 
-            {/* Logo */}
-            <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-              <h1 className="text-3xl md:text-4xl font-black tracking-tight">
-                <span className="bg-gradient-to-r from-brand-amber via-amber-400 to-brand-amber bg-clip-text text-transparent">
-                  NILECART
-                </span>
-              </h1>
-            </Link>
+            {/* Departments — inline on desktop */}
+            <nav
+              className="hidden shrink-0 items-center gap-0 overflow-visible lg:flex"
+              aria-label="Shop by department"
+            >
+              {renderDepartmentDropdown()}
+            </nav>
 
-            {/* Right Side */}
-            <div className="flex items-center gap-3 md:gap-5">
+            {/* Search — grows to fill remaining space */}
+            <Suspense fallback={null}>
+              <div className="min-w-0 flex-1">
+                <HeaderSearch className="h-9 w-full sm:h-10" />
+              </div>
+            </Suspense>
+
+            {/* Account + cart */}
+            <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 lg:gap-2">
               <div className="relative" ref={userMenuRef}>
                 {isAuthenticated ? (
                   <>
                     <button
                       type="button"
                       onClick={() => setUserMenuOpen((v) => !v)}
-                      className="flex items-center gap-2 cursor-pointer text-foreground hover:text-brand-amber transition-all"
+                      className="flex cursor-pointer items-center gap-2 rounded-full bg-brand-cream/50 py-1 pl-1 pr-2.5 ring-1 ring-brand-amber/10 transition hover:bg-brand-amber/15 hover:ring-brand-amber/25 sm:pr-3"
                       aria-label="Account menu"
                       aria-expanded={userMenuOpen}
                     >
                       <UserAvatar user={user} size="sm" />
-                      <span className="hidden md:block text-sm font-medium max-w-[100px] truncate">
+                      <span className="hidden max-w-[88px] truncate text-xs font-medium text-foreground xl:block">
                         {user?.name || "Account"}
                       </span>
                     </button>
@@ -213,121 +246,104 @@ const Header = () => {
                 ) : (
                   <Link
                     href="/auth"
-                    className="flex items-center gap-1 text-foreground hover:text-brand-amber transition-all"
+                    className="flex items-center gap-1.5 rounded-full bg-brand-cream/50 px-2.5 py-1.5 text-foreground ring-1 ring-brand-amber/10 transition hover:bg-brand-amber/15 hover:text-brand-amber hover:ring-brand-amber/25 sm:px-3"
                     aria-label={authLoading ? "Loading account" : "Login"}
                   >
-                    <User size={22} />
-                    <span className="hidden md:block text-sm font-medium">
-                      Login
-                    </span>
+                    <User size={18} className="sm:h-5 sm:w-5" />
+                    <span className="hidden text-xs font-semibold sm:inline sm:text-sm">Login</span>
                   </Link>
                 )}
               </div>
 
-              <Link
+              <HeaderIconButton
                 href="/wishlist"
-                className="relative text-foreground transition-all hover:scale-110 hover:text-brand-amber"
-                aria-label={
-                  wishlistCount > 0
-                    ? `Wishlist, ${wishlistCount} items`
-                    : "Wishlist"
-                }
+                label={wishlistCount > 0 ? `Wishlist, ${wishlistCount} items` : "Wishlist"}
+                badge={wishlistCount}
               >
-                <Heart size={22} />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-amber px-1 text-[10px] font-bold text-foreground">
-                    {wishlistCount > 99 ? "99+" : wishlistCount}
-                  </span>
-                )}
-              </Link>
+                <Heart size={18} className="sm:h-5 sm:w-5" />
+              </HeaderIconButton>
 
-              <div className="relative">
-                <ShoppingBag
-                  size={22}
-                  onClick={() => router.push("/checkout/bag")}
-                  className="cursor-pointer text-foreground hover:text-brand-amber hover:scale-110 transition-all"
-                  aria-label={
-                    cartItemCount > 0
-                      ? `Shopping bag, ${cartItemCount} items`
-                      : "Shopping bag"
-                  }
-                />
-
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-amber px-1 text-[10px] font-bold text-foreground">
-                    {cartItemCount > 99 ? "99+" : cartItemCount}
-                  </span>
-                )}
-              </div>
+              <HeaderIconButton
+                onClick={() => router.push("/checkout/bag")}
+                label={
+                  cartItemCount > 0
+                    ? `Shopping bag, ${cartItemCount} items`
+                    : "Shopping bag"
+                }
+                badge={cartItemCount}
+              >
+                <ShoppingBag size={18} className="sm:h-5 sm:w-5" />
+              </HeaderIconButton>
             </div>
           </div>
+        </div>
 
-          {/* Benefits Bar */}
-          <div className="bg-gradient-to-r from-brand-cream via-brand-cream/50 to-brand-cream border-y border-brand-amber/30">
-            <div className="max-w-[1440px] mx-auto px-3 py-2">
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <PackageCheck size={20} className="text-brand-amber" />
-                  <div>
-                    <p className="text-[11px] md:text-sm font-bold text-foreground">
-                      Easy Returns
-                    </p>
-                    <p className="hidden md:block text-xs text-brand-amber">
-                      Free Pick Up
-                    </p>
-                  </div>
+        {/* Benefits bar */}
+        <div className="border-b border-brand-amber/10 bg-gradient-to-b from-[#fffdf8] to-brand-white">
+          <div className="mx-auto max-w-7xl px-3 py-2.5 sm:px-6">
+            <div className="grid grid-cols-3 divide-x divide-brand-amber/10 text-center">
+              <div className="flex items-center justify-center gap-2 px-1 sm:gap-2.5 sm:px-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-amber/10 ring-1 ring-brand-amber/15 sm:h-9 sm:w-9">
+                  <PackageCheck size={16} className="text-brand-amber sm:h-[18px] sm:w-[18px]" />
+                </span>
+                <div className="min-w-0 text-left sm:text-center">
+                  <p className="text-[11px] font-bold text-foreground md:text-sm">Easy Returns</p>
+                  <p className="hidden text-xs text-brand-gray md:block">Free Pick Up</p>
                 </div>
+              </div>
 
-                <div className="flex items-center justify-center gap-2">
-                  <Zap size={20} className="text-brand-amber" />
-                  <div>
-                    <p className="text-[11px] md:text-sm font-bold text-foreground">
-                      Fast Delivery
-                    </p>
-                    <p className="hidden md:block text-xs text-brand-amber">
-                      10000+ Styles
-                    </p>
-                  </div>
+              <div className="flex items-center justify-center gap-2 px-1 sm:gap-2.5 sm:px-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-amber/10 ring-1 ring-brand-amber/15 sm:h-9 sm:w-9">
+                  <Zap size={16} className="text-brand-amber sm:h-[18px] sm:w-[18px]" />
+                </span>
+                <div className="min-w-0 text-left sm:text-center">
+                  <p className="text-[11px] font-bold text-foreground md:text-sm">Fast Delivery</p>
+                  <p className="hidden text-xs text-brand-gray md:block">10000+ Styles</p>
                 </div>
+              </div>
 
-                <div className="flex items-center justify-center gap-2">
-                  <Truck size={20} className="text-brand-amber" />
-                  <div>
-                    <p className="text-[11px] md:text-sm font-bold text-foreground">
-                      Free Shipping
-                    </p>
-                    <p className="hidden md:block text-xs text-brand-amber">
-                      Above ₹999
-                    </p>
-                  </div>
+              <div className="flex items-center justify-center gap-2 px-1 sm:gap-2.5 sm:px-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-amber/10 ring-1 ring-brand-amber/15 sm:h-9 sm:w-9">
+                  <Truck size={16} className="text-brand-amber sm:h-[18px] sm:w-[18px]" />
+                </span>
+                <div className="min-w-0 text-left sm:text-center">
+                  <p className="text-[11px] font-bold text-foreground md:text-sm">Free Shipping</p>
+                  <p className="hidden text-xs text-brand-gray md:block">Above ₹999</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile drawer */}
         <div
-          className={`fixed inset-0 z-100 h-screen transition-all duration-300 ${
+          className={`fixed inset-0 z-[100] h-screen transition-all duration-300 lg:hidden ${
             open ? "visible bg-black/40" : "invisible"
           }`}
+          onClick={() => setOpen(false)}
         >
           <div
             className={`absolute left-0 top-0 flex h-full w-[min(100vw,400px)] flex-col bg-brand-white shadow-xl transition-transform duration-300 ${
               open ? "translate-x-0" : "-translate-x-full"
             }`}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex shrink-0 items-center justify-between border-b border-brand-amber/20 px-4 py-4">
-              <h2 className="text-lg font-bold bg-gradient-to-r from-brand-amber to-amber-400 bg-clip-text text-transparent">
-                Categories
-              </h2>
+              <BrandLogo compact />
               <button
+                type="button"
                 onClick={() => setOpen(false)}
                 className="rounded-full p-1 text-foreground transition-colors hover:bg-brand-cream hover:text-brand-amber"
                 aria-label="Close menu"
               >
                 <X size={22} />
               </button>
+            </div>
+
+            <div className="shrink-0 border-b border-brand-amber/20 px-4 py-3">
+              <Suspense fallback={null}>
+                <HeaderSearch className="h-10 w-full" />
+              </Suspense>
             </div>
 
             <div className="min-h-0 flex-1">
