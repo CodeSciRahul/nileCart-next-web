@@ -1,4 +1,5 @@
 import Header from "@/components/header";
+import Footer from "@/components/Footer";
 import Banner from "@/components/banner";
 import CategoriesSection from "@/components/category";
 import TrendingProducts from "@/components/trendingProducts";
@@ -25,12 +26,13 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <Header />
       <Banner />
       <CategoriesSection categories={categories} />
       <TrendingProducts />
       <Products products={products} />
+      <Footer />
     </div>
   );
 }
