@@ -12,6 +12,9 @@ export const queryKeys = {
   addresses: ["addresses"],
   profile: ["profile"],
   orders: (params) => ["orders", params],
+  payment: {
+    config: ["payment", "config"],
+  },
   coupons: {
     active: ["coupons", "active"],
   },

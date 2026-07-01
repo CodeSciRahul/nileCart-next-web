@@ -8,20 +8,29 @@ import {
   Truck,
   Plus,
   CheckCircle,
+  Smartphone,
 } from "lucide-react";
 import AddressModal from "@/components/addressModal";
 import CouponInput from "@/components/checkout/CouponInput";
 import PriceSummary from "@/components/checkout/PriceSummary";
 import { Button } from "@/components/ui/button";
 import { usePlaceOrder } from "@/hooks/useOrder";
+import { useInitializeCheckout, usePaymentConfig } from "@/hooks/usePayment";
+import { formatMoney } from "@/lib/currency";
 import { showErrorToast } from "@/lib/toast";
 
 export default function PaymentPage({ addresses = [], cart }) {
   const router = useRouter();
   const placeOrder = usePlaceOrder();
+  const initializeCheckout = useInitializeCheckout();
+  const { data: paymentConfig } = usePaymentConfig();
+
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("cod");
-  const [isAddressModalOpen, setIsAddressModal] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+
+  const currency = paymentConfig?.currency || "UGX";
+  const onlineEnabled = paymentConfig?.onlinePaymentsEnabled ?? false;
 
   useEffect(() => {
     const defaultAddress = addresses?.find((a) => a?.isDefault);
@@ -30,30 +39,46 @@ export default function PaymentPage({ addresses = [], cart }) {
     }
   }, [addresses]);
 
-  const closeAddressModal = () => {
-    setIsAddressModal(false);
-  };
-
   const items = cart?.cart?.items || [];
   const orderTotal = cart?.total ?? cart?.subtotal ?? 0;
   const hasItems = items.length > 0;
   const isPlacingOrder = placeOrder.isPending;
+  const isStartingPayment = initializeCheckout.isPending;
+  const isBusy = isPlacingOrder || isStartingPayment;
+  const formattedTotal = formatMoney(orderTotal, currency);
 
-  const handlePlaceCodOrder = () => {
+  const validateCheckout = () => {
     if (!hasItems) {
       showErrorToast("Your bag is empty. Add items before placing an order.");
-      return;
+      return false;
     }
 
     if (!selectedAddress) {
       showErrorToast("Please select a delivery address.");
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const handlePlaceCodOrder = () => {
+    if (!validateCheckout()) return;
 
     placeOrder.mutate({
       addressId: selectedAddress,
       paymentMethod: "cod",
     });
+  };
+
+  const handleOnlinePayment = () => {
+    if (!validateCheckout()) return;
+
+    if (!onlineEnabled) {
+      showErrorToast("Online payments are not available right now.");
+      return;
+    }
+
+    initializeCheckout.mutate({ addressId: selectedAddress });
   };
 
   const paymentMethods = [
@@ -62,12 +87,14 @@ export default function PaymentPage({ addresses = [], cart }) {
       title: "Cash On Delivery",
       icon: Truck,
       desc: "Pay when delivered",
+      enabled: true,
     },
     {
-      id: "card",
-      title: "Credit / Debit Card",
+      id: "online",
+      title: "Pay Online",
       icon: CreditCard,
-      desc: "Visa, Mastercard, Rupay",
+      desc: "Card, mobile money, bank transfer",
+      enabled: onlineEnabled,
     },
   ];
 
@@ -108,7 +135,7 @@ export default function PaymentPage({ addresses = [], cart }) {
               <button
                 type="button"
                 className="flex items-center gap-2 text-brand-amber font-medium"
-                onClick={() => setIsAddressModal(true)}
+                onClick={() => setIsAddressModalOpen(true)}
               >
                 <Plus size={18} />
                 Add New Address
@@ -195,12 +222,13 @@ export default function PaymentPage({ addresses = [], cart }) {
                     <button
                       key={method.id}
                       type="button"
-                      onClick={() => setSelectedPayment(method.id)}
+                      onClick={() => method.enabled && setSelectedPayment(method.id)}
+                      disabled={!method.enabled}
                       className={`w-full flex items-center gap-3 p-4 border-b text-left transition ${
                         selectedPayment === method.id
                           ? "bg-brand-white border-l-4 border-l-brand-amber"
                           : "hover:bg-gray-100"
-                      }`}
+                      } ${!method.enabled ? "cursor-not-allowed opacity-50" : ""}`}
                     >
                       <Icon size={20} />
 
@@ -214,54 +242,40 @@ export default function PaymentPage({ addresses = [], cart }) {
               </div>
 
               <div className="p-6">
-                {selectedPayment === "card" && (
+                {selectedPayment === "online" && (
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">
-                      Credit / Debit Card
-                    </h3>
+                    <h3 className="font-semibold text-lg mb-4">Pay Online</h3>
 
                     <div className="space-y-4">
-                      <input
-                        type="text"
-                        placeholder="Card Number"
-                        className="w-full border rounded-lg px-4 py-3"
-                        disabled
-                      />
-
-                      <input
-                        type="text"
-                        placeholder="Card Holder Name"
-                        className="w-full border rounded-lg px-4 py-3"
-                        disabled
-                      />
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <input
-                          type="text"
-                          placeholder="MM/YY"
-                          className="border rounded-lg px-4 py-3"
-                          disabled
-                        />
-
-                        <input
-                          type="password"
-                          placeholder="CVV"
-                          className="border rounded-lg px-4 py-3"
-                          disabled
-                        />
+                      <div className="rounded-lg border bg-brand-cream/50 p-4">
+                        <div className="flex items-start gap-3">
+                          <Smartphone className="mt-0.5 size-5 text-brand-amber" />
+                          <div className="text-sm">
+                            <p className="font-medium">Secure Flutterwave checkout</p>
+                            <p className="text-brand-gray mt-1">
+                              You will be redirected to a secure payment page to pay with
+                              card, mobile money, or bank transfer.
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
-                      <p className="text-brand-gray text-sm">
-                        Card payments are coming soon.
-                      </p>
+                      <ul className="text-brand-gray space-y-1 text-sm">
+                        <li>• Payment is verified on our server before confirmation</li>
+                        <li>• Your order is created before redirect</li>
+                        <li>• Stock is released if payment fails or is cancelled</li>
+                      </ul>
 
-                      <button
+                      <Button
                         type="button"
-                        className="w-full bg-brand-amber/50 text-brand-white py-3 rounded-lg font-medium cursor-not-allowed"
-                        disabled
+                        className="w-full bg-brand-amber py-6 text-base font-medium text-brand-white hover:bg-brand-amber/90"
+                        onClick={handleOnlinePayment}
+                        disabled={isBusy || !selectedAddress || !onlineEnabled}
                       >
-                        Pay ₹{orderTotal}
-                      </button>
+                        {isStartingPayment
+                          ? "Redirecting to payment..."
+                          : `Pay ${formattedTotal}`}
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -283,11 +297,11 @@ export default function PaymentPage({ addresses = [], cart }) {
                       type="button"
                       className="w-full bg-brand-amber text-brand-white py-6 text-base font-medium hover:bg-brand-amber/90"
                       onClick={handlePlaceCodOrder}
-                      disabled={isPlacingOrder || !selectedAddress}
+                      disabled={isBusy || !selectedAddress}
                     >
                       {isPlacingOrder
                         ? "Placing order..."
-                        : `Confirm Order ₹${orderTotal}`}
+                        : `Confirm Order ${formattedTotal}`}
                     </Button>
 
                     {!selectedAddress && (
@@ -309,14 +323,14 @@ export default function PaymentPage({ addresses = [], cart }) {
               subtotal={cart?.subtotal ?? 0}
             />
 
-            <PriceSummary cart={cart} items={items} />
+            <PriceSummary cart={cart} items={items} currency={currency} />
           </div>
         </div>
       </div>
 
       <AddressModal
         open={isAddressModalOpen}
-        onClose={closeAddressModal}
+        onClose={() => setIsAddressModalOpen(false)}
         onSuccess={() => router.refresh()}
       />
     </div>

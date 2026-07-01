@@ -2,8 +2,9 @@
 
 import { useMemo } from "react";
 import { getMrpSavings } from "@/lib/cartPricing";
+import { formatMoney } from "@/lib/currency";
 
-export default function PriceSummary({ cart, items = [], className = "" }) {
+export default function PriceSummary({ cart, items = [], className = "", currency = "UGX" }) {
   const { totalMrp, mrpDiscount } = useMemo(() => getMrpSavings(items), [items]);
 
   const subtotal = cart?.subtotal ?? 0;
@@ -11,6 +12,7 @@ export default function PriceSummary({ cart, items = [], className = "" }) {
   const shippingFee = cart?.shippingFee ?? 0;
   const total = cart?.total ?? subtotal;
   const freeShippingThreshold = cart?.freeShippingThreshold;
+  const fmt = (value) => formatMoney(value, currency);
 
   return (
     <div className={className}>
@@ -20,26 +22,26 @@ export default function PriceSummary({ cart, items = [], className = "" }) {
         {totalMrp > 0 && (
           <div className="flex justify-between">
             <span>Total MRP</span>
-            <span>₹{totalMrp}</span>
+            <span>{fmt(totalMrp)}</span>
           </div>
         )}
 
         {mrpDiscount > 0 && (
           <div className="flex justify-between text-green-600">
             <span>Discount on MRP</span>
-            <span>- ₹{mrpDiscount}</span>
+            <span>- {fmt(mrpDiscount)}</span>
           </div>
         )}
 
         <div className="flex justify-between">
           <span>Bag total</span>
-          <span>₹{subtotal}</span>
+          <span>{fmt(subtotal)}</span>
         </div>
 
         {couponDiscount > 0 && (
           <div className="flex justify-between text-green-600">
             <span>Coupon discount</span>
-            <span>- ₹{couponDiscount}</span>
+            <span>- {fmt(couponDiscount)}</span>
           </div>
         )}
 
@@ -48,13 +50,13 @@ export default function PriceSummary({ cart, items = [], className = "" }) {
           {shippingFee === 0 ? (
             <span className="text-green-600">FREE</span>
           ) : (
-            <span>₹{shippingFee}</span>
+            <span>{fmt(shippingFee)}</span>
           )}
         </div>
 
         {freeShippingThreshold && shippingFee > 0 && (
           <p className="text-brand-gray text-xs">
-            Free shipping on orders above ₹{freeShippingThreshold}
+            Free shipping on orders above {fmt(freeShippingThreshold)}
           </p>
         )}
 
@@ -62,7 +64,7 @@ export default function PriceSummary({ cart, items = [], className = "" }) {
 
         <div className="flex justify-between text-base font-bold">
           <span>Total Amount</span>
-          <span>₹{total}</span>
+          <span>{fmt(total)}</span>
         </div>
       </div>
     </div>

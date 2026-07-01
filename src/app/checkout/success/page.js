@@ -4,6 +4,9 @@ export default async function OrderSuccess({ searchParams }) {
   const params = await searchParams;
 
   return (
-    <OrderSuccessPage orderNumber={params?.orderNumber || ""} />
+    <OrderSuccessPage
+      orderNumber={params?.orderNumber || ""}
+      paymentMethod={params?.paymentMethod || "cod"}
+    />
   );
 }
