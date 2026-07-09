@@ -1,7 +1,10 @@
 import { apiClient, setStoredToken } from "../util/api.js";
 
-export const syncBackendSession = async (firebaseToken) => {
-  const data = await apiClient.post("/auth/login", { token: firebaseToken });
+export const sendOtp = (email) =>
+  apiClient.post("/auth/send-otp", { email });
+
+export const verifyOtp = async ({ email, otp }) => {
+  const data = await apiClient.post("/auth/verify-otp", { email, otp });
 
   if (data.token) {
     setStoredToken(data.token);
