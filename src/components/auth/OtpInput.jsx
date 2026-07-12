@@ -10,6 +10,7 @@ export default function OtpInput({
   onChange,
   disabled = false,
   autoFocus = false,
+  hasError = false,
   className,
 }) {
   const inputRefs = useRef([]);
@@ -87,7 +88,11 @@ export default function OtpInput({
   };
 
   return (
-    <div className={cn("flex justify-center gap-2 sm:gap-3", className)}>
+    <div
+      role="group"
+      aria-label="One-time verification code"
+      className={cn("flex justify-center gap-2 sm:gap-2.5", className)}
+    >
       {digits.map((digit, index) => (
         <input
           key={index}
@@ -105,11 +110,18 @@ export default function OtpInput({
           onPaste={handlePaste}
           onFocus={(event) => event.target.select()}
           aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
+          aria-invalid={hasError || undefined}
           className={cn(
-            "h-12 w-10 sm:h-14 sm:w-12 rounded-xl border border-gray-300 bg-white text-center text-lg sm:text-xl font-semibold text-black transition-all outline-none",
-            "focus:border-black focus:ring-2 focus:ring-black/10",
+            "h-12 w-10 sm:h-14 sm:w-12 rounded-xl border bg-brand-cream/40 text-center text-lg sm:text-xl font-bold text-foreground outline-none transition-all duration-200",
+            "placeholder:text-transparent",
+            "hover:border-brand-amber/50 hover:bg-white",
+            "focus:border-brand-amber focus:bg-white focus:ring-4 focus:ring-brand-amber/20 focus:scale-[1.03]",
             "disabled:cursor-not-allowed disabled:opacity-60",
-            digit && "border-black"
+            hasError
+              ? "border-red-300 bg-red-50/60 focus:border-red-400 focus:ring-red-100"
+              : digit
+                ? "border-brand-amber bg-white shadow-sm shadow-brand-amber/15"
+                : "border-black/10"
           )}
         />
       ))}
