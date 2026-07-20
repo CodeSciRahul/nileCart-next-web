@@ -1,10 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useAuthGate } from "@/context/AuthGateContext";
 import { queryKeys } from "../lib/queryKeys.js";
 import { showSuccessToast } from "../lib/toast.js";
+import { AUTH_ACTIONS } from "../lib/authActions.js";
 import { getWishlist, toggleWishlist } from "../services/wishlistService.js";
 
 export const useWishlist = () => {
@@ -26,8 +27,8 @@ export const useWishlist = () => {
 
 export const useToggleWishlist = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { requireAuth } = useAuthGate();
 
   return useMutation({
     mutationFn: toggleWishlist,
@@ -43,11 +44,12 @@ export const useToggleWishlist = () => {
     },
     onError: (error) => {
       if (error?.status === 401) {
-        router.push("/auth");
+        requireAuth({ action: AUTH_ACTIONS.WISHLIST });
       }
     },
     meta: {
       errorMessage: "Could not update wishlist.",
+      errorToast: (error) => error?.status !== 401,
     },
   });
 };

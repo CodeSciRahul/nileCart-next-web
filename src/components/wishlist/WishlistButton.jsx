@@ -1,9 +1,10 @@
 "use client";
 
 import { Heart, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useAuthGate } from "@/context/AuthGateContext";
 import { useWishlist, useToggleWishlist } from "@/hooks/useWishlist";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 import { cn } from "@/lib/utils";
 
 const WishlistButton = ({
@@ -12,8 +13,8 @@ const WishlistButton = ({
   iconSize = 18,
   variant = "overlay",
 }) => {
-  const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { requireAuth } = useAuthGate();
   const { data } = useWishlist();
   const toggle = useToggleWishlist();
 
@@ -22,16 +23,23 @@ const WishlistButton = ({
   const inWishlist = data?.productIds?.has(String(productId));
   const isPending = toggle.isPending;
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isPending) return;
 
-    if (!isAuthenticated) {
-      router.push("/auth");
+    const run = () => toggle.mutate(productId);
+
+    if (isAuthenticated) {
+      run();
       return;
     }
 
-    toggle.mutate(productId);
+    await requireAuth({
+      action: AUTH_ACTIONS.WISHLIST,
+      payload: { productId },
+      onSuccess: run,
+    });
   };
 
   return (

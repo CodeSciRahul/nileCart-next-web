@@ -6,6 +6,25 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { DepartmentCategoryNav } from "@/components/DepartmentCategoryNav.jsx";
 
+const POPOVER_MAX_WIDTH = 720;
+const VIEWPORT_PAD = 16;
+
+function clampPopoverLeft(triggerLeft, triggerWidth, panelWidth) {
+  const vw = window.innerWidth;
+  const preferred = triggerLeft;
+  const maxLeft = Math.max(VIEWPORT_PAD, vw - panelWidth - VIEWPORT_PAD);
+  const centered = triggerLeft + triggerWidth / 2 - panelWidth / 2;
+
+  // Prefer left-align under the trigger; fall back to centered when it fits.
+  let left = preferred;
+  if (preferred + panelWidth > vw - VIEWPORT_PAD) {
+    left = Math.min(Math.max(centered, VIEWPORT_PAD), maxLeft);
+  }
+  if (left < VIEWPORT_PAD) left = VIEWPORT_PAD;
+  if (left > maxLeft) left = maxLeft;
+  return left;
+}
+
 export function DepartmentNavItem({
   deptKey,
   label,
@@ -20,6 +39,7 @@ export function DepartmentNavItem({
   isLoading,
 }) {
   const triggerRef = useRef(null);
+  const panelRef = useRef(null);
   const [position, setPosition] = useState(null);
 
   useLayoutEffect(() => {
@@ -31,20 +51,29 @@ export function DepartmentNavItem({
     const updatePosition = () => {
       if (!triggerRef.current) return;
       const rect = triggerRef.current.getBoundingClientRect();
+      const measured =
+        panelRef.current?.offsetWidth ||
+        Math.min(POPOVER_MAX_WIDTH, window.innerWidth - VIEWPORT_PAD * 2);
+
       setPosition({
         top: rect.bottom,
-        left: rect.left + rect.width / 2,
+        left: clampPopoverLeft(rect.left, rect.width, measured),
+        width: Math.min(POPOVER_MAX_WIDTH, window.innerWidth - VIEWPORT_PAD * 2),
       });
     };
 
     updatePosition();
+    // Re-measure after paint so real panel width clamps correctly
+    const raf = requestAnimationFrame(updatePosition);
+
     window.addEventListener("scroll", updatePosition, true);
     window.addEventListener("resize", updatePosition);
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
     };
-  }, [isActive]);
+  }, [isActive, isLoading, deptNav.categories?.length]);
 
   const handleMouseLeave = () => {
     if (!isPinned) onClose();
@@ -57,12 +86,19 @@ export function DepartmentNavItem({
     createPortal(
       <div
         data-dept-popover=""
-        className="fixed z-[200] -translate-x-1/2 pt-2"
-        style={{ top: position.top, left: position.left }}
+        className="fixed z-[200] pt-2"
+        style={{
+          top: position.top,
+          left: position.left,
+          width: position.width,
+        }}
         onMouseEnter={onOpen}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="animate-in fade-in slide-in-from-top-1 w-[min(92vw,720px)] overflow-hidden rounded-2xl border border-brand-amber/20 bg-brand-white shadow-2xl shadow-brand-amber/10 backdrop-blur-md duration-200">
+        <div
+          ref={panelRef}
+          className="animate-in fade-in slide-in-from-top-1 w-full overflow-hidden rounded-xl border border-black/10 bg-white shadow-xl duration-150"
+        >
           <DepartmentCategoryNav
             categories={deptNav.categories}
             departmentLabel={label}

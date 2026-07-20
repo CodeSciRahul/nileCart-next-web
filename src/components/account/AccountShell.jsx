@@ -1,29 +1,27 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ACCOUNT_NAV } from "@/lib/accountNav";
+import AuthRequiredState from "@/components/auth/AuthRequiredState";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 import { cn } from "@/lib/utils";
 
 const AccountShell = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.replace("/auth");
-    }
-  }, [loading, isAuthenticated, router]);
-
-  if (loading || !isAuthenticated) {
+  if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center text-brand-gray">
         Loading your account...
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthRequiredState action={AUTH_ACTIONS.VIEW_ACCOUNT} />;
   }
 
   return (

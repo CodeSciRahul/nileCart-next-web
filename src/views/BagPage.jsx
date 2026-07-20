@@ -3,11 +3,15 @@
 import { useRouter } from "next/navigation";
 import CouponInput from "@/components/checkout/CouponInput";
 import PriceSummary from "@/components/checkout/PriceSummary";
+import AuthRequiredState from "@/components/auth/AuthRequiredState";
 import { useUpdateCartItem } from "@/hooks/useCart";
+import { useAuth } from "@/context/AuthContext";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 import { showErrorToast } from "@/lib/toast";
 
 export default function BagPage({ cart }) {
   const router = useRouter();
+  const { isAuthenticated, loading } = useAuth();
   const updateCartItem = useUpdateCartItem();
   const items = cart?.cart?.items || [];
 
@@ -28,11 +32,20 @@ export default function BagPage({ cart }) {
   const isUpdating = (itemId) =>
     updateCartItem.isPending && updateCartItem.variables?.itemId === itemId;
 
-  if (!cart) {
+  if (loading) {
     return (
-      <div className="container mx-auto py-10 text-brand-gray">
-        Sign in to view your bag or add items from a product page.
+      <div className="container mx-auto py-10 text-center text-brand-gray">
+        Loading your bag...
       </div>
+    );
+  }
+
+  if (!isAuthenticated || !cart) {
+    return (
+      <AuthRequiredState
+        action={AUTH_ACTIONS.VIEW_BAG}
+        onAuthenticated={() => router.refresh()}
+      />
     );
   }
 

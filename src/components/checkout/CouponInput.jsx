@@ -9,13 +9,16 @@ import {
   useRemoveCoupon,
   useValidateCoupon,
 } from "@/hooks/useCoupon";
+import { useAuth } from "@/context/AuthContext";
+import { useAuthGate } from "@/context/AuthGateContext";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 import { showErrorToast } from "@/lib/toast";
-import { showSuccessToast } from "@/lib/toast";
-import { showInfoToast } from "@/lib/toast";
 
 export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
   const [code, setCode] = useState("");
   const [preview, setPreview] = useState(null);
+  const { isAuthenticated } = useAuth();
+  const { requireAuth } = useAuthGate();
 
   const validateMutation = useValidateCoupon();
   const applyMutation = useApplyCoupon();
@@ -30,48 +33,65 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
     setPreview(null);
   }, [appliedCoupon?.code]);
 
+  const withAuth = async (fn) => {
+    if (isAuthenticated) {
+      fn();
+      return;
+    }
+    await requireAuth({
+      action: AUTH_ACTIONS.APPLY_COUPON,
+      onSuccess: fn,
+    });
+  };
+
   const handleValidate = () => {
     const trimmed = code.trim();
     if (!trimmed) return;
 
-    setPreview(null);
-    validateMutation.mutate(
-      { code: trimmed, orderAmount: subtotal },
-      {
-        onSuccess: (data) => {
-          setPreview({
-            type: "success",
-            message: `You save ₹${data?.discount ?? 0} with ${data?.coupon?.code}`,
-            discount: data?.discount,
-          });
-        },
-        onError: (error) => {
-          showErrorToast(error?.message);
-          setPreview(null);
+    withAuth(() => {
+      setPreview(null);
+      validateMutation.mutate(
+        { code: trimmed, orderAmount: subtotal },
+        {
+          onSuccess: (data) => {
+            setPreview({
+              type: "success",
+              message: `You save ₹${data?.discount ?? 0} with ${data?.coupon?.code}`,
+              discount: data?.discount,
+            });
+          },
+          onError: (error) => {
+            showErrorToast(error?.message);
+            setPreview(null);
+          },
         }
-      }
-    );
+      );
+    });
   };
 
   const handleApply = () => {
     const trimmed = code.trim();
     if (!trimmed) return;
 
-    applyMutation.mutate(
-      { code: trimmed },
-      {
-        onSuccess: () => {
-          setCode("");
-          setPreview(null);
-        },
-      }
-    );
+    withAuth(() => {
+      applyMutation.mutate(
+        { code: trimmed },
+        {
+          onSuccess: () => {
+            setCode("");
+            setPreview(null);
+          },
+        }
+      );
+    });
   };
 
   const handleRemove = () => {
-    removeMutation.mutate();
-    setCode("");
-    setPreview(null);
+    withAuth(() => {
+      removeMutation.mutate();
+      setCode("");
+      setPreview(null);
+    });
   };
 
   if (appliedCoupon?.code) {

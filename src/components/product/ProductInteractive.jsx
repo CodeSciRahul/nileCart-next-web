@@ -4,6 +4,9 @@ import { useState } from "react";
 import { getProductImageUrl } from "@/lib/productHelpers";
 import WishlistButton from "@/components/wishlist/WishlistButton";
 import { useAddToCart } from "@/hooks/useCart";
+import { useAuth } from "@/context/AuthContext";
+import { useAuthGate } from "@/context/AuthGateContext";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 
 export default function ProductGallery({ product }) {
   const images = product?.images || [];
@@ -47,6 +50,30 @@ export function ProductPurchasePanel({ product }) {
     product?.variants?.[0] || null
   );
   const addToCartMutation = useAddToCart();
+  const { isAuthenticated } = useAuth();
+  const { requireAuth } = useAuthGate();
+
+  const handleAddToBag = async () => {
+    if (addToCartMutation.isPending) return;
+
+    const payload = {
+      productId: product?._id,
+      variantSku: selectedVariant?.sku,
+    };
+
+    const run = () => addToCartMutation.mutate(payload);
+
+    if (isAuthenticated) {
+      run();
+      return;
+    }
+
+    await requireAuth({
+      action: AUTH_ACTIONS.ADD_TO_CART,
+      payload,
+      onSuccess: run,
+    });
+  };
 
   return (
     <>
@@ -104,12 +131,7 @@ export function ProductPurchasePanel({ product }) {
       <div className="mt-10 flex gap-4">
         <button
           type="button"
-          onClick={() =>
-            addToCartMutation.mutate({
-              productId: product?._id,
-              variantSku: selectedVariant?.sku,
-            })
-          }
+          onClick={handleAddToBag}
           disabled={addToCartMutation.isPending}
           className="flex-1 cursor-pointer rounded-2xl bg-brand-amber py-4 font-semibold text-brand-white hover:bg-brand-amber/90 disabled:opacity-60"
         >

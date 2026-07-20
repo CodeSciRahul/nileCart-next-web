@@ -17,6 +17,8 @@ import { mapNavDepartments, getDepartmentNav } from "@/lib/categoryHelpers.js";
 import { DepartmentNavItem } from "@/components/DepartmentNavItem.jsx";
 import { MobileCategorySidebar } from "@/components/MobileCategorySidebar.jsx";
 import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
+import { useAuthGate } from "@/context/AuthGateContext";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 
 const ANNOUNCEMENT_KEY = "nilecart-announcement-dismissed";
 const ANNOUNCEMENT_TEXT =
@@ -63,6 +65,7 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
+  const { requireAuth } = useAuthGate();
   const { data: cartItemCount = 0 } = useCart();
   const { data: wishlistData } = useWishlist();
   const wishlistCount = wishlistData?.count ?? 0;
@@ -147,6 +150,21 @@ const Header = () => {
       setPinnedDepartment(key);
       setActiveDepartment(key);
     }
+  };
+
+  const handleWishlistClick = async (e) => {
+    e?.preventDefault?.();
+    await requireAuth({
+      action: AUTH_ACTIONS.VIEW_WISHLIST,
+      onSuccess: () => router.push("/wishlist"),
+    });
+  };
+
+  const handleBagClick = async () => {
+    await requireAuth({
+      action: AUTH_ACTIONS.VIEW_BAG,
+      onSuccess: () => router.push("/checkout/bag"),
+    });
   };
 
   const renderDepartmentDropdown = () =>
@@ -256,7 +274,7 @@ const Header = () => {
               </div>
 
               <HeaderIconButton
-                href="/wishlist"
+                onClick={handleWishlistClick}
                 label={wishlistCount > 0 ? `Wishlist, ${wishlistCount} items` : "Wishlist"}
                 badge={wishlistCount}
               >
@@ -264,7 +282,7 @@ const Header = () => {
               </HeaderIconButton>
 
               <HeaderIconButton
-                onClick={() => router.push("/checkout/bag")}
+                onClick={handleBagClick}
                 label={
                   cartItemCount > 0
                     ? `Shopping bag, ${cartItemCount} items`

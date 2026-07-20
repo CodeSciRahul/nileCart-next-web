@@ -3,8 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useAuthGate } from "@/context/AuthGateContext";
 import { queryKeys } from "../lib/queryKeys.js";
 import { showSuccessToast } from "../lib/toast.js";
+import { AUTH_ACTIONS } from "../lib/authActions.js";
 import { addCartItem, getCart, updateCartItem } from "../services/cartService.js";
 
 export const useCart = () => {
@@ -21,6 +23,7 @@ export const useCart = () => {
 export const useAddToCart = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { requireAuth } = useAuthGate();
 
   return useMutation({
     mutationFn: ({ productId, variantSku }) =>
@@ -30,8 +33,23 @@ export const useAddToCart = () => {
       showSuccessToast("Item added to bag");
       router.refresh();
     },
+    onError: (error, variables) => {
+      if (error?.status === 401) {
+        requireAuth({
+          action: AUTH_ACTIONS.ADD_TO_CART,
+          payload: variables,
+          onSuccess: () =>
+            addCartItem(variables.productId, variables.variantSku).then(() => {
+              queryClient.invalidateQueries({ queryKey: queryKeys.cart });
+              showSuccessToast("Item added to bag");
+              router.refresh();
+            }),
+        });
+      }
+    },
     meta: {
       errorMessage: "Could not add item to bag.",
+      errorToast: (error) => error?.status !== 401,
     },
   });
 };

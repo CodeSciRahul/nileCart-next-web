@@ -5,6 +5,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useCreateAddress } from "@/hooks/useAddresses";
+import { useAuth } from "@/context/AuthContext";
+import { useAuthGate } from "@/context/AuthGateContext";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 
 import {
   Dialog,
@@ -53,6 +56,8 @@ const addressSchema = z.object({
 
 const AddressModal = ({ open, onClose, onSuccess }) => {
   const createAddressMutation = useCreateAddress();
+  const { isAuthenticated } = useAuth();
+  const { requireAuth } = useAuthGate();
 
   const {
     register,
@@ -76,13 +81,25 @@ const AddressModal = ({ open, onClose, onSuccess }) => {
     },
   });
 
-  const onSubmit = (data) => {
-    createAddressMutation.mutate(data, {
-      onSuccess: () => {
-        reset();
-        onClose();
-        onSuccess?.();
-      },
+  const onSubmit = async (data) => {
+    const run = () => {
+      createAddressMutation.mutate(data, {
+        onSuccess: () => {
+          reset();
+          onClose();
+          onSuccess?.();
+        },
+      });
+    };
+
+    if (isAuthenticated) {
+      run();
+      return;
+    }
+
+    await requireAuth({
+      action: AUTH_ACTIONS.SAVE_ADDRESS,
+      onSuccess: run,
     });
   };
 

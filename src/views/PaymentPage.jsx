@@ -13,14 +13,20 @@ import {
 import AddressModal from "@/components/addressModal";
 import CouponInput from "@/components/checkout/CouponInput";
 import PriceSummary from "@/components/checkout/PriceSummary";
+import AuthRequiredState from "@/components/auth/AuthRequiredState";
 import { Button } from "@/components/ui/button";
 import { usePlaceOrder } from "@/hooks/useOrder";
 import { useInitializeCheckout, usePaymentConfig } from "@/hooks/usePayment";
+import { useAuth } from "@/context/AuthContext";
+import { useAuthGate } from "@/context/AuthGateContext";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 import { formatMoney } from "@/lib/currency";
 import { showErrorToast } from "@/lib/toast";
 
 export default function PaymentPage({ addresses = [], cart }) {
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { requireAuth } = useAuthGate();
   const placeOrder = usePlaceOrder();
   const initializeCheckout = useInitializeCheckout();
   const { data: paymentConfig } = usePaymentConfig();
@@ -61,16 +67,27 @@ export default function PaymentPage({ addresses = [], cart }) {
     return true;
   };
 
-  const handlePlaceCodOrder = () => {
+  const handlePlaceCodOrder = async () => {
     if (!validateCheckout()) return;
 
-    placeOrder.mutate({
-      addressId: selectedAddress,
-      paymentMethod: "cod",
+    const run = () =>
+      placeOrder.mutate({
+        addressId: selectedAddress,
+        paymentMethod: "cod",
+      });
+
+    if (isAuthenticated) {
+      run();
+      return;
+    }
+
+    await requireAuth({
+      action: AUTH_ACTIONS.PLACE_ORDER,
+      onSuccess: run,
     });
   };
 
-  const handleOnlinePayment = () => {
+  const handleOnlinePayment = async () => {
     if (!validateCheckout()) return;
 
     if (!onlineEnabled) {
@@ -78,7 +95,18 @@ export default function PaymentPage({ addresses = [], cart }) {
       return;
     }
 
-    initializeCheckout.mutate({ addressId: selectedAddress });
+    const run = () =>
+      initializeCheckout.mutate({ addressId: selectedAddress });
+
+    if (isAuthenticated) {
+      run();
+      return;
+    }
+
+    await requireAuth({
+      action: AUTH_ACTIONS.PLACE_ORDER,
+      onSuccess: run,
+    });
   };
 
   const paymentMethods = [
@@ -98,11 +126,20 @@ export default function PaymentPage({ addresses = [], cart }) {
     },
   ];
 
-  if (!cart) {
+  if (authLoading) {
     return (
-      <div className="container mx-auto max-w-7xl px-4 py-10 text-brand-gray">
-        Sign in to complete your order.
+      <div className="container mx-auto max-w-7xl px-4 py-10 text-center text-brand-gray">
+        Preparing checkout...
       </div>
+    );
+  }
+
+  if (!isAuthenticated || !cart) {
+    return (
+      <AuthRequiredState
+        action={AUTH_ACTIONS.CHECKOUT}
+        onAuthenticated={() => router.refresh()}
+      />
     );
   }
 

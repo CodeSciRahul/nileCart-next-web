@@ -1,30 +1,32 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import ProductCard from "@/components/ui/productCard";
 import { Button } from "@/components/ui/button";
+import AuthRequiredState from "@/components/auth/AuthRequiredState";
 import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/hooks/useWishlist";
+import { AUTH_ACTIONS } from "@/lib/authActions";
 
 const WishlistPage = () => {
-  const router = useRouter();
   const { isAuthenticated, loading } = useAuth();
-  const { data, isLoading, isError } = useWishlist();
+  const { data, isLoading, isError, refetch } = useWishlist();
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.replace("/auth");
-    }
-  }, [loading, isAuthenticated, router]);
-
-  if (loading || !isAuthenticated) {
+  if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center text-brand-gray">
         Loading your wishlist...
       </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <AuthRequiredState
+        action={AUTH_ACTIONS.VIEW_WISHLIST}
+        onAuthenticated={() => refetch()}
+      />
     );
   }
 
@@ -60,23 +62,20 @@ const WishlistPage = () => {
       </div>
 
       {products.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-brand-amber/30 bg-brand-cream/50 px-6 py-16 text-center">
-          <Heart className="mx-auto mb-4 text-brand-amber" size={48} />
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-brand-amber/30 bg-brand-cream/30 px-6 py-16 text-center">
+          <Heart className="mb-4 size-12 text-brand-amber" />
           <h2 className="text-lg font-semibold text-foreground">
             Your wishlist is empty
           </h2>
-          <p className="mt-2 text-sm text-brand-gray">
-            Tap the heart on any product to save it for later.
+          <p className="mt-2 max-w-sm text-sm text-brand-gray">
+            Tap the heart on products you love to save them here.
           </p>
-          <Button
-            asChild
-            className="mt-6 bg-brand-amber text-brand-white hover:bg-brand-amber/90"
-          >
+          <Button asChild className="mt-6 bg-brand-amber text-foreground hover:bg-brand-amber/90">
             <Link href="/">Continue shopping</Link>
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
           {products.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
