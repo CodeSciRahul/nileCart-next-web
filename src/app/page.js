@@ -5,7 +5,8 @@ import CategoriesSection from "@/components/category";
 import TrendingProducts from "@/components/trendingProducts";
 import Products from "@/components/products";
 import { fetchProducts } from "@/lib/data/products";
-import { fetchCategory, fetchSubCategories } from "@/lib/data/category";
+import { fetchSubCategories } from "@/lib/data/category";
+import { fetchHome, getHeroBanners } from "@/lib/data/home";
 
 export const metadata = {
   title: "NileCart — Fashion Store",
@@ -20,15 +21,18 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [{ products = [] }, { categories = [] }] = await Promise.all([
+  const [home, { products = [] }, { categories = [] }] = await Promise.all([
+    fetchHome(),
     fetchProducts(),
     fetchSubCategories(),
   ]);
 
+  const heroBanners = await getHeroBanners(home);
+
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-      <Banner />
+      <Header announcement={home?.announcement || null} />
+      <Banner banners={heroBanners} />
       <CategoriesSection categories={categories} />
       <TrendingProducts />
       <Products products={products} />

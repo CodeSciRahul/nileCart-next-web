@@ -20,9 +20,7 @@ import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
 import { useAuthGate } from "@/context/AuthGateContext";
 import { AUTH_ACTIONS } from "@/lib/authActions";
 
-const ANNOUNCEMENT_KEY = "nilecart-announcement-dismissed";
-const ANNOUNCEMENT_TEXT =
-  "🎉 Anniversary Sale • Up To 80% OFF + Free Shipping Above ₹999";
+const ANNOUNCEMENT_KEY_PREFIX = "nilecart-announcement-dismissed";
 
 function HeaderIconButton({ href, onClick, label, children, badge }) {
   const className =
@@ -54,7 +52,7 @@ function HeaderIconButton({ href, onClick, label, children, badge }) {
   );
 }
 
-const Header = () => {
+const Header = ({ announcement = null }) => {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeDepartment, setActiveDepartment] = useState(null);
@@ -70,6 +68,10 @@ const Header = () => {
   const { data: wishlistData } = useWishlist();
   const wishlistCount = wishlistData?.count ?? 0;
 
+  const dismissKey = announcement?._id
+    ? `${ANNOUNCEMENT_KEY_PREFIX}:${announcement._id}`
+    : ANNOUNCEMENT_KEY_PREFIX;
+
   const { data: navData, isLoading: navLoading } = useQuery({
     queryKey: ["categories", "navigation"],
     queryFn: getCategoryNavigation,
@@ -82,12 +84,16 @@ const Header = () => {
   );
 
   useEffect(() => {
-    if (pathname !== "/") {
+    if (pathname !== "/" || !announcement?.message) {
       setShowAnnouncement(false);
       return;
     }
-    setShowAnnouncement(sessionStorage.getItem(ANNOUNCEMENT_KEY) !== "1");
-  }, [pathname]);
+    if (announcement.dismissible === false) {
+      setShowAnnouncement(true);
+      return;
+    }
+    setShowAnnouncement(sessionStorage.getItem(dismissKey) !== "1");
+  }, [pathname, announcement, dismissKey]);
 
   useEffect(() => {
     if (!mobileDepartment && DEPARTMENT_ORDER.length > 0) {
@@ -114,7 +120,8 @@ const Header = () => {
   }, [pinnedDepartment]);
 
   const dismissAnnouncement = () => {
-    sessionStorage.setItem(ANNOUNCEMENT_KEY, "1");
+    if (announcement?.dismissible === false) return;
+    sessionStorage.setItem(dismissKey, "1");
     setShowAnnouncement(false);
   };
 
@@ -191,23 +198,52 @@ const Header = () => {
       );
     });
 
-  return (
-    <>
-      {showAnnouncement && (
-        <div className="relative bg-gradient-to-r from-brand-amber via-amber-400 to-brand-amber py-2 pl-4 pr-10 text-center text-xs font-medium text-foreground md:text-sm">
-          <p className="truncate">{ANNOUNCEMENT_TEXT}</p>
+  const announcementBar =
+    showAnnouncement && announcement?.message ? (
+      <div
+        className="relative py-2 pl-4 pr-10 text-center text-xs font-medium md:text-sm"
+        style={{
+          backgroundColor: announcement.backgroundColor || undefined,
+          color: announcement.textColor || undefined,
+          ...(announcement.backgroundColor
+            ? {}
+            : {
+                backgroundImage:
+                  "linear-gradient(to right, var(--color-brand-amber, #f5c542), #fbbf24, var(--color-brand-amber, #f5c542))",
+              }),
+        }}
+      >
+        {announcement.href || announcement.link ? (
+          <a
+            href={announcement.href || announcement.link}
+            className="truncate underline-offset-2 hover:underline"
+          >
+            {announcement.message}
+          </a>
+        ) : (
+          <p className="truncate">{announcement.message}</p>
+        )}
+        {announcement.dismissible !== false && (
           <button
             type="button"
             onClick={dismissAnnouncement}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-foreground/80 transition hover:bg-black/10 hover:text-foreground"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 opacity-80 transition hover:bg-black/10 hover:opacity-100"
             aria-label="Dismiss announcement"
           >
             <X size={16} />
           </button>
-        </div>
-      )}
+        )}
+      </div>
+    ) : null;
+
+  const isStickyAnnouncement = announcement?.type === "sticky";
+
+  return (
+    <>
+      {!isStickyAnnouncement && announcementBar}
 
       <header className="sticky top-0 z-50 w-full bg-brand-white/95 shadow-sm backdrop-blur-md">
+        {isStickyAnnouncement && announcementBar}
         <div className="border-b border-brand-amber/10 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
           <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6">
             {/* Logo + mobile menu */}
