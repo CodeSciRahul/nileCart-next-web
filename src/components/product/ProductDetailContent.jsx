@@ -1,10 +1,9 @@
 import Header from "@/components/header";
+import Footer from "@/components/Footer";
 import ProductCard from "@/components/ui/productCard";
 import ProductReviewsSection from "@/components/product/ProductReviewsSection";
-import ProductGallery, {
-  ProductPurchasePanel,
-} from "@/components/product/ProductInteractive";
-import { Star, ShoppingBag, Truck, ShieldCheck } from "lucide-react";
+import ProductStoreSection from "@/components/product/ProductStoreSection";
+import ProductDetailClient from "@/components/product/ProductDetailClient";
 
 export default function ProductDetailContent({
   product,
@@ -12,95 +11,72 @@ export default function ProductDetailContent({
   similarProducts = [],
 }) {
   return (
-    <div>
+    <div className="flex min-h-screen flex-col bg-brand-white">
       <Header />
-      <div className="mx-auto max-w-7xl px-4 py-10">
-        <div className="grid gap-10 lg:grid-cols-2">
-          <ProductGallery product={product} />
 
-          <div>
-            <div className="mb-4 flex gap-2">
-              {product?.isTrending && (
-                <span className="rounded-full bg-brand-cream px-3 py-1 text-sm text-brand-amber">
-                  Trending
-                </span>
+      <main className="flex-1 pb-24 lg:pb-12">
+        <div className="border-b border-brand-amber/10 bg-linear-to-b from-brand-cream/50 to-brand-white">
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+            <nav
+              aria-label="Breadcrumb"
+              className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-brand-gray"
+            >
+              <a href="/" className="hover:text-foreground">
+                Home
+              </a>
+              <span aria-hidden>/</span>
+              {product?.category?.name && (
+                <>
+                  <a
+                    href={
+                      product.category.slug
+                        ? `/shop/${product.category.slug}`
+                        : "#"
+                    }
+                    className="hover:text-foreground"
+                  >
+                    {product.category.name}
+                  </a>
+                  <span aria-hidden>/</span>
+                </>
               )}
-              {product?.isNewArrival && (
-                <span className="rounded-full bg-green-100 px-3 py-1 text-sm text-green-600">
-                  New Arrival
-                </span>
-              )}
-              {product?.isOnSale && (
-                <span className="rounded-full bg-orange-100 px-3 py-1 text-sm text-orange-600">
-                  Sale
-                </span>
-              )}
-            </div>
-
-            <h1 className="text-4xl font-bold">{product?.title}</h1>
-            <p className="mt-2 text-brand-gray">{product?.category?.name}</p>
-
-            <div className="mt-4 flex items-center gap-2">
-              <Star fill="currentColor" className="text-yellow-500" size={18} />
-              <span className="font-medium">{product?.rating?.average}</span>
-              <span className="text-brand-gray">
-                ({product?.rating?.count} reviews)
+              <span className="truncate font-medium text-foreground">
+                {product?.title}
               </span>
-            </div>
+            </nav>
 
-            <div className="mt-8">
-              <h2 className="text-lg font-semibold">Description</h2>
-              <p className="mt-2 text-brand-gray">{product?.description}</p>
-            </div>
-
-            <ProductPurchasePanel product={product} />
-
-            <div className="mt-10 grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <Truck className="mx-auto" />
-                <p className="mt-2 text-sm">Free Delivery</p>
-              </div>
-              <div className="text-center">
-                <ShieldCheck className="mx-auto" />
-                <p className="mt-2 text-sm">Secure Payment</p>
-              </div>
-              <div className="text-center">
-                <ShoppingBag className="mx-auto" />
-                <p className="mt-2 text-sm">Easy Returns</p>
-              </div>
-            </div>
-
-            {product?.tags?.length > 0 && (
-              <div className="mt-10">
-                <h3 className="mb-3 font-semibold">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-gray-100 px-3 py-1 text-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            <ProductDetailClient product={product} />
           </div>
         </div>
 
-        <ProductReviewsSection product={product} reviews={reviews} />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <ProductStoreSection seller={product?.seller} />
 
-        {similarProducts.length > 0 && (
-          <section className="mt-20">
-            <h2 className="mb-8 text-3xl font-bold">You May Also Like</h2>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-              {similarProducts.map((item) => (
-                <ProductCard key={item?._id} product={item} />
-              ))}
-            </div>
-          </section>
-        )}
-      </div>
+          <ProductReviewsSection product={product} reviews={reviews} />
+
+          {similarProducts.length > 0 && (
+            <section className="border-t border-brand-amber/15 py-12 sm:py-16">
+              <div className="mb-8 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gray">
+                    Inspired by your pick
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+                    You May Also Like
+                  </h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
+                {similarProducts.slice(0, 8).map((item) => (
+                  <ProductCard key={item?._id} product={item} />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }

@@ -26,8 +26,8 @@ export const useAddToCart = () => {
   const { requireAuth } = useAuthGate();
 
   return useMutation({
-    mutationFn: ({ productId, variantSku }) =>
-      addCartItem(productId, variantSku),
+    mutationFn: ({ productId, variantSku, quantity = 1 }) =>
+      addCartItem(productId, variantSku, quantity),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       showSuccessToast("Item added to bag");
@@ -39,7 +39,11 @@ export const useAddToCart = () => {
           action: AUTH_ACTIONS.ADD_TO_CART,
           payload: variables,
           onSuccess: () =>
-            addCartItem(variables.productId, variables.variantSku).then(() => {
+            addCartItem(
+              variables.productId,
+              variables.variantSku,
+              variables.quantity || 1
+            ).then(() => {
               queryClient.invalidateQueries({ queryKey: queryKeys.cart });
               showSuccessToast("Item added to bag");
               router.refresh();

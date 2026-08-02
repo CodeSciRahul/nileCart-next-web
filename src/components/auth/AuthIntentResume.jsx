@@ -28,9 +28,10 @@ export default function AuthIntentResume() {
         switch (intent.actionId) {
           case "ADD_TO_CART":
           case "BUY_NOW": {
-            const { productId, variantSku } = intent.payload || {};
+            const { productId, variantSku, quantity = 1 } =
+              intent.payload || {};
             if (productId && variantSku) {
-              await addCartItem(productId, variantSku);
+              await addCartItem(productId, variantSku, quantity);
               await queryClient.invalidateQueries({ queryKey: queryKeys.cart });
               showSuccessToast("Item added to bag");
               router.refresh();
