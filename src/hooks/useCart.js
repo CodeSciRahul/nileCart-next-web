@@ -7,7 +7,7 @@ import { useAuthGate } from "@/context/AuthGateContext";
 import { queryKeys } from "../lib/queryKeys.js";
 import { showSuccessToast } from "../lib/toast.js";
 import { AUTH_ACTIONS } from "../lib/authActions.js";
-import { addCartItem, getCart, updateCartItem } from "../services/cartService.js";
+import { addCartItem, getCart, removeCartItem, updateCartItem } from "../services/cartService.js";
 
 export const useCart = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -70,6 +70,22 @@ export const useUpdateCartItem = () => {
     },
     meta: {
       errorMessage: "Could not update bag.",
+    },
+  });
+};
+
+export const useRemoveCartItem = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (itemId) => removeCartItem(itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.cart });
+      router.refresh();
+    },
+    meta: {
+      errorMessage: "Could not remove item.",
     },
   });
 };

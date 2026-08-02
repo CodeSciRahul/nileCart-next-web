@@ -7,3 +7,6 @@ export const addCartItem = (productId, variantSku, quantity = 1) =>
 
 export const updateCartItem = (itemId, quantity) =>
   apiClient.put(`/cart/items/${itemId}`, { quantity });
+
+export const removeCartItem = (itemId) =>
+  apiClient.delete(`/cart/items/${itemId}`);

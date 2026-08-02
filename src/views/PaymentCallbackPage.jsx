@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVerifyPayment } from "@/hooks/usePayment";
 
@@ -27,7 +27,8 @@ export default function PaymentCallbackPage() {
     if (!txRef) {
       setState({
         status: "error",
-        message: "Missing payment reference. Please contact support if you were charged.",
+        message:
+          "Missing payment reference. Please contact support if you were charged.",
       });
       return;
     }
@@ -64,7 +65,8 @@ export default function PaymentCallbackPage() {
           if (data?.failed) {
             setState({
               status: "error",
-              message: "Payment failed. Your order was cancelled and stock restored.",
+              message:
+                "Payment failed. Your order was cancelled and stock restored.",
             });
             return;
           }
@@ -87,54 +89,67 @@ export default function PaymentCallbackPage() {
     );
   }, [txRef, transactionId, redirectStatus, router, verifyPayment]);
 
-  if (state.status === "loading" || verifyPayment.isPending) {
-    return (
-      <div className="container mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 py-16 text-center">
-        <Loader2 className="mb-4 size-12 animate-spin text-brand-amber" />
-        <h1 className="text-xl font-semibold">Verifying your payment</h1>
-        <p className="text-brand-gray mt-2 text-sm">
-          Please wait while we confirm your payment securely with Flutterwave.
-        </p>
+  const shell = (icon, title, message, actions) => (
+    <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-2 py-10 text-center">
+      <div className="w-full border border-brand-amber/25 bg-brand-white p-6 shadow-sm sm:p-10">
+        {icon}
+        <h1 className="mt-5 text-xl font-black tracking-tight sm:text-2xl">
+          {title}
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-brand-gray">{message}</p>
+        {actions}
       </div>
+    </div>
+  );
+
+  if (state.status === "loading" || verifyPayment.isPending) {
+    return shell(
+      <Loader2 className="mx-auto size-12 animate-spin text-brand-amber" />,
+      "Verifying your payment",
+      "Please wait while we confirm your payment securely with Flutterwave."
     );
   }
 
   if (state.status === "cancelled") {
-    return (
-      <div className="container mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 py-16 text-center">
-        <AlertCircle className="mb-4 size-12 text-amber-600" />
-        <h1 className="text-xl font-semibold">Payment cancelled</h1>
-        <p className="text-brand-gray mt-2 text-sm">{state.message}</p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button asChild className="bg-brand-amber text-brand-white hover:bg-brand-amber/90">
-            <Link href="/checkout/payment">Try again</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/">Continue shopping</Link>
-          </Button>
-        </div>
+    return shell(
+      <AlertCircle className="mx-auto size-12 text-amber-600" />,
+      "Payment cancelled",
+      state.message,
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <Button
+          asChild
+          className="rounded-none bg-brand-amber font-bold text-foreground hover:bg-brand-amber/90"
+        >
+          <Link href="/checkout/payment">Try again</Link>
+        </Button>
+        <Button asChild variant="outline" className="rounded-none border-brand-amber/30">
+          <Link href="/">Continue shopping</Link>
+        </Button>
       </div>
     );
   }
 
-  return (
-    <div className="container mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 py-16 text-center">
-      <AlertCircle className="mb-4 size-12 text-red-600" />
-      <h1 className="text-xl font-semibold">Payment verification issue</h1>
-      <p className="text-brand-gray mt-2 text-sm">{state.message}</p>
+  return shell(
+    <AlertCircle className="mx-auto size-12 text-red-600" />,
+    "Payment verification issue",
+    state.message,
+    <>
       {txRef && (
-        <p className="text-brand-gray mt-4 rounded-lg border bg-brand-cream px-4 py-2 text-xs">
-          Reference: <span className="font-mono">{txRef}</span>
+        <p className="mt-4 border border-brand-amber/20 bg-brand-cream/50 px-4 py-2 text-xs text-brand-gray">
+          Reference: <span className="font-mono font-semibold">{txRef}</span>
         </p>
       )}
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Button asChild className="bg-brand-amber text-brand-white hover:bg-brand-amber/90">
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <Button
+          asChild
+          className="rounded-none bg-brand-amber font-bold text-foreground hover:bg-brand-amber/90"
+        >
           <Link href="/checkout/payment">Back to payment</Link>
         </Button>
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" className="rounded-none border-brand-amber/30">
           <Link href="/account/orders">View orders</Link>
         </Button>
       </div>
-    </div>
+    </>
   );
 }

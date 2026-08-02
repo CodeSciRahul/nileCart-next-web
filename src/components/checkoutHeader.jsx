@@ -3,61 +3,117 @@
 import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BrandLogo } from "@/components/BrandLogo.jsx";
+import { cn } from "@/lib/utils";
 
 const steps = [
-  {
-    label: "BAG",
-    path: "/checkout/bag",
-  },
-  {
-    label: "PAYMENT",
-    path: "/checkout/payment",
-  },
+  { label: "Bag", path: "/checkout/bag" },
+  { label: "Payment", path: "/checkout/payment" },
 ];
 
 export default function CheckoutHeader() {
   const pathname = usePathname();
+  const currentStep = Math.max(
+    0,
+    steps.findIndex(
+      (step) => pathname === step.path || pathname?.startsWith(`${step.path}`)
+    )
+  );
 
-  const currentStep = steps.findIndex((step) => pathname === step.path);
+  const activeIndex =
+    pathname?.includes("/success") || pathname?.includes("/callback")
+      ? steps.length
+      : currentStep === -1
+        ? 0
+        : currentStep;
 
   return (
-    <header className="bg-brand-white border-b sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-black tracking-wide">
-          NILECART
-        </Link>
+    <header className="sticky top-0 z-50 border-b border-brand-amber/15 bg-brand-white/95 shadow-sm backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:h-[4.5rem] sm:px-6">
+        <BrandLogo className="min-w-0" />
 
-        <div className="hidden md:flex items-center gap-6">
-          {steps.map((step, index) => (
-            <div key={step.label} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <span
-                  className={`text-sm font-semibold tracking-wider ${
-                    index <= currentStep ? "text-green-600" : "text-brand-gray"
-                  }`}
-                >
-                  {step.label}
-                </span>
+        <nav
+          aria-label="Checkout progress"
+          className="hidden items-center gap-1 md:flex"
+        >
+          {steps.map((step, index) => {
+            const done = index < activeIndex;
+            const current = index === activeIndex;
+            const reachable = index <= activeIndex;
 
-                <div
-                  className={`mt-2 h-[2px] w-16 ${
-                    index <= currentStep ? "bg-green-600" : "bg-gray-300"
-                  }`}
-                />
+            return (
+              <div key={step.label} className="flex items-center">
+                {reachable && index < activeIndex ? (
+                  <Link
+                    href={step.path}
+                    className="flex items-center gap-2 px-2 py-1"
+                  >
+                    <StepPill index={index} done current={false} label={step.label} />
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-2 px-2 py-1">
+                    <StepPill
+                      index={index}
+                      done={done}
+                      current={current}
+                      label={step.label}
+                    />
+                  </div>
+                )}
+                {index !== steps.length - 1 && (
+                  <div
+                    className={cn(
+                      "mx-1 h-px w-10 sm:w-14",
+                      index < activeIndex ? "bg-brand-amber" : "bg-border"
+                    )}
+                    aria-hidden
+                  />
+                )}
               </div>
+            );
+          })}
+        </nav>
 
-              {index !== steps.length - 1 && (
-                <div className="w-12 h-[2px] bg-gray-300 mx-3 mt-1" />
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <ShieldCheck size={18} className="text-green-600" />
-          <span className="uppercase tracking-wider">100% Secure</span>
+        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-gray sm:text-xs">
+          <ShieldCheck size={16} className="text-emerald-600" aria-hidden />
+          <span className="hidden sm:inline">100% Secure</span>
+          <span className="sm:hidden">Secure</span>
         </div>
       </div>
+
+      {/* Mobile step label */}
+      <div className="border-t border-brand-amber/10 bg-brand-cream/40 px-4 py-2 md:hidden">
+        <p className="text-center text-[11px] font-bold uppercase tracking-wider text-foreground">
+          Step {Math.min(activeIndex + 1, steps.length)} of {steps.length}
+          {" · "}
+          {steps[Math.min(activeIndex, steps.length - 1)]?.label}
+        </p>
+      </div>
     </header>
+  );
+}
+
+function StepPill({ index, done, current, label }) {
+  return (
+    <>
+      <span
+        className={cn(
+          "flex size-6 items-center justify-center text-[10px] font-black tabular-nums ring-1",
+          done || current
+            ? "bg-brand-amber text-foreground ring-brand-amber"
+            : "bg-brand-white text-brand-gray ring-border"
+        )}
+      >
+        {index + 1}
+      </span>
+      <span
+        className={cn(
+          "text-xs font-bold uppercase tracking-[0.16em]",
+          done || current ? "text-foreground" : "text-brand-gray"
+        )}
+      >
+        {label}
+      </span>
+    </>
   );
 }

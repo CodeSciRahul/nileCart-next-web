@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Tag, X } from "lucide-react";
+import { Check, Tag, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -96,14 +96,21 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
 
   if (appliedCoupon?.code) {
     return (
-      <div className="rounded-lg border border-brand-amber/30 bg-brand-cream p-3">
+      <div className="border border-brand-amber/30 bg-brand-cream/60 p-3.5">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-start gap-2">
-            <Tag size={16} className="mt-0.5 shrink-0 text-brand-amber" />
+          <div className="flex items-start gap-2.5">
+            <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center bg-brand-amber/25 text-foreground">
+              <Check size={14} strokeWidth={2.5} />
+            </span>
             <div>
-              <p className="text-sm font-semibold">{appliedCoupon.code}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gray">
+                Coupon applied
+              </p>
+              <p className="mt-0.5 text-sm font-bold tracking-wide">
+                {appliedCoupon.code}
+              </p>
               {appliedCoupon.description && (
-                <p className="text-brand-gray mt-0.5 text-xs">
+                <p className="mt-0.5 text-xs text-brand-gray">
                   {appliedCoupon.description}
                 </p>
               )}
@@ -113,7 +120,7 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
             type="button"
             onClick={handleRemove}
             disabled={isPending}
-            className="text-brand-gray hover:text-foreground shrink-0"
+            className="shrink-0 p-1 text-brand-gray transition hover:text-foreground disabled:opacity-50"
             aria-label="Remove coupon"
           >
             <X size={16} />
@@ -124,8 +131,11 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
   }
 
   return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium">Have a coupon?</p>
+    <div className="space-y-2.5">
+      <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-brand-gray">
+        <Tag size={13} className="text-brand-amber" />
+        Have a coupon?
+      </p>
       <div className="flex gap-2">
         <Input
           value={code}
@@ -133,20 +143,23 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
             setCode(e.target.value.toUpperCase());
             setPreview(null);
           }}
-          placeholder="Enter coupon code"
+          placeholder="Enter code"
           disabled={isPending}
+          className="h-10 rounded-none border-brand-amber/25 bg-brand-white uppercase tracking-wide"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
               handleApply();
             }
           }}
+          aria-label="Coupon code"
         />
         <Button
           type="button"
           variant="outline"
           onClick={handleValidate}
           disabled={isPending || !code.trim()}
+          className="h-10 rounded-none border-brand-amber/30 px-3"
         >
           Check
         </Button>
@@ -154,13 +167,15 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
           type="button"
           onClick={handleApply}
           disabled={isPending || !code.trim()}
-          className="bg-brand-amber text-brand-white hover:bg-brand-amber/90"
+          className="h-10 rounded-none bg-brand-amber px-4 font-bold text-foreground hover:bg-brand-amber/90"
         >
           Apply
         </Button>
       </div>
       {preview?.type === "success" && (
-        <p className="text-sm text-green-600">{preview.message}</p>
+        <p className="text-xs font-semibold text-emerald-700" role="status">
+          {preview.message}
+        </p>
       )}
     </div>
   );
