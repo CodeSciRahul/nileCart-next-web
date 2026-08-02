@@ -2,7 +2,6 @@ import Header from "@/components/header";
 import Footer from "@/components/Footer";
 import Banner from "@/components/banner";
 import CategoriesSection from "@/components/category";
-import TrendingProducts from "@/components/trendingProducts";
 import Products from "@/components/products";
 import { fetchProducts } from "@/lib/data/products";
 import { fetchSubCategories } from "@/lib/data/category";
@@ -34,7 +33,6 @@ export default async function HomePage() {
       <Header announcement={home?.announcement || null} />
       <Banner banners={heroBanners} />
       <CategoriesSection categories={categories} />
-      <TrendingProducts />
       <Products products={products} />
       <Footer />
     </div>

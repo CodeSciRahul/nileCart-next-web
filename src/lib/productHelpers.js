@@ -6,3 +6,10 @@ export function getProductImageUrl(product) {
 
   return image.url || null;
 }
+
+export function getProductImageUrls(product) {
+  const images = product?.images || [];
+  return images
+    .map((image) => (typeof image === "string" ? image : image?.url))
+    .filter(Boolean);
+}
