@@ -1,4 +1,5 @@
 import Link from "next/link";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import {
   BadgeCheck,
   ChevronRight,
@@ -55,10 +56,12 @@ export default function ProductStoreSection({ seller }) {
           <div className="flex min-w-0 items-start gap-4">
             <div className="relative size-16 shrink-0 overflow-hidden border border-brand-amber/25 bg-[#FFECB3] sm:size-20">
               {logoUrl ? (
-                <img
+                <OptimizedImage
                   src={logoUrl}
                   alt=""
-                  className="size-full object-cover"
+                  fill
+                  sizes="80px"
+                  className="object-cover"
                   loading="lazy"
                 />
               ) : (
@@ -134,7 +137,7 @@ export default function ProductStoreSection({ seller }) {
             </h4>
             <p className="mt-2 text-sm leading-relaxed text-brand-gray">
               {seller.description?.trim() ||
-                `${seller.storeName} is a NileCart marketplace seller offering curated fashion and lifestyle products. Shop with confidence — every listing is quality-checked before it goes live.`}
+                `${seller.storeName} is a Nilescart marketplace seller offering curated fashion and lifestyle products. Shop with confidence — every listing is quality-checked before it goes live.`}
             </p>
           </div>
 

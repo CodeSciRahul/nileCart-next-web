@@ -200,7 +200,7 @@ export default function AuthPage() {
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-                Welcome to NileCart
+                Welcome to Nilescart
               </h2>
               <p className="mt-2 text-sm sm:text-base text-brand-gray leading-relaxed">
                 Sign in or create an account with your email — no password needed.

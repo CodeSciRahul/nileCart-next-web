@@ -8,6 +8,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { formatMoney } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +48,7 @@ export default function BagItemCard({
   const brand =
     (typeof product?.brand === "object" ? product?.brand?.name : product?.brand) ||
     product?.category?.name ||
-    "NileCart";
+    "Nilescart";
 
   return (
     <article
@@ -62,10 +63,12 @@ export default function BagItemCard({
         className="relative h-32 w-24 shrink-0 overflow-hidden border border-brand-amber/15 bg-[#FFECB3] sm:h-40 sm:w-28"
       >
         {img ? (
-          <img
+          <OptimizedImage
             src={img}
             alt={product?.title || "Product"}
-            className="size-full object-cover transition duration-300 hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 96px, 112px"
+            className="object-cover transition duration-300 hover:scale-105"
             loading="lazy"
           />
         ) : (

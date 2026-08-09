@@ -5,7 +5,7 @@ export function BrandLogo({ className = "", compact = false }) {
     <Link
       href="/"
       className={`group inline-flex items-center gap-2.5 transition-opacity hover:opacity-90 ${className}`}
-      aria-label="NileCart home"
+      aria-label="Nilescart home"
     >
       <span
         className={`relative flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-amber via-amber-400 to-brand-amber shadow-md shadow-brand-amber/25 ring-1 ring-brand-amber/30 transition-transform group-hover:scale-[1.02] ${
@@ -39,7 +39,7 @@ export function BrandLogo({ className = "", compact = false }) {
       {!compact && (
         <span className="hidden min-w-0 flex-col leading-none sm:flex">
           <span className="bg-gradient-to-r from-brand-amber via-amber-500 to-brand-amber bg-clip-text text-lg font-black tracking-tight text-transparent md:text-xl">
-            NILECART
+            NILESCART
           </span>
           <span className="mt-0.5 hidden text-[10px] font-medium uppercase tracking-[0.2em] text-brand-gray xl:block">
             Fashion Store

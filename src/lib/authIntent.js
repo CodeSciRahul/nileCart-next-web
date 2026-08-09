@@ -3,7 +3,7 @@
  * In-modal sign-in prefers in-memory pending callbacks instead.
  */
 
-const INTENT_KEY = "nilecart_auth_intent";
+const INTENT_KEY = "nilescart_auth_intent";
 const INTENT_TTL_MS = 15 * 60 * 1000;
 
 /**

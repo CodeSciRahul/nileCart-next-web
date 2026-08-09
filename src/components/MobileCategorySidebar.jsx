@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
 import { getDepartmentNav, getCategoryImageSrc } from "@/lib/categoryHelpers.js";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 const DEPARTMENT_ICONS = {
   men: Shirt,
@@ -42,13 +43,15 @@ function CategoryTile({ item, index, onNavigate }) {
       className="group flex flex-col items-center gap-2 rounded-xl p-2 transition-colors hover:bg-brand-cream/60 active:scale-[0.98]"
     >
       <div
-        className={`flex h-[52px] w-[52px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br ${gradient} shadow-sm ring-1 ring-brand-amber/15 transition-transform group-hover:scale-105`}
+        className={`relative flex h-[52px] w-[52px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br ${gradient} shadow-sm ring-1 ring-brand-amber/15 transition-transform group-hover:scale-105`}
       >
         {imageSrc ? (
-          <img
+          <OptimizedImage
             src={imageSrc}
             alt={item.name}
-            className="h-full w-full object-cover"
+            fill
+            sizes="52px"
+            className="object-cover"
           />
         ) : (
           <span className="text-lg font-bold text-brand-amber">{initial}</span>

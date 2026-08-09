@@ -3,10 +3,13 @@ import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ui/productCard";
+import OptimizedImage from "@/components/ui/OptimizedImage";
+import JsonLd from "@/components/seo/JsonLd";
 import {
   fetchSellerBySlug,
   fetchSellerProducts,
 } from "@/lib/data/sellers";
+import { buildPageMetadata, breadcrumbJsonLd, truncateMeta } from "@/lib/seo";
 import {
   BadgeCheck,
   MapPin,
@@ -15,20 +18,26 @@ import {
   Store,
 } from "lucide-react";
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   try {
     const data = await fetchSellerBySlug(slug);
     const seller = data?.seller;
-    if (!seller) return { title: "Store | NileCart" };
-    return {
-      title: `${seller.storeName} | NileCart Store`,
-      description:
-        seller.description?.slice(0, 160) ||
-        `Shop products from ${seller.storeName} on NileCart.`,
-    };
+    if (!seller) {
+      return { title: "Store", robots: { index: false, follow: false } };
+    }
+    return buildPageMetadata({
+      title: `${seller.storeName} Store`,
+      description: truncateMeta(
+        seller.description ||
+          `Shop products from ${seller.storeName} on Nilescart.`
+      ),
+      path: `/store/${slug}`,
+    });
   } catch {
-    return { title: "Store | NileCart" };
+    return { title: "Store" };
   }
 }
 
@@ -62,11 +71,17 @@ export default async function StorePage({ params }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-brand-white">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: seller.storeName, path: `/store/${slug}` },
+        ])}
+      />
       <Header />
       <main className="flex-1">
         <div className="border-b border-brand-amber/15 bg-linear-to-b from-brand-cream/60 to-brand-white">
           <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-            <nav className="mb-6 text-xs text-brand-gray">
+            <nav className="mb-6 text-xs text-brand-gray" aria-label="Breadcrumb">
               <Link href="/" className="hover:text-foreground">
                 Home
               </Link>
@@ -77,10 +92,12 @@ export default async function StorePage({ params }) {
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <div className="relative size-20 shrink-0 overflow-hidden border border-brand-amber/25 bg-[#FFECB3] sm:size-24">
                 {logoUrl ? (
-                  <img
+                  <OptimizedImage
                     src={logoUrl}
-                    alt=""
-                    className="size-full object-cover"
+                    alt={`${seller.storeName} logo`}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
                   />
                 ) : (
                   <span className="flex size-full items-center justify-center text-3xl font-black">

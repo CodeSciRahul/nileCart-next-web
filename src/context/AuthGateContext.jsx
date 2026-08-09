@@ -168,9 +168,10 @@ export function AuthGateProvider({ children }) {
 
   // Session became authenticated while the gate is open
   useEffect(() => {
-    if (isAuthenticated && open) {
+    if (!(isAuthenticated && open)) return;
+    queueMicrotask(() => {
       completeSuccess();
-    }
+    });
   }, [isAuthenticated, open, completeSuccess]);
 
   // Resume intents after /auth redirect
@@ -179,7 +180,7 @@ export function AuthGateProvider({ children }) {
     const intent = consumeAuthIntent();
     if (!intent) return;
     window.dispatchEvent(
-      new CustomEvent("nilecart:auth-intent", { detail: intent })
+      new CustomEvent("nilescart:auth-intent", { detail: intent })
     );
   }, [authLoading, isAuthenticated]);
 

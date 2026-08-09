@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
@@ -25,13 +25,16 @@ export default function ShopPage({ slug }) {
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
   });
+  const priceKey = `${filters.minPrice ?? ""}:${filters.maxPrice ?? ""}`;
+  const [prevPriceKey, setPrevPriceKey] = useState(priceKey);
 
-  useEffect(() => {
+  if (priceKey !== prevPriceKey) {
+    setPrevPriceKey(priceKey);
     setPriceDraft({
       minPrice: filters.minPrice,
       maxPrice: filters.maxPrice,
     });
-  }, [filters.minPrice, filters.maxPrice]);
+  }
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["shop", slug, filters],

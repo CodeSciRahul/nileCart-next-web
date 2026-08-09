@@ -60,7 +60,7 @@ export default function OrderSuccessPage({
 
         <p className="mt-6 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-brand-gray">
           <ShieldCheck size={14} className="text-emerald-600" />
-          Secure NileCart checkout
+          Secure Nilescart checkout
         </p>
       </div>
 

@@ -20,7 +20,7 @@ import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
 import { useAuthGate } from "@/context/AuthGateContext";
 import { AUTH_ACTIONS } from "@/lib/authActions";
 
-const ANNOUNCEMENT_KEY_PREFIX = "nilecart-announcement-dismissed";
+const ANNOUNCEMENT_KEY_PREFIX = "nilescart-announcement-dismissed";
 
 function HeaderIconButton({ href, onClick, label, children, badge }) {
   const className =
@@ -57,8 +57,13 @@ const Header = ({ announcement = null }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeDepartment, setActiveDepartment] = useState(null);
   const [pinnedDepartment, setPinnedDepartment] = useState(null);
-  const [mobileDepartment, setMobileDepartment] = useState(null);
-  const [showAnnouncement, setShowAnnouncement] = useState(false);
+  const [mobileDepartment, setMobileDepartment] = useState(
+    DEPARTMENT_ORDER[0] || null
+  );
+  const [announcementAllowed, setAnnouncementAllowed] = useState(
+    () => announcement?.dismissible === false
+  );
+  const [announcementSyncKey, setAnnouncementSyncKey] = useState("");
   const userMenuRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -72,6 +77,25 @@ const Header = ({ announcement = null }) => {
     ? `${ANNOUNCEMENT_KEY_PREFIX}:${announcement._id}`
     : ANNOUNCEMENT_KEY_PREFIX;
 
+  const announcementEligible =
+    pathname === "/" && Boolean(announcement?.message);
+  const syncKey = `${announcementEligible}:${dismissKey}:${announcement?.dismissible === false}`;
+
+  if (syncKey !== announcementSyncKey) {
+    setAnnouncementSyncKey(syncKey);
+    if (!announcementEligible) {
+      setAnnouncementAllowed(false);
+    } else if (announcement?.dismissible === false) {
+      setAnnouncementAllowed(true);
+    } else if (typeof window !== "undefined") {
+      setAnnouncementAllowed(sessionStorage.getItem(dismissKey) !== "1");
+    } else {
+      setAnnouncementAllowed(false);
+    }
+  }
+
+  const showAnnouncement = announcementEligible && announcementAllowed;
+
   const { data: navData, isLoading: navLoading } = useQuery({
     queryKey: ["categories", "navigation"],
     queryFn: getCategoryNavigation,
@@ -82,24 +106,6 @@ const Header = ({ announcement = null }) => {
     () => mapNavDepartments(navData?.departments),
     [navData?.departments]
   );
-
-  useEffect(() => {
-    if (pathname !== "/" || !announcement?.message) {
-      setShowAnnouncement(false);
-      return;
-    }
-    if (announcement.dismissible === false) {
-      setShowAnnouncement(true);
-      return;
-    }
-    setShowAnnouncement(sessionStorage.getItem(dismissKey) !== "1");
-  }, [pathname, announcement, dismissKey]);
-
-  useEffect(() => {
-    if (!mobileDepartment && DEPARTMENT_ORDER.length > 0) {
-      setMobileDepartment(DEPARTMENT_ORDER[0]);
-    }
-  }, [mobileDepartment]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -122,7 +128,7 @@ const Header = ({ announcement = null }) => {
   const dismissAnnouncement = () => {
     if (announcement?.dismissible === false) return;
     sessionStorage.setItem(dismissKey, "1");
-    setShowAnnouncement(false);
+    setAnnouncementAllowed(false);
   };
 
   const handleLogout = async () => {

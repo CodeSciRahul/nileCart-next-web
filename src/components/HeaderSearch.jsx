@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 
@@ -8,13 +8,16 @@ export function HeaderSearch({ className = "", compact = false }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState("");
+  const urlQuery =
+    pathname === "/search" ? searchParams.get("q") || "" : null;
 
-  useEffect(() => {
-    if (pathname === "/search") {
-      setQuery(searchParams.get("q") || "");
-    }
-  }, [pathname, searchParams]);
+  const [query, setQuery] = useState(() => urlQuery ?? "");
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery);
+
+  if (urlQuery !== null && urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery);
+    setQuery(urlQuery);
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();

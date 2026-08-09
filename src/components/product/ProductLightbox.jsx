@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,6 +20,14 @@ export default function ProductLightbox({
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const touchRef = useRef({ startX: 0, startY: 0, pin: null });
   const total = media.length;
+  const zoomKey = `${open ? 1 : 0}:${index}`;
+  const [prevZoomKey, setPrevZoomKey] = useState(zoomKey);
+
+  if (zoomKey !== prevZoomKey) {
+    setPrevZoomKey(zoomKey);
+    setScale(1);
+    setOffset({ x: 0, y: 0 });
+  }
 
   const resetZoom = useCallback(() => {
     setScale(1);
@@ -27,13 +36,12 @@ export default function ProductLightbox({
 
   useEffect(() => {
     if (!open) return undefined;
-    resetZoom();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
-  }, [open, index, resetZoom]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -138,11 +146,14 @@ export default function ProductLightbox({
             className="max-h-full max-w-full object-contain"
           />
         ) : (
-          <img
+          <OptimizedImage
             src={item.src}
             alt={`${title} ${index + 1}`}
+            width={1200}
+            height={1600}
+            sizes="100vw"
             draggable={false}
-            className="max-h-full max-w-full select-none object-contain transition-transform duration-150"
+            className="h-auto w-auto max-h-full max-w-full select-none object-contain transition-transform duration-150"
             style={{
               transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
             }}
@@ -192,10 +203,12 @@ export default function ProductLightbox({
                   VIDEO
                 </div>
               ) : (
-                <img
+                <OptimizedImage
                   src={m.src}
                   alt=""
-                  className="size-full object-cover"
+                  fill
+                  sizes="56px"
+                  className="object-cover"
                   loading="lazy"
                 />
               )}

@@ -4,7 +4,9 @@ import SearchPage from "@/components/search/SearchPage.jsx";
 
 export const metadata = {
   title: "Search",
-  description: "Search products at NileCart.",
+  description: "Search products at Nilescart.",
+  robots: { index: false, follow: true },
+  alternates: { canonical: "/search" },
 };
 
 function SearchFallback() {

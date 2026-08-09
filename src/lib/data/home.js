@@ -11,15 +11,18 @@ export async function detectDevice() {
 }
 
 /**
- * Fetch composed homepage payload (announcement, sections, popup).
- * Forwards auth cookie when present so auth targeting works.
+ * Public homepage payload. Cached via ISR — avoid auth cookies so the
+ * response can be shared across users (better TTFB / CDN cacheability).
  */
 export async function fetchHome({ device } = {}) {
   const resolvedDevice = device || (await detectDevice());
   const path = `/home?device=${encodeURIComponent(resolvedDevice)}`;
 
   try {
-    return await serverGet(path, { authenticated: true, revalidate: 60 });
+    return await serverGet(path, {
+      revalidate: 60,
+      tags: ["home", `home:${resolvedDevice}`],
+    });
   } catch {
     return { announcement: null, sections: [], popup: null };
   }
@@ -39,7 +42,10 @@ export async function getHeroBanners(home, { device } = {}) {
   try {
     const data = await serverGet(
       `/banners?device=${encodeURIComponent(resolvedDevice)}`,
-      { authenticated: true, revalidate: 60 }
+      {
+        revalidate: 60,
+        tags: ["banners", `banners:${resolvedDevice}`],
+      }
     );
     return data?.banners || [];
   } catch {

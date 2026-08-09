@@ -8,8 +8,17 @@ const buildApiError = (data, status) => {
   return error;
 };
 
+/**
+ * Server-side GET with ISR-friendly caching.
+ * Authenticated requests stay uncached (user-specific).
+ */
 export async function serverGet(path, options = {}) {
-  const { authenticated = false, revalidate = 60 } = options;
+  const {
+    authenticated = false,
+    revalidate = 60,
+    tags = [],
+    cache,
+  } = options;
   const headers = { "Content-Type": "application/json" };
 
   if (authenticated) {
@@ -21,11 +30,22 @@ export async function serverGet(path, options = {}) {
     }
   }
 
+  const fetchCache =
+    cache ||
+    (authenticated
+      ? "no-store"
+      : undefined);
+
   const response = await fetch(`${getServerApiBaseUrl()}${path}`, {
     headers,
-    ...(authenticated
-      ? { cache: "no-store" }
-      : { next: { revalidate } }),
+    ...(fetchCache
+      ? { cache: fetchCache }
+      : {
+          next: {
+            revalidate,
+            ...(tags.length ? { tags } : {}),
+          },
+        }),
   });
 
   const data = await response.json().catch(() => ({}));

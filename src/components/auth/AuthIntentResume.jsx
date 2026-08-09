@@ -80,8 +80,8 @@ export default function AuthIntentResume() {
       }
     };
 
-    window.addEventListener("nilecart:auth-intent", handler);
-    return () => window.removeEventListener("nilecart:auth-intent", handler);
+    window.addEventListener("nilescart:auth-intent", handler);
+    return () => window.removeEventListener("nilescart:auth-intent", handler);
   }, [queryClient, router]);
 
   return null;

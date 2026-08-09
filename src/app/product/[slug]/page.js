@@ -2,50 +2,46 @@ import { notFound } from "next/navigation";
 import ProductDetailContent from "@/components/product/ProductDetailContent";
 import { fetchProductBySlug, fetchProducts } from "@/lib/data/products";
 import { fetchProductReviews } from "@/lib/data/reviews";
-import { getProductImageUrl } from "@/lib/productHelpers";
+import { buildPageMetadata, truncateMeta } from "@/lib/seo";
 
-export async function generateMetadata({ params, searchParams }) {
+export const revalidate = 120;
+
+export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const resolvedSearchParams = await searchParams;
 
   try {
     const data = await fetchProductBySlug(slug);
     const product = data?.product;
 
     if (!product) {
-      return { title: "Product Not Found | NileCart" };
+      return {
+        title: "Product Not Found",
+        robots: { index: false, follow: false },
+      };
     }
 
-    const imageUrl = getProductImageUrl(product);
-    const description =
-      product.description?.slice(0, 160) ||
-      `Shop ${product.title} at NileCart.`;
+    const description = truncateMeta(
+      product.description ||
+        `Shop ${product.title} at Nilescart. Fast shipping and easy returns.`
+    );
 
-    return {
+    return buildPageMetadata({
       title: product.title,
       description,
-      openGraph: {
-        title: product.title,
-        description,
-        type: "website",
-        ...(imageUrl ? { images: [{ url: imageUrl, alt: product.title }] } : {}),
-      },
-      twitter: {
-        card: imageUrl ? "summary_large_image" : "summary",
-        title: product.title,
-        description,
-        ...(imageUrl ? { images: [imageUrl] } : {}),
-      },
-      alternates: {
-        canonical: `/product/${slug}${
-          resolvedSearchParams?.cat ? `?cat=${resolvedSearchParams.cat}` : ""
-        }`,
-      },
-    };
+      path: `/product/${slug}`,
+      type: "website",
+      keywords: [
+        product.title,
+        product.brand?.name || product.brand,
+        product.category?.name,
+        "Nilescart",
+        "fashion",
+      ].filter(Boolean),
+    });
   } catch {
     return {
-      title: "Product | NileCart",
-      description: "Discover fashion products at NileCart.",
+      title: "Product",
+      description: "Discover fashion products at Nilescart.",
     };
   }
 }
@@ -69,7 +65,11 @@ export default async function ProductPage({ params, searchParams }) {
 
     const [reviewsData, similarData] = await Promise.all([
       fetchProductReviews(product._id),
-      fetchProducts(categoryId ? { category: categoryId } : {}),
+      fetchProducts(
+        categoryId
+          ? { category: categoryId, limit: 12 }
+          : { limit: 12 }
+      ),
     ]);
 
     reviews = reviewsData?.reviews || [];

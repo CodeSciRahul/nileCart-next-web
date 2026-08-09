@@ -7,31 +7,29 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVerifyPayment } from "@/hooks/usePayment";
 
+const MISSING_REF_MESSAGE =
+  "Missing payment reference. Please contact support if you were charged.";
+
 export default function PaymentCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const verifyPayment = useVerifyPayment();
   const attempted = useRef(false);
 
-  const [state, setState] = useState({ status: "loading", message: "" });
-
   const txRef = searchParams.get("tx_ref") || searchParams.get("txRef");
   const transactionId =
     searchParams.get("transaction_id") || searchParams.get("transactionId");
   const redirectStatus = searchParams.get("status");
 
-  useEffect(() => {
-    if (attempted.current) return;
-    attempted.current = true;
+  const [state, setState] = useState(() =>
+    txRef
+      ? { status: "loading", message: "" }
+      : { status: "error", message: MISSING_REF_MESSAGE }
+  );
 
-    if (!txRef) {
-      setState({
-        status: "error",
-        message:
-          "Missing payment reference. Please contact support if you were charged.",
-      });
-      return;
-    }
+  useEffect(() => {
+    if (attempted.current || !txRef) return;
+    attempted.current = true;
 
     if (redirectStatus === "cancelled" || redirectStatus === "canceled") {
       verifyPayment.mutate(

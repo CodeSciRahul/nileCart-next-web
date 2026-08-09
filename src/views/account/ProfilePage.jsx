@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useUpdateProfile } from "@/hooks/useProfile";
 import AvatarUpload from "@/components/account/AvatarUpload";
@@ -15,29 +15,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const emptyForm = {
+  name: "",
+  mobileNumber: "",
+  gender: "",
+  birthday: "",
+};
+
+const formFromUser = (user) => ({
+  name: user?.name || "",
+  mobileNumber: user?.mobileNumber || "",
+  gender: user?.gender || "",
+  birthday: user?.birthday
+    ? new Date(user.birthday).toISOString().slice(0, 10)
+    : "",
+});
+
 const ProfilePage = () => {
   const { user } = useAuth();
   const updateProfile = useUpdateProfile();
   const [avatar, setAvatar] = useState(null);
-  const [form, setForm] = useState({
-    name: "",
-    mobileNumber: "",
-    gender: "",
-    birthday: "",
-  });
+  const [form, setForm] = useState(emptyForm);
+  const [syncedUserId, setSyncedUserId] = useState(undefined);
+  const userId = user?._id ?? null;
 
-  useEffect(() => {
-    if (!user) return;
-    setAvatar(user.avatar ? { url: user.avatar } : null);
-    setForm({
-      name: user.name || "",
-      mobileNumber: user.mobileNumber || "",
-      gender: user?.gender || "",
-      birthday: user.birthday
-        ? new Date(user.birthday).toISOString().slice(0, 10)
-        : "",
-    });
-  }, [user]);
+  if (userId !== syncedUserId) {
+    setSyncedUserId(userId);
+    setAvatar(user?.avatar ? { url: user.avatar } : null);
+    setForm(user ? formFromUser(user) : emptyForm);
+  }
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));

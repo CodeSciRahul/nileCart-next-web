@@ -46,7 +46,7 @@ export default function ProductDetailClient({ product }) {
       : product?.brand) ||
     product?.seller?.storeName ||
     product?.category?.name ||
-    "NileCart";
+    "Nilescart";
 
   const ratingAvg = Number(product?.rating?.average) || 0;
   const ratingCount = Number(product?.rating?.count) || 0;

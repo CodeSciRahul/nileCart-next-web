@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle,
@@ -33,20 +33,24 @@ export default function PaymentPage({ addresses = [], cart }) {
   const initializeCheckout = useInitializeCheckout();
   const { data: paymentConfig } = usePaymentConfig();
 
-  const [selectedAddress, setSelectedAddress] = useState("");
+  const defaultAddressId = useMemo(() => {
+    const preferred = addresses?.find((a) => a?.isDefault)?._id;
+    return preferred || addresses?.[0]?._id || "";
+  }, [addresses]);
+
+  const [selectedAddressOverride, setSelectedAddressOverride] = useState(null);
+  const selectedAddress =
+    selectedAddressOverride &&
+    addresses?.some((a) => a?._id === selectedAddressOverride)
+      ? selectedAddressOverride
+      : defaultAddressId;
+  const setSelectedAddress = setSelectedAddressOverride;
+
   const [selectedPayment, setSelectedPayment] = useState("cod");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
   const currency = paymentConfig?.currency || "UGX";
   const onlineEnabled = paymentConfig?.onlinePaymentsEnabled ?? false;
-
-  useEffect(() => {
-    const defaultAddress = addresses?.find((a) => a?.isDefault);
-    if (defaultAddress) {
-      setSelectedAddress(defaultAddress?._id);
-    }
-  }, [addresses]);
-
   const items = cart?.cart?.items || [];
   const orderTotal = cart?.total ?? cart?.subtotal ?? 0;
   const hasItems = items.length > 0;

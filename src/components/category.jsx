@@ -1,4 +1,5 @@
 import Link from "next/link";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { getCategoryImageSrc } from "@/lib/categoryHelpers";
 
 const PLACEHOLDER_TONES = [
@@ -45,10 +46,12 @@ const CategoryCard = ({ category, index }) => {
         <div className="px-3 pt-3 sm:px-4 sm:pt-4">
           <div className="relative aspect-[3/4] overflow-hidden bg-brand-white/40">
             {imageSrc ? (
-              <img
+              <OptimizedImage
                 src={imageSrc}
                 alt={category.name}
-                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                 loading="lazy"
               />
             ) : (

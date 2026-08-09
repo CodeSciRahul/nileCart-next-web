@@ -1,5 +1,6 @@
 
 import { Heart, Star } from "lucide-react";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 const products = [
   {
@@ -77,18 +78,13 @@ const TrendingProducts = () => {
                 "
             >
               {/* Image */}
-              <div className="relative overflow-hidden">
-                <img
+              <div className="relative aspect-[3/4] overflow-hidden">
+                <OptimizedImage
                   src={product.image}
                   alt={product.title}
-                  className="
-                      h-[320px]
-                      w-full
-                      object-cover
-                      transition-transform
-                      duration-700
-                      group-hover:scale-110
-                    "
+                  fill
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 
                 {/* Trending Badge */}

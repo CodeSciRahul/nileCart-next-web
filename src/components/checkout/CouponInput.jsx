@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Check, Tag, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,11 +28,6 @@ export default function CouponInput({ appliedCoupon, subtotal = 0 }) {
     validateMutation.isPending ||
     applyMutation.isPending ||
     removeMutation.isPending;
-
-  useEffect(() => {
-    setPreview(null);
-  }, [appliedCoupon?.code]);
-
   const withAuth = async (fn) => {
     if (isAuthenticated) {
       fn();

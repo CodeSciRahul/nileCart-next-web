@@ -3,16 +3,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 function resolveHref(banner) {
   return banner?.ctaHref || banner?.ctaLink || null;
 }
 
-function BannerSlide({ banner }) {
+function resolveBannerImage(image) {
+  if (!image) return null;
+  if (typeof image === "string") return image;
+  return image.url || null;
+}
+
+function BannerSlide({ banner, priority = false }) {
   const href = resolveHref(banner);
   const ctaText = banner.ctaText || "Shop Now";
-  const desktopImage = banner.image;
-  const mobileImage = banner.mobileImage || banner.image;
+  const desktopImage = resolveBannerImage(banner.image);
+  const mobileImage =
+    resolveBannerImage(banner.mobileImage) || desktopImage;
 
   const cta = href ? (
     <Link
@@ -30,17 +38,25 @@ function BannerSlide({ banner }) {
   return (
     <>
       {desktopImage && (
-        <img
+        <OptimizedImage
           src={desktopImage}
           alt={banner.title || "Banner"}
-          className="hidden h-full w-full object-cover md:block"
+          fill
+          sizes="100vw"
+          priority={priority}
+          quality={80}
+          className="hidden object-cover md:block"
         />
       )}
       {mobileImage && (
-        <img
+        <OptimizedImage
           src={mobileImage}
           alt={banner.title || "Banner"}
-          className="h-full w-full object-cover md:hidden"
+          fill
+          sizes="100vw"
+          priority={priority}
+          quality={80}
+          className="object-cover md:hidden"
         />
       )}
 
@@ -74,18 +90,17 @@ function BannerSlide({ banner }) {
 }
 
 const Banner = ({ banners = [] }) => {
-  const slides = Array.isArray(banners) ? banners.filter((b) => b?.image || b?.mobileImage) : [];
+  const slides = Array.isArray(banners)
+    ? banners.filter((b) => resolveBannerImage(b?.image) || resolveBannerImage(b?.mobileImage))
+    : [];
   const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    setCurrent(0);
-  }, [slides.length]);
+  const active = slides.length ? current % slides.length : 0;
 
   useEffect(() => {
     if (slides.length <= 1) return undefined;
 
     const timer = setInterval(() => {
-      setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+      setCurrent((prev) => prev + 1);
     }, 5000);
 
     return () => clearInterval(timer);
@@ -94,11 +109,11 @@ const Banner = ({ banners = [] }) => {
   if (!slides.length) return null;
 
   const nextSlide = () => {
-    setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    setCurrent((prev) => prev + 1);
   };
 
   const prevSlide = () => {
-    setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    setCurrent((prev) => prev + Math.max(slides.length - 1, 0));
   };
 
   return (
@@ -108,10 +123,10 @@ const Banner = ({ banners = [] }) => {
           <div
             key={banner._id || index}
             className={`absolute inset-0 transition-all duration-700 ${
-              current === index ? "opacity-100 scale-100" : "opacity-0 scale-105"
+              active === index ? "opacity-100 scale-100" : "opacity-0 scale-105"
             }`}
           >
-            <BannerSlide banner={banner} />
+            <BannerSlide banner={banner} priority={index === 0} />
           </div>
         ))}
 
@@ -143,7 +158,7 @@ const Banner = ({ banners = [] }) => {
                   onClick={() => setCurrent(index)}
                   aria-label={`Go to banner ${index + 1}`}
                   className={`transition-all duration-300 ${
-                    current === index
+                    active === index
                       ? "h-3 w-10 rounded-full bg-brand-amber"
                       : "h-3 w-3 rounded-full bg-white/60"
                   }`}

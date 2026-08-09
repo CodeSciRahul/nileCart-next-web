@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Package, ShoppingBag } from "lucide-react";
 import { useMyOrders } from "@/hooks/useOrders";
 import { Button } from "@/components/ui/button";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 const STATUS_LABELS = {
   placed: "Placed",
@@ -93,11 +94,15 @@ const OrdersPage = () => {
 
                 <div className="mt-4 flex items-center gap-4">
                   {firstItem?.image ? (
-                    <img
-                      src={firstItem.image}
-                      alt={firstItem.title}
-                      className="h-16 w-14 rounded-lg border border-brand-cream object-cover"
-                    />
+                    <div className="relative h-16 w-14 overflow-hidden rounded-lg border border-brand-cream">
+                      <OptimizedImage
+                        src={firstItem.image}
+                        alt={firstItem.title}
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="flex h-16 w-14 items-center justify-center rounded-lg bg-brand-cream">
                       <ShoppingBag size={20} className="text-brand-gray" />

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Layers2, Loader2, ShoppingBag, Star } from "lucide-react";
 import WishlistButton from "@/components/wishlist/WishlistButton";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useAddToCart } from "@/hooks/useCart";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthGate } from "@/context/AuthGateContext";
@@ -39,7 +40,7 @@ const ProductCard = ({ product }) => {
   const similarHref = product?.category?.slug
     ? `/shop/${product.category.slug}`
     : href;
-  const brandLabel = product?.brand || product?.category?.name || "NileCart";
+  const brandLabel = product?.brand || product?.category?.name || "Nilescart";
 
   useEffect(() => {
     if (!hovered || images.length < 2) return undefined;
@@ -101,21 +102,31 @@ const ProductCard = ({ product }) => {
     >
       <div className="relative overflow-hidden bg-[#f5f5f5]">
         <Link href={href} className="relative block aspect-[5/4] overflow-hidden">
-          {images.map((src, index) => (
-            <img
-              key={`${src}-${index}`}
-              src={src}
-              alt={
-                index === 0
-                  ? product?.title || "Product"
-                  : `${product?.title || "Product"} view ${index + 1}`
-              }
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                index === imageIndex ? "opacity-100" : "opacity-0"
-              }`}
-              loading={index === 0 ? "eager" : "lazy"}
-            />
-          ))}
+          {images.map((src, index) =>
+            src ? (
+              <OptimizedImage
+                key={`${src}-${index}`}
+                src={src}
+                alt={
+                  index === 0
+                    ? product?.title || "Product"
+                    : `${product?.title || "Product"} view ${index + 1}`
+                }
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                className={`object-cover transition-opacity duration-300 ${
+                  index === imageIndex ? "opacity-100" : "opacity-0"
+                }`}
+                loading={index === 0 ? "lazy" : "lazy"}
+              />
+            ) : (
+              <span
+                key={`empty-${index}`}
+                className="absolute inset-0 bg-[#f5f5f5]"
+                aria-hidden
+              />
+            )
+          )}
         </Link>
 
         {discountPercent > 0 && (

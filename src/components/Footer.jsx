@@ -45,7 +45,7 @@ const FOOTER_LINKS = {
     { label: "FAQs", href: "#" },
   ],
   company: [
-    { label: "About NileCart", href: "#" },
+    { label: "About Nilescart", href: "#" },
     { label: "Careers", href: "#" },
     { label: "Blog", href: "#" },
     { label: "Become a Seller", href: "#" },
@@ -110,7 +110,7 @@ export default function Footer() {
               </p>
               <p className="flex items-center gap-2">
                 <Mail size={14} className="shrink-0 text-brand-amber" />
-                support@nilecart.com
+                support@nilescart.com
               </p>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function Footer() {
       <div className="border-t border-brand-amber/20 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:flex-row sm:px-6">
           <p className="text-center text-xs text-brand-gray sm:text-left">
-            © {new Date().getFullYear()} NileCart Fashion Pvt. Ltd. All rights reserved.
+            © {new Date().getFullYear()} Nilescart Fashion Pvt. Ltd. All rights reserved.
           </p>
 
           <div className="flex items-center gap-2">

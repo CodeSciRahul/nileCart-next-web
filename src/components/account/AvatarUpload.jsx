@@ -7,6 +7,7 @@ import { UPLOAD_FOLDERS, ACCEPT_IMAGE_INPUT } from "@/lib/uploadConstants";
 import { getImageUrl, toStoredImage } from "@/lib/storedImage";
 import { validateImageFile } from "@/services/uploadService";
 import { Button } from "@/components/ui/button";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 const AvatarUpload = ({
   value,
@@ -56,12 +57,14 @@ const AvatarUpload = ({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <div className="relative shrink-0">
-        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-brand-amber/30 bg-brand-cream shadow-sm ring-4 ring-brand-amber/10">
+        <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-brand-amber/30 bg-brand-cream shadow-sm ring-4 ring-brand-amber/10">
           {imageUrl ? (
-            <img
+            <OptimizedImage
               src={imageUrl}
               alt={displayName}
-              className="h-full w-full object-cover"
+              fill
+              sizes="96px"
+              className="object-cover"
             />
           ) : (
             <span className="text-3xl font-bold text-brand-amber">{initial}</span>

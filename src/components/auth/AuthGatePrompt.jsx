@@ -81,7 +81,7 @@ export default function AuthGatePrompt({
             </span>
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                NileCart account
+                Nilescart account
               </p>
               <DialogTitle
                 id={titleId}

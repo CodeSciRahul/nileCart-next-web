@@ -1,17 +1,38 @@
 import Header from "@/components/header";
 import Footer from "@/components/Footer";
+import Link from "next/link";
 import ProductCard from "@/components/ui/productCard";
 import ProductReviewsSection from "@/components/product/ProductReviewsSection";
 import ProductStoreSection from "@/components/product/ProductStoreSection";
 import ProductDetailClient from "@/components/product/ProductDetailClient";
+import JsonLd from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, productJsonLd } from "@/lib/seo";
 
 export default function ProductDetailContent({
   product,
   reviews = [],
   similarProducts = [],
 }) {
+  const categoryPath = product?.category?.slug
+    ? `/shop/${product.category.slug}`
+    : null;
+
   return (
     <div className="flex min-h-screen flex-col bg-brand-white">
+      <JsonLd
+        data={[
+          productJsonLd(product),
+          breadcrumbJsonLd(
+            [
+              { name: "Home", path: "/" },
+              product?.category?.name && categoryPath
+                ? { name: product.category.name, path: categoryPath }
+                : null,
+              { name: product?.title, path: `/product/${product?.slug}` },
+            ].filter(Boolean)
+          ),
+        ]}
+      />
       <Header />
 
       <main className="flex-1 pb-24 lg:pb-12">
@@ -21,22 +42,18 @@ export default function ProductDetailContent({
               aria-label="Breadcrumb"
               className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-brand-gray"
             >
-              <a href="/" className="hover:text-foreground">
+              <Link href="/" className="hover:text-foreground">
                 Home
-              </a>
+              </Link>
               <span aria-hidden>/</span>
               {product?.category?.name && (
                 <>
-                  <a
-                    href={
-                      product.category.slug
-                        ? `/shop/${product.category.slug}`
-                        : "#"
-                    }
+                  <Link
+                    href={categoryPath || "/"}
                     className="hover:text-foreground"
                   >
                     {product.category.name}
-                  </a>
+                  </Link>
                   <span aria-hidden>/</span>
                 </>
               )}

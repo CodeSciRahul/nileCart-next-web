@@ -1,10 +1,11 @@
 "use client";
 
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { cn } from "@/lib/utils";
 
 const sizeClasses = {
-  sm: "h-8 w-8 text-sm",
-  md: "h-11 w-11 text-base",
+  sm: "h-8 w-8",
+  md: "h-11 w-11",
 };
 
 const UserAvatar = ({ user, size = "sm", className }) => {
@@ -13,15 +14,21 @@ const UserAvatar = ({ user, size = "sm", className }) => {
 
   if (user?.avatar) {
     return (
-      <img
-        src={user.avatar}
-        alt={label}
+      <span
         className={cn(
-          "shrink-0 rounded-full object-cover ring-2 ring-brand-amber/20",
+          "relative inline-block shrink-0 overflow-hidden rounded-full ring-2 ring-brand-amber/20",
           sizeClasses[size],
           className
         )}
-      />
+      >
+        <OptimizedImage
+          src={user.avatar}
+          alt={label}
+          fill
+          sizes="44px"
+          className="object-cover"
+        />
+      </span>
     );
   }
 
@@ -29,7 +36,7 @@ const UserAvatar = ({ user, size = "sm", className }) => {
     <span
       className={cn(
         "flex shrink-0 items-center justify-center rounded-full bg-brand-amber font-bold text-foreground",
-        sizeClasses[size],
+        size === "sm" ? "h-8 w-8 text-sm" : "h-11 w-11 text-base",
         className
       )}
     >

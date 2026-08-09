@@ -23,7 +23,7 @@ const DeleteAccountPage = () => {
     <div className="max-w-xl">
       <h2 className="mb-1 text-xl font-bold text-foreground">Delete Account</h2>
       <p className="mb-6 text-sm text-brand-gray">
-        Permanently deactivate your NileCart account.
+        Permanently deactivate your Nilescart account.
       </p>
 
       <div className="mb-6 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
