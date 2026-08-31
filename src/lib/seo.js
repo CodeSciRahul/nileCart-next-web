@@ -75,7 +75,7 @@ export function organizationJsonLd() {
     "@type": "Organization",
     name: SITE.name,
     url: getSiteUrl(),
-    logo: absoluteUrl("/icon"),
+    logo: absoluteUrl("/brand/nilescart_mark.png"),
     sameAs: [],
     description: SITE.description,
   };

@@ -30,6 +30,16 @@ export const metadata = {
     address: false,
     telephone: false,
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/brand/nilescart_mark.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", type: "image/png", sizes: "180x180" },
+      { url: "/brand/nilescart_mark.png", type: "image/png", sizes: "512x512" },
+    ],
+  },
   openGraph: {
     type: "website",
     locale: SITE.locale,

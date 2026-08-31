@@ -148,7 +148,7 @@ export default function AuthGatePrompt({
               </div>
 
               <div className="mt-6 flex items-center justify-center gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-                <BrandLogo compact className="opacity-80" />
+                <BrandLogo compact variant="auto" className="opacity-80" />
                 <p className="text-[11px] text-neutral-500">
                   Secure · Passwordless · Free
                 </p>
