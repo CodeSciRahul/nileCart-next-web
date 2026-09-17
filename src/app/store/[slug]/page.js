@@ -164,7 +164,7 @@ export default async function StorePage({ params }) {
           </div>
 
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-6 sm:gap-x-3 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4">
               {products.map((item) => (
                 <ProductCard key={item._id} product={item} />
               ))}

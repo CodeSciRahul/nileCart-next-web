@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Layers2, Loader2, ShoppingBag, Star } from "lucide-react";
+import { Layers2, Loader2, ShoppingBag } from "lucide-react";
 import WishlistButton from "@/components/wishlist/WishlistButton";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useAddToCart } from "@/hooks/useCart";
@@ -96,12 +96,15 @@ const ProductCard = ({ product }) => {
 
   return (
     <article
-      className="group flex h-full flex-col border border-brand-amber/25 bg-[#FFECB3]"
+      className="group flex h-full flex-col bg-transparent"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative overflow-hidden bg-[#f5f5f5]">
-        <Link href={href} className="relative block aspect-[5/4] overflow-hidden">
+      <div className="relative overflow-hidden bg-brand-sand/40">
+        <Link
+          href={href}
+          className="relative block aspect-[3/4] overflow-hidden"
+        >
           {images.map((src, index) =>
             src ? (
               <OptimizedImage
@@ -114,39 +117,33 @@ const ProductCard = ({ product }) => {
                 }
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                className={`object-cover transition-opacity duration-300 ${
+                className={`object-cover transition-[opacity,transform] duration-500 ease-out ${
                   index === imageIndex ? "opacity-100" : "opacity-0"
-                }`}
-                loading={index === 0 ? "lazy" : "lazy"}
+                } ${hovered ? "scale-[1.04]" : "scale-100"}`}
+                loading="lazy"
               />
             ) : (
               <span
                 key={`empty-${index}`}
-                className="absolute inset-0 bg-[#f5f5f5]"
+                className="absolute inset-0 bg-brand-sand/50"
                 aria-hidden
               />
             )
           )}
         </Link>
 
-        {discountPercent > 0 && (
-          <span className="pointer-events-none absolute left-0 top-2 z-10 bg-brand-amber px-2 py-1 text-[10px] font-bold leading-none text-foreground">
-            {discountPercent}% OFF
-          </span>
-        )}
-
-        <div className="absolute right-2 top-2 z-20">
+        <div className="absolute right-2 top-2 z-20 sm:right-2.5 sm:top-2.5">
           <WishlistButton
             productId={product?._id}
-            iconSize={15}
-            className="!rounded-none !border !border-black/5 !bg-brand-white !p-1.5 !shadow-sm"
+            iconSize={16}
+            className="!rounded-none !border-0 !bg-transparent !p-1 !shadow-none !backdrop-blur-none hover:!scale-105"
           />
         </div>
 
         {images.length > 1 && (
           <div
-            className={`absolute inset-x-0 z-20 flex justify-center gap-1 transition-all duration-300 ${
-              hovered ? "bottom-11 opacity-100" : "bottom-2 opacity-0"
+            className={`pointer-events-none absolute inset-x-0 z-20 flex justify-center gap-1 transition-opacity duration-300 ${
+              hovered ? "bottom-10 opacity-100" : "bottom-2.5 opacity-0"
             }`}
           >
             {images.map((_, index) => (
@@ -155,10 +152,10 @@ const ProductCard = ({ product }) => {
                 type="button"
                 aria-label={`Show image ${index + 1}`}
                 onClick={(e) => handleDotClick(e, index)}
-                className={`h-1 rounded-full transition-all ${
+                className={`pointer-events-auto h-0.5 transition-all ${
                   index === imageIndex
-                    ? "w-3 bg-brand-amber"
-                    : "w-1.5 bg-brand-white/85 hover:bg-brand-white"
+                    ? "w-4 bg-brand-ink"
+                    : "w-2 bg-brand-white/80 hover:bg-brand-white"
                 }`}
               />
             ))}
@@ -168,49 +165,34 @@ const ProductCard = ({ product }) => {
         <button
           type="button"
           onClick={handleViewSimilar}
-          className="absolute inset-x-0 bottom-0 z-30 flex translate-y-full items-center justify-center gap-1.5 bg-brand-white py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground shadow-[0_-4px_12px_rgba(0,0,0,0.06)] transition-transform duration-300 group-hover:translate-y-0"
+          className="absolute inset-x-0 bottom-0 z-30 flex translate-y-full items-center justify-center gap-1.5 bg-brand-white/95 py-2 text-[10px] font-medium uppercase tracking-[0.16em] text-brand-ink transition-transform duration-300 group-hover:translate-y-0"
         >
-          <Layers2 size={13} strokeWidth={2} aria-hidden />
+          <Layers2 size={12} strokeWidth={1.75} aria-hidden />
           View Similar
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col px-2 pb-2.5 pt-2">
+      <div className="flex flex-1 flex-col pt-2.5">
         <Link href={href} className="block min-w-0">
-          <p className="truncate text-[13px] font-bold text-foreground">
+          <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-ink">
             {brandLabel}
           </p>
-          <h3 className="mt-0.5 line-clamp-1 text-[12px] leading-snug text-brand-gray">
+          <h3 className="mt-0.5 line-clamp-2 text-[13px] font-normal leading-snug text-brand-gray">
             {product?.title}
           </h3>
 
-          <div className="mt-1.5 inline-flex w-fit items-center gap-1 bg-[#f5f5f5] px-1.5 py-0.5">
-            <span className="text-[11px] font-semibold tabular-nums text-foreground">
-              {product?.rating ?? 0}
-            </span>
-            <Star
-              size={10}
-              fill="currentColor"
-              className="shrink-0 text-brand-amber"
-              aria-hidden
-            />
-            <span className="text-[10px] tabular-nums text-brand-gray">
-              | {product?.ratingCount ?? 0}
-            </span>
-          </div>
-
-          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5">
-            <span className="text-sm font-bold tabular-nums text-foreground">
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-[13px] font-semibold tabular-nums text-brand-ink">
               {formatRupee(price)}
             </span>
             {mrp != null && Number(mrp) > Number(price) ? (
-              <span className="text-[11px] tabular-nums text-brand-gray line-through">
+              <span className="text-[12px] tabular-nums text-brand-stone line-through">
                 {formatRupee(mrp)}
               </span>
             ) : null}
             {discountPercent > 0 ? (
-              <span className="text-[11px] font-semibold text-emerald-600">
-                ({discountPercent}% OFF)
+              <span className="text-[11px] font-medium tabular-nums text-brand-amber">
+                {discountPercent}% off
               </span>
             ) : null}
           </div>
@@ -220,7 +202,7 @@ const ProductCard = ({ product }) => {
           type="button"
           onClick={handleAddToBag}
           disabled={addToCartMutation.isPending || !product?._id}
-          className="mt-2 inline-flex w-full items-center justify-center gap-1.5 border border-foreground/15 bg-transparent px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-foreground transition hover:border-brand-amber hover:bg-brand-amber disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-2 inline-flex w-fit items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-brand-ink transition hover:text-brand-amber disabled:cursor-not-allowed disabled:opacity-50"
         >
           {addToCartMutation.isPending ? (
             <>
@@ -229,7 +211,7 @@ const ProductCard = ({ product }) => {
             </>
           ) : (
             <>
-              <ShoppingBag className="size-3.5" strokeWidth={2} aria-hidden />
+              <ShoppingBag className="size-3.5" strokeWidth={1.75} aria-hidden />
               Add to Bag
             </>
           )}

@@ -1,14 +1,23 @@
-import { Roboto } from "next/font/google";
+import { Syne, DM_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import JsonLd from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { SITE, getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
-const roboto = Roboto({
+const syne = Syne({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-roboto",
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
   display: "swap",
   preload: true,
   adjustFontFallback: true,
@@ -70,15 +79,19 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#FFBF00",
+  themeColor: "#E6A800",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={roboto.variable}>
-      <body className={roboto.className}>
+    <html
+      lang="en"
+      className={`${syne.variable} ${dmSans.variable}`}
+      data-scroll-behavior="smooth"
+    >
+      <body className={`${dmSans.className} font-sans`}>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <Providers>{children}</Providers>
       </body>

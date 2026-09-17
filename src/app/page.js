@@ -3,6 +3,8 @@ import Footer from "@/components/Footer";
 import Banner from "@/components/banner";
 import CategoriesSection from "@/components/category";
 import Products from "@/components/products";
+import CampaignStrip from "@/components/home/CampaignStrip";
+import DepartmentStrip from "@/components/home/DepartmentStrip";
 import JsonLd from "@/components/seo/JsonLd";
 import { fetchProducts } from "@/lib/data/products";
 import { fetchSubCategories } from "@/lib/data/category";
@@ -25,18 +27,22 @@ export default async function HomePage() {
   const device = "desktop";
 
   let home = { announcement: null, sections: [], popup: null };
-  let products = [];
+  let arrivals = [];
+  let picks = [];
   let categories = [];
   let heroBanners = [];
 
   try {
-    const [homeData, productsData, categoriesData] = await Promise.all([
-      fetchHome({ device }),
-      fetchProducts({ limit: 20 }),
-      fetchSubCategories(),
-    ]);
+    const [homeData, arrivalsData, picksData, categoriesData] =
+      await Promise.all([
+        fetchHome({ device }),
+        fetchProducts({ limit: 10, sort: "-createdAt" }),
+        fetchProducts({ limit: 8, sort: "-discountPercent" }),
+        fetchSubCategories(),
+      ]);
     home = homeData || home;
-    products = productsData?.products || [];
+    arrivals = arrivalsData?.products || [];
+    picks = picksData?.products || [];
     categories = categoriesData?.categories || [];
     heroBanners = await getHeroBanners(home, { device });
   } catch {
@@ -55,9 +61,30 @@ export default async function HomePage() {
         }}
       />
       <Header announcement={home?.announcement || null} />
-      <Banner banners={heroBanners} />
-      <CategoriesSection categories={categories} />
-      <Products products={products} />
+      <main>
+        <Banner banners={heroBanners} />
+        <CategoriesSection categories={categories} />
+        <Products
+          products={arrivals}
+          eyebrow="Just in"
+          title="New arrivals"
+          description="Fresh drops from the Nilescart edit — ready to wear, ready to ship."
+          ctaHref="/collections"
+          ctaLabel="Browse collections"
+        />
+        <CampaignStrip />
+        <DepartmentStrip />
+        {picks.length > 0 ? (
+          <Products
+            products={picks}
+            eyebrow="Strong edits"
+            title="Better discounts"
+            description="High-value picks from the live catalog."
+            ctaHref="/search"
+            ctaLabel="Search the store"
+          />
+        ) : null}
+      </main>
       <Footer />
     </div>
   );

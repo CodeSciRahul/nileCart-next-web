@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 
+const FALLBACK_HERO =
+  "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=2400&q=80";
+
 function resolveHref(banner) {
-  return banner?.ctaHref || banner?.ctaLink || null;
+  return banner?.ctaHref || banner?.ctaLink || "/collections";
 }
 
 function resolveBannerImage(image) {
@@ -15,73 +19,76 @@ function resolveBannerImage(image) {
   return image.url || null;
 }
 
-function BannerSlide({ banner, priority = false }) {
+function HeroSlide({ banner, priority = false }) {
   const href = resolveHref(banner);
-  const ctaText = banner.ctaText || "Shop Now";
-  const desktopImage = resolveBannerImage(banner.image);
+  const ctaText = banner?.ctaText || "Shop the edit";
+  const desktopImage =
+    resolveBannerImage(banner?.image) || FALLBACK_HERO;
   const mobileImage =
-    resolveBannerImage(banner.mobileImage) || desktopImage;
-
-  const cta = href ? (
-    <Link
-      href={href}
-      className="bg-brand-amber hover:bg-brand-amber/90 text-foreground px-8 py-4 rounded-full font-semibold transition"
-    >
-      {ctaText}
-    </Link>
-  ) : (
-    <span className="bg-brand-amber text-foreground px-8 py-4 rounded-full font-semibold">
-      {ctaText}
-    </span>
-  );
+    resolveBannerImage(banner?.mobileImage) || desktopImage;
+  const headline =
+    banner?.title || "Fashion, edited for everyday";
+  const support =
+    banner?.description ||
+    "Editorial pieces and everyday essentials — curated under one brand.";
 
   return (
     <>
-      {desktopImage && (
+      <div className="absolute inset-0 overflow-hidden">
         <OptimizedImage
           src={desktopImage}
-          alt={banner.title || "Banner"}
+          alt=""
           fill
           sizes="100vw"
           priority={priority}
-          quality={80}
-          className="hidden object-cover md:block"
+          quality={85}
+          className="hero-ken-burns hidden object-cover md:block"
         />
-      )}
-      {mobileImage && (
         <OptimizedImage
           src={mobileImage}
-          alt={banner.title || "Banner"}
+          alt=""
           fill
           sizes="100vw"
           priority={priority}
           quality={80}
-          className="object-cover md:hidden"
+          className="hero-ken-burns object-cover md:hidden"
         />
-      )}
+        {/* Soft legibility wash — not a badge/chip overlay */}
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-brand-ink/75 via-brand-ink/35 to-brand-ink/20 md:bg-gradient-to-r md:from-brand-ink/70 md:via-brand-ink/35 md:to-transparent"
+          aria-hidden
+        />
+      </div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-brand-amber/40 to-transparent" />
+      <div className="relative z-[1] flex h-full items-end md:items-center">
+        <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-28 sm:px-8 md:px-10 md:pb-20 md:pt-24">
+          <div className="max-w-2xl text-brand-white">
+            <p className="hero-enter-brand font-display text-[clamp(2.75rem,10vw,6.5rem)] font-extrabold leading-[0.92] tracking-tight">
+              nilescart
+            </p>
 
-      <div className="absolute inset-0 flex items-center">
-        <div className="mx-auto w-full max-w-7xl px-6 lg:px-12">
-          <div className="max-w-xl text-white">
-            {banner.subtitle && (
-              <span className="inline-block rounded-full border border-brand-amber bg-brand-amber/30 px-4 py-2 text-sm font-medium backdrop-blur-md">
-                {banner.subtitle}
-              </span>
-            )}
+            <h1 className="hero-enter-copy mt-5 max-w-lg font-display text-xl font-semibold leading-snug text-brand-white/95 sm:text-2xl md:text-[1.65rem]">
+              {headline}
+            </h1>
 
-            {banner.title && (
-              <h1 className="mt-6 text-5xl font-bold leading-tight md:text-7xl">
-                {banner.title}
-              </h1>
-            )}
+            <p className="hero-enter-copy mt-3 max-w-md text-sm leading-relaxed text-brand-white/80 sm:text-base">
+              {support}
+            </p>
 
-            {banner.description && (
-              <p className="mt-6 text-lg text-brand-cream">{banner.description}</p>
-            )}
-
-            <div className="mt-8 flex gap-4">{cta}</div>
+            <div className="hero-enter-cta mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href={href}
+                className="inline-flex items-center justify-center bg-brand-amber px-7 py-3.5 text-sm font-semibold tracking-wide text-brand-ink transition hover:brightness-105"
+              >
+                {ctaText}
+              </Link>
+              <Link
+                href="/lookbook"
+                className="inline-flex items-center justify-center border border-brand-white/55 px-7 py-3.5 text-sm font-semibold tracking-wide text-brand-white transition hover:bg-brand-white/10"
+              >
+                View lookbook
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -91,76 +98,96 @@ function BannerSlide({ banner, priority = false }) {
 
 const Banner = ({ banners = [] }) => {
   const slides = Array.isArray(banners)
-    ? banners.filter((b) => resolveBannerImage(b?.image) || resolveBannerImage(b?.mobileImage))
+    ? banners.filter(
+        (b) =>
+          resolveBannerImage(b?.image) ||
+          resolveBannerImage(b?.mobileImage)
+      )
     : [];
+
+  const effectiveSlides =
+    slides.length > 0
+      ? slides
+      : [
+          {
+            title: "Fashion, edited for everyday",
+            description:
+              "Editorial pieces and everyday essentials — curated under one brand.",
+            ctaText: "Explore collections",
+            ctaHref: "/collections",
+            image: FALLBACK_HERO,
+          },
+        ];
+
   const [current, setCurrent] = useState(0);
-  const active = slides.length ? current % slides.length : 0;
+  const active = current % effectiveSlides.length;
 
   useEffect(() => {
-    if (slides.length <= 1) return undefined;
-
+    if (effectiveSlides.length <= 1) return undefined;
     const timer = setInterval(() => {
       setCurrent((prev) => prev + 1);
-    }, 5000);
-
+    }, 6500);
     return () => clearInterval(timer);
-  }, [slides.length]);
-
-  if (!slides.length) return null;
-
-  const nextSlide = () => {
-    setCurrent((prev) => prev + 1);
-  };
-
-  const prevSlide = () => {
-    setCurrent((prev) => prev + Math.max(slides.length - 1, 0));
-  };
+  }, [effectiveSlides.length]);
 
   return (
-    <section className="relative overflow-hidden">
-      <div className="relative h-[500px] md:h-[650px]">
-        {slides.map((banner, index) => (
+    <section className="relative min-h-[100svh] overflow-hidden bg-brand-ink md:min-h-[88vh]">
+      <div className="relative h-[100svh] md:h-[88vh]">
+        {effectiveSlides.map((banner, index) => (
           <div
             key={banner._id || index}
-            className={`absolute inset-0 transition-all duration-700 ${
-              active === index ? "opacity-100 scale-100" : "opacity-0 scale-105"
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              active === index ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
+            aria-hidden={active !== index}
           >
-            <BannerSlide banner={banner} priority={index === 0} />
+            <HeroSlide banner={banner} priority={index === 0} />
           </div>
         ))}
 
-        {slides.length > 1 && (
+        {/* Brand mark corner — reinforces identity without cluttering hero budget */}
+        <div className="pointer-events-none absolute right-5 top-6 hidden opacity-90 sm:right-8 sm:top-8 md:block">
+          <Image
+            src="/brand/nilescart_icon_dark.webp"
+            alt=""
+            width={72}
+            height={54}
+            className="h-10 w-auto opacity-80"
+            priority
+          />
+        </div>
+
+        {effectiveSlides.length > 1 && (
           <>
             <button
               type="button"
-              onClick={prevSlide}
-              className="absolute left-5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-md"
-              aria-label="Previous banner"
+              onClick={() =>
+                setCurrent((prev) => prev + effectiveSlides.length - 1)
+              }
+              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 border border-brand-white/30 bg-brand-ink/30 p-2.5 text-brand-white backdrop-blur-sm transition hover:bg-brand-ink/50 sm:left-5"
+              aria-label="Previous"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={22} />
             </button>
-
             <button
               type="button"
-              onClick={nextSlide}
-              className="absolute right-5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-md"
-              aria-label="Next banner"
+              onClick={() => setCurrent((prev) => prev + 1)}
+              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 border border-brand-white/30 bg-brand-ink/30 p-2.5 text-brand-white backdrop-blur-sm transition hover:bg-brand-ink/50 sm:right-5"
+              aria-label="Next"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={22} />
             </button>
-
-            <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-3">
-              {slides.map((banner, index) => (
+            <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+              {effectiveSlides.map((banner, index) => (
                 <button
                   key={banner._id || index}
                   type="button"
                   onClick={() => setCurrent(index)}
-                  aria-label={`Go to banner ${index + 1}`}
-                  className={`transition-all duration-300 ${
+                  aria-label={`Go to slide ${index + 1}`}
+                  className={`h-0.5 transition-all duration-500 ${
                     active === index
-                      ? "h-3 w-10 rounded-full bg-brand-amber"
-                      : "h-3 w-3 rounded-full bg-white/60"
+                      ? "w-10 bg-brand-amber"
+                      : "w-5 bg-brand-white/45 hover:bg-brand-white/70"
                   }`}
                 />
               ))}

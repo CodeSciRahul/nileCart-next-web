@@ -1,123 +1,102 @@
 import Link from "next/link";
 import OptimizedImage from "@/components/ui/OptimizedImage";
+import Reveal from "@/components/motion/Reveal";
 import { getCategoryImageSrc } from "@/lib/categoryHelpers";
 
-const PLACEHOLDER_TONES = [
-  "bg-amber-200 text-amber-800",
-  "bg-orange-100 text-orange-800",
-  "bg-yellow-100 text-yellow-800",
-  "bg-brand-cream text-amber-700",
-];
-
-/** Discount-forward lines — Myntra-style value cues */
-const OFFERS = [
-  "40-70% OFF",
-  "50-80% OFF",
-  "30-60% OFF",
-  "Min. 40% OFF",
-  "Up to 60% OFF",
-  "Flat 50% OFF",
-];
-
-/** Soft cream diamond pattern (brand-tinted, not a green clone) */
-const CARD_PATTERN = {
-  backgroundColor: "#FFF8E7",
-  backgroundImage: `url("data:image/svg+xml,%3Csvg width='28' height='28' viewBox='0 0 28 28' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 2 L26 14 L14 26 L2 14 Z' fill='none' stroke='%23E8D9A8' stroke-width='1'/%3E%3C/svg%3E")`,
-  backgroundSize: "28px 28px",
-};
-
-const CategoryCard = ({ category, index }) => {
-  const href = category.slug ? `/shop/${category.slug}` : undefined;
-  const CardWrapper = href ? Link : "div";
-  const cardProps = href ? { href } : {};
+const CategoryTile = ({ category, index, featured = false }) => {
+  const href = category.slug ? `/shop/${category.slug}` : "/collections";
   const imageSrc = getCategoryImageSrc(category.image);
-  const offer = category.offerLabel || OFFERS[index % OFFERS.length];
-  const placeholderTone = PLACEHOLDER_TONES[index % PLACEHOLDER_TONES.length];
 
   return (
-    <CardWrapper
-      {...cardProps}
-      className="group block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-amber focus-visible:ring-offset-2"
+    <Reveal
+      as="div"
+      delay={Math.min(index * 70, 280)}
+      className={featured ? "md:col-span-2 md:row-span-2" : ""}
     >
-      <article
-        className="flex h-full flex-col overflow-hidden rounded-sm transition-transform duration-300 ease-out group-hover:-translate-y-0.5"
-        style={CARD_PATTERN}
+      <Link
+        href={href}
+        className="group relative block h-full min-h-[280px] overflow-hidden bg-brand-sand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-amber focus-visible:ring-offset-2 md:min-h-[320px]"
       >
-        <div className="px-3 pt-3 sm:px-4 sm:pt-4">
-          <div className="relative aspect-[3/4] overflow-hidden bg-brand-white/40">
-            {imageSrc ? (
-              <OptimizedImage
-                src={imageSrc}
-                alt={category.name}
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                loading="lazy"
-              />
-            ) : (
-              <div
-                className={`flex h-full w-full items-center justify-center ${placeholderTone}`}
-              >
-                <span className="text-3xl font-bold opacity-80">
-                  {category.name?.charAt(0) || "?"}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+        {imageSrc ? (
+          <OptimizedImage
+            src={imageSrc}
+            alt={category.name}
+            fill
+            sizes={
+              featured
+                ? "(max-width: 768px) 100vw, 50vw"
+                : "(max-width: 768px) 50vw, 25vw"
+            }
+            className="img-zoom object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-sand to-brand-cream" />
+        )}
 
-        <div className="flex flex-1 flex-col items-center px-3 pb-4 pt-3 text-center sm:px-4 sm:pb-5">
-          <h3 className="line-clamp-1 text-[13px] font-medium tracking-wide text-[#4a3728] sm:text-sm">
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-brand-ink/70 via-brand-ink/15 to-transparent"
+          aria-hidden
+        />
+
+        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-amber">
+            Shop
+          </p>
+          <h3
+            className={`mt-1.5 font-display font-bold tracking-tight text-brand-white ${
+              featured ? "text-2xl sm:text-3xl md:text-4xl" : "text-lg sm:text-xl"
+            }`}
+          >
             {category.name}
           </h3>
-
-          <p className="mt-1.5 text-base font-bold tracking-tight text-foreground sm:text-lg">
-            {offer}
-          </p>
-
-          <span className="mt-1.5 text-[12px] font-medium text-[#5c4a3a] transition-colors group-hover:text-foreground">
-            Shop Now
+          <span className="mt-3 inline-block text-sm font-medium text-brand-white/85 underline-offset-4 transition group-hover:underline">
+            Explore
           </span>
         </div>
-      </article>
-    </CardWrapper>
+      </Link>
+    </Reveal>
   );
 };
 
 const CategoriesSection = ({ categories = [] }) => {
-  return (
-    <section className="bg-brand-white py-12 md:py-16">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-8 text-center md:mb-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-amber">
-            Browse & discover
-          </p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-            Shop by Category
-          </h2>
-          <div
-            className="mx-auto mt-3 h-0.5 w-12 rounded-full bg-brand-amber"
-            aria-hidden
-          />
-          <p className="mx-auto mt-3 max-w-md text-sm text-brand-gray">
-            Handpicked collections with deals worth exploring
-          </p>
-        </div>
+  const list = (categories || []).slice(0, 7);
 
-        {categories.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-brand-amber/30 bg-brand-cream/40 px-6 py-12 text-center">
+  return (
+    <section className="relative py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <Reveal className="mb-10 max-w-xl md:mb-14">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-amber">
+            Categories
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Shop the rooms
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-brand-gray md:text-base">
+            Clean edits by category — find the silhouette, then make it yours.
+          </p>
+        </Reveal>
+
+        {list.length === 0 ? (
+          <div className="border border-dashed border-border px-6 py-16 text-center">
             <p className="text-sm text-brand-gray">
-              Subcategories will appear here once added under Men or Women in the
-              admin panel.
+              Categories will appear here once they are published.
             </p>
+            <Link
+              href="/collections"
+              className="mt-4 inline-block text-sm font-semibold text-foreground underline-offset-4 hover:underline"
+            >
+              Browse collections
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {categories.map((category, index) => (
-              <CategoryCard
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+            {list.map((category, index) => (
+              <CategoryTile
                 key={category._id || `${category.name}-${index}`}
                 category={category}
                 index={index}
+                featured={index === 0}
               />
             ))}
           </div>

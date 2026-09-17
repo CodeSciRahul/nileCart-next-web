@@ -98,6 +98,17 @@ function SidebarContent({ categories, departmentLabel, departmentSlug, onNavigat
         >
           Browse {departmentLabel}
         </Link>
+        <div className="mt-8 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs font-medium text-brand-gray">
+          <Link href="/collections" onClick={onNavigate} className="hover:text-brand-amber">
+            Collections
+          </Link>
+          <Link href="/lookbook" onClick={onNavigate} className="hover:text-brand-amber">
+            Lookbook
+          </Link>
+          <Link href="/help" onClick={onNavigate} className="hover:text-brand-amber">
+            Help
+          </Link>
+        </div>
       </div>
     );
   }
@@ -151,6 +162,33 @@ function SidebarContent({ categories, departmentLabel, departmentSlug, onNavigat
             </section>
           );
         })}
+
+        <nav
+          aria-label="Discover"
+          className="border-t border-border pt-4 pb-2"
+        >
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-gray">
+            Discover
+          </p>
+          <ul className="space-y-1">
+            {[
+              { href: "/collections", label: "Collections" },
+              { href: "/lookbook", label: "Lookbook" },
+              { href: "/about", label: "About" },
+              { href: "/help", label: "Help" },
+            ].map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={onNavigate}
+                  className="block py-1.5 text-sm font-medium text-foreground transition hover:text-brand-amber"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </div>
   );

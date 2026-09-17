@@ -25,10 +25,10 @@ export function getSiteUrl() {
 
 export const SITE = {
   name: "Nilescart",
-  shortName: "Nilescart",
-  tagline: "Fashion Store",
+  shortName: "nilescart",
+  tagline: "Fashion, edited for everyday",
   description:
-    "Shop fashion at Nilescart — dresses, tops, accessories and more. Anniversary sale with free shipping above ₹999.",
+    "Shop fashion at Nilescart — dresses, tops, accessories and more. Curated styles for men, women, and beyond.",
   locale: "en_IN",
   twitterHandle: "@nilescart",
 };

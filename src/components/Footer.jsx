@@ -38,24 +38,21 @@ function SocialIcon({ name }) {
 
 const FOOTER_LINKS = {
   help: [
-    { label: "Customer Support", href: "/account" },
+    { label: "Help Center", href: "/help" },
     { label: "Track Order", href: "/account/orders" },
-    { label: "Returns & Refunds", href: "#" },
-    { label: "Shipping Info", href: "#" },
-    { label: "FAQs", href: "#" },
+    { label: "Customer Support", href: "/account" },
+    { label: "Coupons", href: "/account/coupons" },
   ],
   company: [
-    { label: "About Nilescart", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Become a Seller", href: "#" },
-    { label: "Contact Us", href: "#" },
+    { label: "About Nilescart", href: "/about" },
+    { label: "Collections", href: "/collections" },
+    { label: "Lookbook", href: "/lookbook" },
+    { label: "Contact Us", href: "/help" },
   ],
   policies: [
-    { label: "Terms of Use", href: "#" },
-    { label: "Privacy Policy", href: "#" },
-    { label: "Cookie Policy", href: "#" },
-    { label: "Grievance Redressal", href: "#" },
+    { label: "Terms of Use", href: "/help" },
+    { label: "Privacy Policy", href: "/help" },
+    { label: "Returns & Shipping", href: "/help" },
   ],
 };
 
@@ -90,14 +87,14 @@ function FooterLinkColumn({ title, links }) {
 
 export default function Footer() {
   return (
-    <footer className="mt-auto border-t border-brand-amber/20 bg-gradient-to-b from-brand-cream/50 via-brand-white to-brand-cream/30">
+    <footer className="mt-auto border-t border-border atmosphere-panel">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         {/* Link columns */}
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-10">
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <BrandLogo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-brand-gray">
-              Your destination for trendy fashion — curated styles for men, women, kids, and more.
+              Fashion edited for everyday — curated styles for men, women, kids, and more.
             </p>
             <div className="mt-5 space-y-2.5 text-sm text-brand-gray">
               <p className="flex items-center gap-2">
@@ -127,17 +124,16 @@ export default function Footer() {
           <FooterLinkColumn title="Policies" links={FOOTER_LINKS.policies} />
         </div>
 
-        {/* Department chips */}
-        <div className="mt-10 border-t border-brand-amber/15 pt-8 text-center">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-amber">
-            Popular categories
+        <div className="mt-10 border-t border-border pt-8">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-brand-amber">
+            Shop departments
           </p>
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
             {DEPARTMENT_ORDER.map((key) => (
               <Link
                 key={key}
                 href={`/shop/${key}`}
-                className="rounded-full border border-brand-amber/20 bg-brand-cream/60 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-brand-amber hover:bg-brand-amber hover:text-foreground"
+                className="text-sm font-medium text-foreground/80 transition hover:text-brand-amber"
               >
                 {DEPARTMENT_LABELS[key]}
               </Link>
@@ -147,7 +143,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-brand-amber/20 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
+      <div className="border-t border-border bg-brand-white/70">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:flex-row sm:px-6">
           <p className="text-center text-xs text-brand-gray sm:text-left">
             © {new Date().getFullYear()} Nilescart Fashion Pvt. Ltd. All rights reserved.
@@ -159,7 +155,7 @@ export default function Footer() {
                 key={label}
                 href={href}
                 aria-label={label}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-cream/50 text-foreground ring-1 ring-brand-amber/10 transition hover:bg-brand-amber/15 hover:text-brand-amber hover:ring-brand-amber/25"
+                className="flex h-9 w-9 items-center justify-center border border-border text-foreground transition hover:border-brand-amber hover:text-brand-amber"
               >
                 <SocialIcon name={icon} />
               </Link>
