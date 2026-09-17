@@ -251,9 +251,10 @@ const Header = ({ announcement = null }) => {
       <header className="sticky top-0 z-50 w-full bg-brand-white/95 shadow-sm backdrop-blur-md">
         {isStickyAnnouncement && announcementBar}
         <div className="border-b border-brand-amber/10 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
-          <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6">
+          {/* Below lg: logo + actions only (search lives in the drawer). lg+: logo, depts, search, actions. */}
+          <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 px-3 py-2 sm:gap-x-3 sm:px-6 md:h-16 md:py-0 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]">
             {/* Logo + mobile menu */}
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="col-start-1 row-start-1 flex shrink-0 items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => setOpen(true)}
@@ -267,21 +268,21 @@ const Header = ({ announcement = null }) => {
 
             {/* Departments — inline on desktop */}
             <nav
-              className="hidden shrink-0 items-center gap-0 overflow-visible lg:flex"
+              className="hidden shrink-0 items-center gap-0 overflow-visible lg:col-start-2 lg:row-start-1 lg:flex"
               aria-label="Shop by department"
             >
               {renderDepartmentDropdown()}
             </nav>
 
-            {/* Search — grows to fill remaining space */}
+            {/* Search — desktop only; mobile/tablet use drawer search */}
             <Suspense fallback={null}>
-              <div className="min-w-0 flex-1">
+              <div className="hidden min-w-0 lg:col-start-3 lg:row-start-1 lg:block">
                 <HeaderSearch className="h-9 w-full sm:h-10" />
               </div>
             </Suspense>
 
             {/* Account + cart */}
-            <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 lg:gap-2">
+            <div className="col-start-3 row-start-1 flex shrink-0 items-center gap-1 sm:gap-1.5 lg:col-start-4 lg:gap-2">
               <div className="relative" ref={userMenuRef}>
                 {isAuthenticated ? (
                   <>
@@ -402,7 +403,7 @@ const Header = ({ announcement = null }) => {
 
             <div className="shrink-0 border-b border-brand-amber/20 px-4 py-3">
               <Suspense fallback={null}>
-                <HeaderSearch className="h-10 w-full" />
+                <HeaderSearch alwaysExpanded className="h-10 w-full" />
               </Suspense>
             </div>
 

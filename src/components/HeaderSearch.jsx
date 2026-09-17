@@ -4,7 +4,17 @@ import { useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 
-export function HeaderSearch({ className = "", compact = false }) {
+/**
+ * @param {object} props
+ * @param {string} [props.className]
+ * @param {boolean} [props.compact] Icon that navigates to /search
+ * @param {boolean} [props.alwaysExpanded] Kept for drawer callers; input is always shown
+ */
+export function HeaderSearch({
+  className = "",
+  compact = false,
+  alwaysExpanded: _alwaysExpanded = false,
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
