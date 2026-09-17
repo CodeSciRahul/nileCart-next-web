@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { Star } from "lucide-react";
+import ProductReviewComposer from "@/components/product/ProductReviewComposer";
 
 function Stars({ value = 0, size = 14 }) {
   const rating = Math.round(Number(value) || 0);
@@ -18,9 +22,49 @@ function Stars({ value = 0, size = 14 }) {
   );
 }
 
+function mergeReviews(reviews, savedReview) {
+  if (!savedReview?._id) return reviews;
+  const id = String(savedReview._id);
+  const without = reviews.filter((review) => String(review._id) !== id);
+  return [savedReview, ...without];
+}
+
+function nextSummary(prevAverage, prevCount, previousRating, nextRating) {
+  if (previousRating == null) {
+    const count = prevCount + 1;
+    const average =
+      count === 0
+        ? 0
+        : Math.round(((prevAverage * prevCount + nextRating) / count) * 10) / 10;
+    return { average, count };
+  }
+
+  if (prevCount <= 0) {
+    return { average: nextRating, count: 1 };
+  }
+
+  const average =
+    Math.round(
+      ((prevAverage * prevCount - previousRating + nextRating) / prevCount) * 10
+    ) / 10;
+  return { average, count: prevCount };
+}
+
 export default function ProductReviewsSection({ product, reviews = [] }) {
-  const average = Number(product?.rating?.average) || 0;
-  const count = Number(product?.rating?.count) || 0;
+  const [localReviews, setLocalReviews] = useState(reviews);
+  const [average, setAverage] = useState(Number(product?.rating?.average) || 0);
+  const [count, setCount] = useState(Number(product?.rating?.count) || 0);
+  const productId = product?._id;
+
+  const handleReviewSaved = (savedReview, meta = {}) => {
+    const nextRating = Number(savedReview?.rating) || 0;
+    const previousRating = meta.isNew ? null : meta.previousRating;
+
+    const summary = nextSummary(average, count, previousRating, nextRating);
+    setAverage(summary.average);
+    setCount(summary.count);
+    setLocalReviews((prev) => mergeReviews(prev, savedReview));
+  };
 
   return (
     <section
@@ -53,9 +97,16 @@ export default function ProductReviewsSection({ product, reviews = [] }) {
         </div>
       </div>
 
-      {reviews.length > 0 ? (
+      {productId && (
+        <ProductReviewComposer
+          productId={productId}
+          onReviewSaved={handleReviewSaved}
+        />
+      )}
+
+      {localReviews.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
-          {reviews.map((review) => (
+          {localReviews.map((review) => (
             <article
               key={review._id}
               className="border border-brand-amber/20 bg-brand-white p-5 transition hover:border-brand-amber/40"
