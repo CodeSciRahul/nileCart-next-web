@@ -4,9 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-display);
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --color-brand-amber: #e6a800;
   --color-brand-cream: #f3efe6;
   --color-brand-ink: #161411;
@@ -39,6 +40,8 @@
 }
 
 :root {
+  --font-display: var(--font-poppins);
+  --font-body: var(--font-poppins);
   /* Editorial fashion: warm paper + ink + amber accent (not cream/terracotta broadsheet) */
   --background: #faf8f4;
   --foreground: #161411;
