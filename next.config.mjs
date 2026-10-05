@@ -42,17 +42,23 @@ const nextConfig = {
   },
   async rewrites() {
     const apiTarget = getApiRewriteTarget();
-
-    if (!apiTarget) {
-      return [];
-    }
-
-    return [
+    const rules = [
       {
-        source: "/api/:path*",
-        destination: `${apiTarget}/:path*`,
+        source: "/apple-app-site-association",
+        destination: "/.well-known/apple-app-site-association",
       },
     ];
+
+    if (!apiTarget) {
+      return rules;
+    }
+
+    rules.push({
+      source: "/api/:path*",
+      destination: `${apiTarget}/:path*`,
+    });
+
+    return rules;
   },
   async headers() {
     return [
@@ -61,6 +67,27 @@ const nextConfig = {
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+      {
+        source: "/.well-known/apple-app-site-association",
+        headers: [
+          { key: "Content-Type", value: "application/json" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+        ],
+      },
+      {
+        source: "/apple-app-site-association",
+        headers: [
+          { key: "Content-Type", value: "application/json" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+        ],
+      },
+      {
+        source: "/.well-known/assetlinks.json",
+        headers: [
+          { key: "Content-Type", value: "application/json" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
         ],
       },
       {

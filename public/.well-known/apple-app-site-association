@@ -1,0 +1,27 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "<APPLE_TEAM_ID>.com.nilescart.mobile",
+        "appIDs": [
+          "<APPLE_TEAM_ID>.com.nilescart.mobile"
+        ],
+        "paths": [
+          "/product/*"
+        ],
+        "components": [
+          {
+            "/": "/product/*",
+            "comment": "Directs all /product/{slug} and /product/{id} links to NilesCart mobile app"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "<APPLE_TEAM_ID>.com.nilescart.mobile"
+    ]
+  }
+}
