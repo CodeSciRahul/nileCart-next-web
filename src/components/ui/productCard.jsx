@@ -100,7 +100,7 @@ const ProductCard = ({ product }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative overflow-hidden bg-brand-sand/40">
+      <div className="relative overflow-hidden bg-zinc-100">
         <Link
           href={href}
           className="relative block aspect-[3/4] overflow-hidden"
@@ -125,25 +125,35 @@ const ProductCard = ({ product }) => {
             ) : (
               <span
                 key={`empty-${index}`}
-                className="absolute inset-0 bg-brand-sand/50"
+                className="absolute inset-0 bg-zinc-100"
                 aria-hidden
               />
             )
           )}
         </Link>
 
-        <div className="absolute right-2 top-2 z-20 sm:right-2.5 sm:top-2.5">
+        {/* Savana-style Top-Left Discount Badge */}
+        {discountPercent > 0 && (
+          <div className="absolute left-1.5 top-1.5 z-20 sm:left-2 sm:top-2">
+            <span className="inline-block rounded-none bg-brand-amber px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-black shadow-sm">
+              -{discountPercent}%
+            </span>
+          </div>
+        )}
+
+        {/* Top-Right Wishlist Button */}
+        <div className="absolute right-1.5 top-1.5 z-20 sm:right-2 sm:top-2">
           <WishlistButton
             productId={product?._id}
             iconSize={16}
-            className="!rounded-none !border-0 !bg-transparent !p-1 !shadow-none !backdrop-blur-none hover:!scale-105"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 p-0 text-black backdrop-blur-sm transition hover:bg-white hover:scale-110 shadow-sm"
           />
         </div>
 
         {images.length > 1 && (
           <div
             className={`pointer-events-none absolute inset-x-0 z-20 flex justify-center gap-1 transition-opacity duration-300 ${
-              hovered ? "bottom-10 opacity-100" : "bottom-2.5 opacity-0"
+              hovered ? "bottom-10 opacity-100" : "bottom-2 opacity-0"
             }`}
           >
             {images.map((_, index) => (
@@ -154,68 +164,66 @@ const ProductCard = ({ product }) => {
                 onClick={(e) => handleDotClick(e, index)}
                 className={`pointer-events-auto h-0.5 transition-all ${
                   index === imageIndex
-                    ? "w-4 bg-brand-ink"
-                    : "w-2 bg-brand-white/80 hover:bg-brand-white"
+                    ? "w-3 bg-black"
+                    : "w-1.5 bg-white/80 hover:bg-white"
                 }`}
               />
             ))}
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={handleViewSimilar}
-          className="absolute inset-x-0 bottom-0 z-30 flex translate-y-full items-center justify-center gap-1.5 bg-brand-white/95 py-2 text-[10px] font-medium uppercase tracking-[0.16em] text-brand-ink transition-transform duration-300 group-hover:translate-y-0"
-        >
-          <Layers2 size={12} strokeWidth={1.75} aria-hidden />
-          View Similar
-        </button>
+        {/* Savana Quick Add overlay on hover */}
+        <div className="absolute inset-x-0 bottom-0 z-30 flex translate-y-full items-center justify-between gap-1 bg-white/95 px-2.5 py-1.5 text-xs font-bold text-black backdrop-blur-sm transition-transform duration-300 group-hover:translate-y-0 shadow-sm">
+          <button
+            type="button"
+            onClick={handleAddToBag}
+            disabled={addToCartMutation.isPending || !product?._id}
+            className="flex flex-1 items-center justify-center gap-1.5 py-1 text-[11px] font-bold uppercase tracking-wider text-black hover:text-brand-amber transition disabled:opacity-50"
+          >
+            {addToCartMutation.isPending ? (
+              <Loader2 className="size-3 animate-spin" aria-hidden />
+            ) : (
+              <ShoppingBag className="size-3.5" aria-hidden />
+            )}
+            <span>Add to Bag</span>
+          </button>
+          <span className="text-zinc-300">|</span>
+          <button
+            type="button"
+            onClick={handleViewSimilar}
+            className="p-1 text-zinc-600 hover:text-black transition"
+            title="View Similar"
+          >
+            <Layers2 size={13} aria-hidden />
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-1 flex-col pt-2.5">
+      <div className="flex flex-1 flex-col pt-2">
         <Link href={href} className="block min-w-0">
-          <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-ink">
+          <p className="truncate text-[10px] font-bold uppercase tracking-wider text-zinc-500">
             {brandLabel}
           </p>
-          <h3 className="mt-0.5 line-clamp-2 text-[13px] font-normal leading-snug text-brand-gray">
+          <h3 className="mt-0.5 line-clamp-1 text-[12px] sm:text-[13px] font-medium leading-snug text-foreground group-hover:text-brand-amber transition">
             {product?.title}
           </h3>
 
-          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-[13px] font-semibold tabular-nums text-brand-ink">
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-[13px] sm:text-[14px] font-black tabular-nums text-foreground">
               {formatRupee(price)}
             </span>
             {mrp != null && Number(mrp) > Number(price) ? (
-              <span className="text-[12px] tabular-nums text-brand-stone line-through">
+              <span className="text-[11px] tabular-nums text-zinc-400 line-through">
                 {formatRupee(mrp)}
               </span>
             ) : null}
             {discountPercent > 0 ? (
-              <span className="text-[11px] font-medium tabular-nums text-brand-amber">
+              <span className="text-[10px] font-bold tabular-nums text-brand-amber">
                 {discountPercent}% off
               </span>
             ) : null}
           </div>
         </Link>
-
-        <button
-          type="button"
-          onClick={handleAddToBag}
-          disabled={addToCartMutation.isPending || !product?._id}
-          className="mt-2 inline-flex w-fit items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-brand-ink transition hover:text-brand-amber disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {addToCartMutation.isPending ? (
-            <>
-              <Loader2 className="size-3.5 animate-spin" aria-hidden />
-              Adding…
-            </>
-          ) : (
-            <>
-              <ShoppingBag className="size-3.5" strokeWidth={1.75} aria-hidden />
-              Add to Bag
-            </>
-          )}
-        </button>
       </div>
     </article>
   );

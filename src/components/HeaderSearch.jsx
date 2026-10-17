@@ -52,12 +52,12 @@ export function HeaderSearch({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`group flex w-full min-w-0 items-center gap-2 rounded-full border border-brand-amber/20 bg-brand-white/90 px-3 shadow-sm ring-1 ring-brand-amber/5 transition focus-within:border-brand-amber/50 focus-within:bg-brand-white focus-within:shadow-md focus-within:ring-brand-amber/15 sm:px-3.5 ${className}`}
+      className={`group flex w-full min-w-0 items-center gap-2 rounded-full border border-zinc-200 bg-zinc-100/80 px-3.5 py-1.5 transition-all focus-within:border-black focus-within:bg-white focus-within:shadow-sm sm:px-4 ${className}`}
       role="search"
     >
       <Search
-        size={17}
-        className="shrink-0 text-brand-amber/80 transition group-focus-within:text-brand-amber"
+        size={16}
+        className="shrink-0 text-zinc-500 transition group-focus-within:text-black"
         aria-hidden
       />
       <input

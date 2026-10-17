@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { MapPin, Phone, Mail, CreditCard } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo.jsx";
@@ -87,26 +89,61 @@ function FooterLinkColumn({ title, links }) {
 
 export default function Footer() {
   return (
-    <footer className="mt-auto border-t border-border atmosphere-panel">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+    <footer className="mt-auto border-t border-zinc-200 bg-white text-foreground">
+      {/* Newsletter Signup Banner (Savana signature) */}
+      <div className="border-b border-zinc-200/80 bg-zinc-50 py-8 px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 className="font-display text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
+              BE THE FIRST TO KNOW
+            </h3>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              Get ₹150 OFF your first order & VIP access to flash sales.
+            </p>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              alert("Thank you for subscribing! Use code NILE150 at checkout.");
+            }}
+            className="flex w-full max-w-md items-center gap-1.5"
+          >
+            <input
+              type="email"
+              required
+              placeholder="Enter your email address"
+              className="h-10 min-w-0 flex-1 border border-zinc-300 bg-white px-3.5 text-xs text-foreground outline-none transition focus:border-black"
+            />
+            <button
+              type="submit"
+              className="h-10 shrink-0 bg-black px-5 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-zinc-800 active:scale-95"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Link columns */}
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-10">
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <BrandLogo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-brand-gray">
-              Fashion edited for everyday — curated styles for men, women, kids, and more.
+            <p className="mt-3 max-w-xs text-xs leading-relaxed text-zinc-500">
+              High-street fast-fashion, daily drops, and viral fits curated for everyday wear.
             </p>
-            <div className="mt-5 space-y-2.5 text-sm text-brand-gray">
+            <div className="mt-4 space-y-2 text-xs text-zinc-500">
               <p className="flex items-center gap-2">
-                <MapPin size={14} className="shrink-0 text-brand-amber" />
+                <MapPin size={13} className="shrink-0 text-brand-amber" />
                 Mumbai, Maharashtra, India
               </p>
               <p className="flex items-center gap-2">
-                <Phone size={14} className="shrink-0 text-brand-amber" />
+                <Phone size={13} className="shrink-0 text-brand-amber" />
                 1800-123-4567
               </p>
               <p className="flex items-center gap-2">
-                <Mail size={14} className="shrink-0 text-brand-amber" />
+                <Mail size={13} className="shrink-0 text-brand-amber" />
                 support@nilescart.com
               </p>
             </div>
@@ -124,16 +161,16 @@ export default function Footer() {
           <FooterLinkColumn title="Policies" links={FOOTER_LINKS.policies} />
         </div>
 
-        <div className="mt-10 border-t border-border pt-8">
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-brand-amber">
-            Shop departments
+        <div className="mt-8 border-t border-zinc-200 pt-6">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-foreground">
+            Shop Departments
           </p>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             {DEPARTMENT_ORDER.map((key) => (
               <Link
                 key={key}
                 href={`/shop/${key}`}
-                className="text-sm font-medium text-foreground/80 transition hover:text-brand-amber"
+                className="text-xs font-medium text-zinc-500 transition hover:text-black"
               >
                 {DEPARTMENT_LABELS[key]}
               </Link>

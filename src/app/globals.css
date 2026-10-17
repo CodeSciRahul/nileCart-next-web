@@ -9,12 +9,12 @@
   --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --color-brand-amber: #e6a800;
-  --color-brand-cream: #f3efe6;
-  --color-brand-ink: #161411;
-  --color-brand-stone: #8a8478;
-  --color-brand-sand: #ebe4d6;
-  --color-brand-gray: #6f6a60;
-  --color-brand-white: #faf8f4;
+  --color-brand-cream: #f4f4f5;
+  --color-brand-ink: #111111;
+  --color-brand-stone: #71717a;
+  --color-brand-sand: #e4e4e7;
+  --color-brand-gray: #71717a;
+  --color-brand-white: #ffffff;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
@@ -42,31 +42,26 @@
 :root {
   --font-display: var(--font-poppins);
   --font-body: var(--font-poppins);
-  /* Editorial fashion: warm paper + ink + amber accent (not cream/terracotta broadsheet) */
-  --background: #faf8f4;
-  --foreground: #161411;
-  --card: #faf8f4;
-  --card-foreground: #161411;
-  --popover: #faf8f4;
-  --popover-foreground: #161411;
+  /* Savana fast-fashion aesthetic: crisp white canvas + sharp black text + brand amber accents */
+  --background: #ffffff;
+  --foreground: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
   --primary: #e6a800;
-  --primary-foreground: #161411;
-  --secondary: #ebe4d6;
-  --secondary-foreground: #161411;
-  --muted: #ebe4d6;
-  --muted-foreground: #6f6a60;
-  --accent: #ebe4d6;
-  --accent-foreground: #161411;
-  --destructive: #b42318;
-  --border: #ddd4c4;
-  --input: #ddd4c4;
+  --primary-foreground: #111111;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #111111;
+  --muted: #f4f4f5;
+  --muted-foreground: #666666;
+  --accent: #f4f4f5;
+  --accent-foreground: #111111;
+  --destructive: #e11d48;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
   --ring: #e6a800;
   --radius: 0.25rem;
-  --atmosphere:
-    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(230, 168, 0, 0.09), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(22, 20, 17, 0.04), transparent 50%),
-    linear-gradient(180deg, #faf8f4 0%, #f3efe6 48%, #faf8f4 100%);
-  --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
 }
 
 @layer base {
@@ -75,8 +70,6 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    background-image: var(--atmosphere);
-    background-attachment: fixed;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -98,11 +91,16 @@
     text-wrap: balance;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .atmosphere-panel {
-    background-image:
-      linear-gradient(135deg, rgba(250, 248, 244, 0.92), rgba(243, 239, 230, 0.88)),
-      var(--grain);
-    background-blend-mode: normal, soft-light;
+    background-color: #fafafa;
   }
 
   .reveal-target {
