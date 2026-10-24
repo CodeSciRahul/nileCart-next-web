@@ -21,16 +21,16 @@ function resolveBannerImage(image) {
 
 function HeroSlide({ banner, priority = false }) {
   const href = resolveHref(banner);
-  const ctaText = banner?.ctaText || "Shop the edit";
+  const ctaText = banner?.ctaText || "Shop Now";
   const desktopImage =
     resolveBannerImage(banner?.image) || FALLBACK_HERO;
   const mobileImage =
     resolveBannerImage(banner?.mobileImage) || desktopImage;
   const headline =
-    banner?.title || "Fashion, edited for everyday";
+    banner?.title || "Fresh Drops & Trending Fits";
   const support =
     banner?.description ||
-    "Editorial pieces and everyday essentials — curated under one brand.";
+    "Curated fast-fashion styles, everyday essentials, and new season arrivals.";
 
   return (
     <>
@@ -53,40 +53,40 @@ function HeroSlide({ banner, priority = false }) {
           quality={80}
           className="hero-ken-burns object-cover md:hidden"
         />
-        {/* Soft legibility wash — not a badge/chip overlay */}
+        {/* Soft legibility wash */}
         <div
-          className="absolute inset-0 bg-gradient-to-t from-brand-ink/75 via-brand-ink/35 to-brand-ink/20 md:bg-gradient-to-r md:from-brand-ink/70 md:via-brand-ink/35 md:to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/75 md:via-black/35 md:to-transparent"
           aria-hidden
         />
       </div>
 
       <div className="relative z-[1] flex h-full items-end md:items-center">
-        <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-28 sm:px-8 md:px-10 md:pb-20 md:pt-24">
-          <div className="max-w-2xl text-brand-white">
-            <p className="hero-enter-brand font-display text-[clamp(2.75rem,10vw,6.5rem)] font-extrabold leading-[0.92] tracking-tight">
-              nilescart
-            </p>
+        <div className="mx-auto w-full max-w-7xl px-4 pb-8 pt-16 sm:px-6 md:pb-12 md:pt-12">
+          <div className="max-w-xl text-white">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-amber/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-black">
+              ⚡ Up to 70% Off • Live Now
+            </span>
 
-            <h1 className="hero-enter-copy mt-5 max-w-lg font-display text-xl font-semibold leading-snug text-brand-white/95 sm:text-2xl md:text-[1.65rem]">
+            <h1 className="hero-enter-copy mt-3 font-display text-2xl font-black tracking-tight text-white sm:text-3xl md:text-5xl">
               {headline}
             </h1>
 
-            <p className="hero-enter-copy mt-3 max-w-md text-sm leading-relaxed text-brand-white/80 sm:text-base">
+            <p className="hero-enter-copy mt-2 line-clamp-2 max-w-md text-xs leading-relaxed text-white/85 sm:text-sm">
               {support}
             </p>
 
-            <div className="hero-enter-cta mt-8 flex flex-wrap items-center gap-3">
+            <div className="hero-enter-cta mt-5 flex flex-wrap items-center gap-2.5">
               <Link
                 href={href}
-                className="inline-flex items-center justify-center bg-brand-amber px-7 py-3.5 text-sm font-semibold tracking-wide text-brand-ink transition hover:brightness-105"
+                className="inline-flex items-center justify-center rounded-none bg-brand-amber px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition hover:brightness-110 active:scale-95"
               >
                 {ctaText}
               </Link>
               <Link
-                href="/lookbook"
-                className="inline-flex items-center justify-center border border-brand-white/55 px-7 py-3.5 text-sm font-semibold tracking-wide text-brand-white transition hover:bg-brand-white/10"
+                href="/collections"
+                className="inline-flex items-center justify-center rounded-none border border-white/60 bg-black/30 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-sm transition hover:bg-white hover:text-black"
               >
-                View lookbook
+                Explore All
               </Link>
             </div>
           </div>
@@ -110,10 +110,10 @@ const Banner = ({ banners = [] }) => {
       ? slides
       : [
           {
-            title: "Fashion, edited for everyday",
+            title: "Trending Fast-Fashion Edit",
             description:
-              "Editorial pieces and everyday essentials — curated under one brand.",
-            ctaText: "Explore collections",
+              "Daily new drops, street styles, and weekend essentials.",
+            ctaText: "Shop the Drop",
             ctaHref: "/collections",
             image: FALLBACK_HERO,
           },
@@ -126,17 +126,17 @@ const Banner = ({ banners = [] }) => {
     if (effectiveSlides.length <= 1) return undefined;
     const timer = setInterval(() => {
       setCurrent((prev) => prev + 1);
-    }, 6500);
+    }, 6000);
     return () => clearInterval(timer);
   }, [effectiveSlides.length]);
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden bg-brand-ink md:min-h-[88vh]">
-      <div className="relative h-[100svh] md:h-[88vh]">
+    <section className="relative overflow-hidden bg-brand-ink">
+      <div className="relative h-[340px] sm:h-[420px] md:h-[480px] lg:h-[520px]">
         {effectiveSlides.map((banner, index) => (
           <div
             key={banner._id || index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
+            className={`absolute inset-0 transition-opacity duration-700 ${
               active === index ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
             aria-hidden={active !== index}

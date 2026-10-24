@@ -3,6 +3,9 @@ import Footer from "@/components/Footer";
 import Banner from "@/components/banner";
 import CategoriesSection from "@/components/category";
 import Products from "@/components/products";
+import FlashDealsBanner from "@/components/home/FlashDealsBanner";
+import PromoBannerGrid from "@/components/home/PromoBannerGrid";
+import SavanaPerksStrip from "@/components/home/SavanaPerksStrip";
 import CampaignStrip from "@/components/home/CampaignStrip";
 import DepartmentStrip from "@/components/home/DepartmentStrip";
 import JsonLd from "@/components/seo/JsonLd";
@@ -22,8 +25,6 @@ export const metadata = buildPageMetadata({
 });
 
 export default async function HomePage() {
-  // Avoid headers()/UA detection so the homepage can use ISR (better TTFB).
-  // Banner component still serves responsive mobile/desktop images via CSS.
   const device = "desktop";
 
   let home = { announcement: null, sections: [], popup: null };
@@ -37,7 +38,7 @@ export default async function HomePage() {
       await Promise.all([
         fetchHome({ device }),
         fetchProducts({ limit: 10, sort: "-createdAt" }),
-        fetchProducts({ limit: 8, sort: "-discountPercent" }),
+        fetchProducts({ limit: 10, sort: "-discountPercent" }),
         fetchSubCategories(),
       ]);
     home = homeData || home;
@@ -50,7 +51,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-white">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -61,29 +62,47 @@ export default async function HomePage() {
         }}
       />
       <Header announcement={home?.announcement || null} />
-      <main>
+      <main className="flex-1">
+        {/* 1. Hero Fashion Carousel */}
         <Banner banners={heroBanners} />
+
+        {/* 2. Savana-style Circular Category Avatars (Story Bubbles) */}
         <CategoriesSection categories={categories} />
+
+        {/* 3. Live Flash Deals Strip with Realtime Countdown Timer */}
+        <FlashDealsBanner />
+
+        {/* 4. Fresh Drops / New In Products Grid */}
         <Products
           products={arrivals}
-          eyebrow="Just in"
-          title="New arrivals"
-          description="Fresh drops from the Nilescart edit — ready to wear, ready to ship."
+          eyebrow="Fresh Drops"
+          title="New Arrivals"
           ctaHref="/collections"
-          ctaLabel="Browse collections"
+          ctaLabel="Shop All New"
         />
-        <CampaignStrip />
-        <DepartmentStrip />
-        {picks.length > 0 ? (
+
+        {/* 5. 3-Tile Promotional Campaign Banners */}
+        <PromoBannerGrid />
+
+        {/* 6. Trending Deals / High Discount Products Grid */}
+        {picks.length > 0 && (
           <Products
             products={picks}
-            eyebrow="Strong edits"
-            title="Better discounts"
-            description="High-value picks from the live catalog."
+            eyebrow="Up to 70% Off"
+            title="Trending Best Sellers"
             ctaHref="/search"
-            ctaLabel="Search the store"
+            ctaLabel="View All Deals"
           />
-        ) : null}
+        )}
+
+        {/* 7. Curated Editorial Campaign Strip */}
+        <CampaignStrip />
+
+        {/* 8. Department Quick Navigation Tiles */}
+        <DepartmentStrip />
+
+        {/* 9. Savana Service & Trust Perks (COD, Free Shipping, 7-Day Returns) */}
+        <SavanaPerksStrip />
       </main>
       <Footer />
     </div>

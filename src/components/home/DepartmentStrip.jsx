@@ -1,39 +1,41 @@
 import Link from "next/link";
 import Reveal from "@/components/motion/Reveal";
 import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
+import { ArrowRight } from "lucide-react";
 
-/**
- * Full-bleed department storytelling — interactive links, no card chrome.
- */
 export default function DepartmentStrip() {
   return (
-    <section className="border-y border-border/70 atmosphere-panel py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <Reveal className="mb-10 max-w-xl md:mb-12">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-amber">
-            Departments
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Start where you shop
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-brand-gray md:text-base">
-            Jump into a department — then refine by category on the shop floor.
-          </p>
-        </Reveal>
+    <section className="border-t border-border/60 bg-zinc-50/50 py-6 md:py-8">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6">
+        <div className="mb-4 flex items-center justify-between border-b border-border/40 pb-2">
+          <div className="flex items-center gap-2">
+            <span className="h-4 w-1 bg-brand-amber rounded-full" />
+            <h2 className="font-display text-base sm:text-lg md:text-xl font-black uppercase tracking-tight text-foreground">
+              Shop by Department
+            </h2>
+          </div>
+          <Link
+            href="/collections"
+            className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-amber hover:text-black transition"
+          >
+            <span>All Departments</span>
+            <ArrowRight size={13} />
+          </Link>
+        </div>
 
-        <ul className="grid grid-cols-1 gap-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
           {DEPARTMENT_ORDER.map((key, index) => (
             <li key={key}>
-              <Reveal delay={Math.min(index * 50, 250)}>
+              <Reveal delay={Math.min(index * 25, 150)}>
                 <Link
                   href={`/shop/${key}`}
-                  className="group flex items-baseline justify-between border-t border-foreground/10 px-1 py-5 transition hover:border-brand-amber sm:px-2"
+                  className="group flex flex-col items-center justify-center rounded-none border border-border/70 bg-white p-3 text-center transition hover:border-black hover:shadow-xs active:scale-95"
                 >
-                  <span className="font-display text-2xl font-semibold tracking-tight text-foreground transition group-hover:text-brand-ink md:text-3xl">
+                  <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-wide text-foreground group-hover:text-brand-amber transition">
                     {DEPARTMENT_LABELS[key]}
                   </span>
-                  <span className="text-sm font-medium text-brand-stone transition group-hover:text-brand-amber">
-                    Shop →
+                  <span className="mt-1 text-[10px] font-semibold text-zinc-400 group-hover:text-black transition">
+                    Explore &rarr;
                   </span>
                 </Link>
               </Reveal>

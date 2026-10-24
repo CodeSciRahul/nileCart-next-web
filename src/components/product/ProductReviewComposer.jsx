@@ -95,7 +95,10 @@ export default function ProductReviewComposer({
 
   useEffect(() => {
     if (authLoading) return;
-    loadEligibility();
+    const timer = setTimeout(() => {
+      loadEligibility();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [authLoading, loadEligibility]);
 
   const handleSubmit = async (event) => {

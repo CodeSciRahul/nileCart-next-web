@@ -204,61 +204,47 @@ const Header = ({ announcement = null }) => {
       );
     });
 
-  const announcementBar =
-    showAnnouncement && announcement?.message ? (
-      <div
-        className="relative py-2 pl-4 pr-10 text-center text-xs font-medium md:text-sm"
-        style={{
-          backgroundColor: announcement.backgroundColor || undefined,
-          color: announcement.textColor || undefined,
-          ...(announcement.backgroundColor
-            ? {}
-            : {
-                backgroundImage:
-                  "linear-gradient(to right, var(--color-brand-amber, #f5c542), #fbbf24, var(--color-brand-amber, #f5c542))",
-              }),
-        }}
-      >
-        {announcement.href || announcement.link ? (
-          <a
-            href={announcement.href || announcement.link}
-            className="truncate underline-offset-2 hover:underline"
-          >
-            {announcement.message}
-          </a>
-        ) : (
-          <p className="truncate">{announcement.message}</p>
-        )}
-        {announcement.dismissible !== false && (
-          <button
-            type="button"
-            onClick={dismissAnnouncement}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 opacity-80 transition hover:bg-black/10 hover:opacity-100"
-            aria-label="Dismiss announcement"
-          >
-            <X size={16} />
-          </button>
-        )}
+  const announcementBar = (
+    <div className="relative bg-black px-4 py-1.5 text-center text-[11px] sm:text-xs font-semibold text-white tracking-wide">
+      <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 sm:gap-4 overflow-hidden">
+        <span className="flex items-center gap-1 text-brand-amber font-bold">
+          ⚡ FLASH DEALS
+        </span>
+        <span className="text-zinc-400 hidden xs:inline">|</span>
+        <span className="truncate">
+          {announcement?.message || "UP TO 80% OFF • FREE DELIVERY ABOVE ₹790 • COD AVAILABLE"}
+        </span>
+        <span className="hidden md:inline rounded bg-white/20 px-1.5 py-0.2 text-[10px] uppercase font-bold text-white">
+          CODE: NILE20
+        </span>
       </div>
-    ) : null;
-
-  const isStickyAnnouncement = announcement?.type === "sticky";
+      {announcement?.dismissible && (
+        <button
+          type="button"
+          onClick={dismissAnnouncement}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 opacity-70 transition hover:opacity-100"
+          aria-label="Dismiss announcement"
+        >
+          <X size={14} />
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <>
-      {!isStickyAnnouncement && announcementBar}
+      {announcementBar}
 
-      <header className="sticky top-0 z-50 w-full bg-brand-white/95 shadow-sm backdrop-blur-md">
-        {isStickyAnnouncement && announcementBar}
-        <div className="border-b border-brand-amber/10 bg-gradient-to-r from-brand-cream via-brand-white to-brand-cream">
+      <header className="sticky top-0 z-50 w-full bg-white/95 border-b border-zinc-200/80 shadow-xs backdrop-blur-md">
+        <div>
           {/* Below lg: logo + actions only (search lives in the drawer). lg+: logo, depts, search, actions. */}
-          <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 px-3 py-2 sm:gap-x-3 sm:px-6 md:h-16 md:py-0 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]">
+          <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 px-3 py-2 sm:gap-x-4 sm:px-6 md:h-14 md:py-0 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]">
             {/* Logo + mobile menu */}
             <div className="col-start-1 row-start-1 flex shrink-0 items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="shrink-0 rounded-full p-2 text-foreground transition hover:bg-brand-cream hover:text-brand-amber lg:hidden"
+                className="shrink-0 rounded-full p-1.5 text-foreground transition hover:bg-zinc-100 hover:text-black lg:hidden"
                 aria-label="Open menu"
               >
                 <Menu size={22} />
@@ -276,8 +262,8 @@ const Header = ({ announcement = null }) => {
 
             {/* Search — desktop only; mobile/tablet use drawer search */}
             <Suspense fallback={null}>
-              <div className="hidden min-w-0 lg:col-start-3 lg:row-start-1 lg:block">
-                <HeaderSearch className="h-9 w-full sm:h-10" />
+              <div className="hidden min-w-0 px-2 lg:col-start-3 lg:row-start-1 lg:block">
+                <HeaderSearch className="h-9 w-full" />
               </div>
             </Suspense>
 
@@ -289,12 +275,12 @@ const Header = ({ announcement = null }) => {
                     <button
                       type="button"
                       onClick={() => setUserMenuOpen((v) => !v)}
-                      className="flex cursor-pointer items-center gap-2 rounded-full bg-brand-cream/50 py-1 pl-1 pr-2.5 ring-1 ring-brand-amber/10 transition hover:bg-brand-amber/15 hover:ring-brand-amber/25 sm:pr-3"
+                      className="flex cursor-pointer items-center gap-1.5 rounded-full bg-zinc-100 py-1 pl-1 pr-2.5 transition hover:bg-zinc-200 sm:pr-3"
                       aria-label="Account menu"
                       aria-expanded={userMenuOpen}
                     >
                       <UserAvatar user={user} size="sm" />
-                      <span className="hidden max-w-[88px] truncate text-xs font-medium text-foreground xl:block">
+                      <span className="hidden max-w-[88px] truncate text-xs font-semibold text-foreground xl:block">
                         {user?.name || "Account"}
                       </span>
                     </button>
@@ -307,11 +293,11 @@ const Header = ({ announcement = null }) => {
                 ) : (
                   <Link
                     href="/auth"
-                    className="flex items-center gap-1.5 rounded-full bg-brand-cream/50 px-2.5 py-1.5 text-foreground ring-1 ring-brand-amber/10 transition hover:bg-brand-amber/15 hover:text-brand-amber hover:ring-brand-amber/25 sm:px-3"
+                    className="flex items-center gap-1.5 rounded-full bg-zinc-100 px-3 py-1.5 text-foreground transition hover:bg-zinc-200"
                     aria-label={authLoading ? "Loading account" : "Login"}
                   >
-                    <User size={18} className="sm:h-5 sm:w-5" />
-                    <span className="hidden text-xs font-semibold sm:inline sm:text-sm">Login</span>
+                    <User size={16} />
+                    <span className="hidden text-xs font-bold sm:inline">Login</span>
                   </Link>
                 )}
               </div>
@@ -321,7 +307,7 @@ const Header = ({ announcement = null }) => {
                 label={wishlistCount > 0 ? `Wishlist, ${wishlistCount} items` : "Wishlist"}
                 badge={wishlistCount}
               >
-                <Heart size={18} className="sm:h-5 sm:w-5" />
+                <Heart size={18} />
               </HeaderIconButton>
 
               <HeaderIconButton
@@ -333,45 +319,8 @@ const Header = ({ announcement = null }) => {
                 }
                 badge={cartItemCount}
               >
-                <ShoppingBag size={18} className="sm:h-5 sm:w-5" />
+                <ShoppingBag size={18} />
               </HeaderIconButton>
-            </div>
-          </div>
-        </div>
-
-        {/* Benefits bar */}
-        <div className="border-b border-brand-amber/10 bg-gradient-to-b from-[#fffdf8] to-brand-white">
-          <div className="mx-auto max-w-7xl px-3 py-2.5 sm:px-6">
-            <div className="grid grid-cols-3 divide-x divide-brand-amber/10 text-center">
-              <div className="flex items-center justify-center gap-2 px-1 sm:gap-2.5 sm:px-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-amber/10 ring-1 ring-brand-amber/15 sm:h-9 sm:w-9">
-                  <PackageCheck size={16} className="text-brand-amber sm:h-[18px] sm:w-[18px]" />
-                </span>
-                <div className="min-w-0 text-left sm:text-center">
-                  <p className="text-[11px] font-bold text-foreground md:text-sm">Easy Returns</p>
-                  <p className="hidden text-xs text-brand-gray md:block">Free Pick Up</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center gap-2 px-1 sm:gap-2.5 sm:px-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-amber/10 ring-1 ring-brand-amber/15 sm:h-9 sm:w-9">
-                  <Zap size={16} className="text-brand-amber sm:h-[18px] sm:w-[18px]" />
-                </span>
-                <div className="min-w-0 text-left sm:text-center">
-                  <p className="text-[11px] font-bold text-foreground md:text-sm">Fast Delivery</p>
-                  <p className="hidden text-xs text-brand-gray md:block">10000+ Styles</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center gap-2 px-1 sm:gap-2.5 sm:px-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-amber/10 ring-1 ring-brand-amber/15 sm:h-9 sm:w-9">
-                  <Truck size={16} className="text-brand-amber sm:h-[18px] sm:w-[18px]" />
-                </span>
-                <div className="min-w-0 text-left sm:text-center">
-                  <p className="text-[11px] font-bold text-foreground md:text-sm">Free Shipping</p>
-                  <p className="hidden text-xs text-brand-gray md:block">Above ₹999</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
