@@ -66,7 +66,7 @@ export default async function HomePage() {
         {/* 1. Hero Fashion Carousel */}
         <Banner banners={heroBanners} />
 
-        {/* 2. Savana-style Circular Category Avatars (Story Bubbles) */}
+        {/* 2. Savana-style "HOT CATEGORIES" Arched Cards Grid */}
         <CategoriesSection categories={categories} />
 
         {/* 3. Live Flash Deals Strip with Realtime Countdown Timer */}
