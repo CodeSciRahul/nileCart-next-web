@@ -1,210 +1,160 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Phone, Mail, CreditCard } from "lucide-react";
-import { BrandLogo } from "@/components/BrandLogo.jsx";
-import { DEPARTMENT_LABELS, DEPARTMENT_ORDER } from "@/constant/index.js";
-
-function SocialIcon({ name }) {
-  const className = "h-4 w-4";
-
-  if (name === "instagram") {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-        <rect x="3" y="3" width="18" height="18" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-      </svg>
-    );
-  }
-  if (name === "facebook") {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-        <path d="M13.5 9.5V7.75c0-.69.56-1.25 1.25-1.25H16V4h-2.25A3.75 3.75 0 0010 7.75V9.5H8v3h2V20h3.5v-7.5H16l.5-3h-3z" />
-      </svg>
-    );
-  }
-  if (name === "twitter") {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-        <path d="M18.244 3H21.5l-7.5 8.574L22 21h-6.594l-5.156-6.74L4.75 21H1.5l8.063-9.218L2 3h6.75l4.656 6.168L18.244 3zm-2.313 16.2h1.75L7.97 4.684H6.125L15.93 19.2z" />
-      </svg>
-    );
-  }
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M21.8 8.001a2.749 2.749 0 00-1.94-1.94C18.28 6 12 6 12 6s-6.28 0-7.86.061A2.749 2.749 0 002.2 8.001 28.61 28.61 0 002 12c0 1.33.077 2.64.2 3.999a2.749 2.749 0 001.94 1.94C5.72 18 12 18 12 18s6.28 0 7.86-.061a2.749 2.749 0 001.94-1.94c.123-1.359.2-2.669.2-3.999 0-1.33-.077-2.64-.2-3.999zM10 15.001V9l5.2 3-5.2 3z" />
-    </svg>
-  );
-}
-
-const FOOTER_LINKS = {
-  help: [
-    { label: "Help Center", href: "/help" },
-    { label: "Track Order", href: "/account/orders" },
-    { label: "Customer Support", href: "/account" },
-    { label: "Coupons", href: "/account/coupons" },
-  ],
-  company: [
-    { label: "About Nilescart", href: "/about" },
-    { label: "Collections", href: "/collections" },
-    { label: "Lookbook", href: "/lookbook" },
-    { label: "Contact Us", href: "/help" },
-  ],
-  policies: [
-    { label: "Terms of Use", href: "/help" },
-    { label: "Privacy Policy", href: "/help" },
-    { label: "Returns & Shipping", href: "/help" },
-  ],
-};
-
-const SOCIAL_LINKS = [
-  { label: "Instagram", href: "#", icon: "instagram" },
-  { label: "Facebook", href: "#", icon: "facebook" },
-  { label: "Twitter", href: "#", icon: "twitter" },
-  { label: "YouTube", href: "#", icon: "youtube" },
-];
-
-function FooterLinkColumn({ title, links }) {
-  return (
-    <div>
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-brand-amber">
-        {title}
-      </h3>
-      <ul className="space-y-2.5">
-        {links.map((link) => (
-          <li key={link.label}>
-            <Link
-              href={link.href}
-              className="text-sm text-brand-gray transition hover:text-brand-amber"
-            >
-              {link.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+import { ChevronUp, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleApplyCode = () => {
+    toast.success("Coupon FRESH20 copied! Use it at checkout for 20% off.");
+  };
+
   return (
-    <footer className="mt-auto border-t border-zinc-200 bg-white text-foreground">
-      {/* Newsletter Signup Banner (Savana signature) */}
-      <div className="border-b border-zinc-200/80 bg-zinc-50 py-8 px-4 sm:px-6">
-        <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
-            <h3 className="font-display text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
-              BE THE FIRST TO KNOW
-            </h3>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              Get ₹150 OFF your first order & VIP access to flash sales.
-            </p>
-          </div>
+    <>
+      <footer className="bg-white border-t border-neutral-200 py-10 text-xs text-neutral-600 mt-auto">
+        <div className="max-w-[1440px] mx-auto px-4 lg:px-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-neutral-100">
+            <div>
+              <h4 className="text-black font-bold uppercase tracking-wider mb-3">
+                Customer Care
+              </h4>
+              <ul className="space-y-2 text-neutral-500">
+                <li>
+                  <Link href="/account/orders" className="hover:text-black">
+                    Track Order
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/help" className="hover:text-black">
+                    Size Guide
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/help" className="hover:text-black">
+                    Easy Returns
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/help" className="hover:text-black">
+                    Shipping Info
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Thank you for subscribing! Use code NILE150 at checkout.");
-            }}
-            className="flex w-full max-w-md items-center gap-1.5"
-          >
-            <input
-              type="email"
-              required
-              placeholder="Enter your email address"
-              className="h-10 min-w-0 flex-1 border border-zinc-300 bg-white px-3.5 text-xs text-foreground outline-none transition focus:border-black"
-            />
-            <button
-              type="submit"
-              className="h-10 shrink-0 bg-black px-5 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-zinc-800 active:scale-95"
-            >
-              Subscribe
-            </button>
-          </form>
-        </div>
-      </div>
+            <div>
+              <h4 className="text-black font-bold uppercase tracking-wider mb-3">
+                Shop Categories
+              </h4>
+              <ul className="space-y-2 text-neutral-500">
+                <li>
+                  <Link href="/shop/tops" className="hover:text-black">
+                    Tops & Knits
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/shop/dresses" className="hover:text-black">
+                    Dresses
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/shop/co-ords" className="hover:text-black">
+                    Co-Ords & Sets
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/shop/jackets" className="hover:text-black">
+                    Jackets & Outerwear
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-        {/* Link columns */}
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-10">
-          <div className="col-span-2 md:col-span-3 lg:col-span-1">
-            <BrandLogo />
-            <p className="mt-3 max-w-xs text-xs leading-relaxed text-zinc-500">
-              High-street fast-fashion, daily drops, and viral fits curated for everyday wear.
-            </p>
-            <div className="mt-4 space-y-2 text-xs text-zinc-500">
-              <p className="flex items-center gap-2">
-                <MapPin size={13} className="shrink-0 text-brand-amber" />
-                Mumbai, Maharashtra, India
+            <div>
+              <h4 className="text-black font-bold uppercase tracking-wider mb-3">
+                Brand & Trust
+              </h4>
+              <ul className="space-y-2 text-neutral-500">
+                <li>
+                  <Link href="/about" className="hover:text-black">
+                    About NILESCART
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="hover:text-black">
+                    Sustainability
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="hover:text-black">
+                    Authentic Quality
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/help" className="hover:text-black">
+                    Terms & Privacy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-black font-bold uppercase tracking-wider mb-3">
+                Special Offer
+              </h4>
+              <p className="text-neutral-500 leading-relaxed mb-3">
+                Use coupon <strong>FRESH20</strong> or <strong>NILES20</strong> at checkout for 20% off your purchase.
               </p>
-              <p className="flex items-center gap-2">
-                <Phone size={13} className="shrink-0 text-brand-amber" />
-                1800-123-4567
-              </p>
-              <p className="flex items-center gap-2">
-                <Mail size={13} className="shrink-0 text-brand-amber" />
-                support@nilescart.com
-              </p>
+              <button
+                type="button"
+                onClick={handleApplyCode}
+                className="px-4 py-2 bg-black text-white rounded text-xs font-bold hover:bg-neutral-800 transition-colors"
+              >
+                Apply 20% Off Code
+              </button>
             </div>
           </div>
 
-          <FooterLinkColumn
-            title="Shop"
-            links={DEPARTMENT_ORDER.map((key) => ({
-              label: DEPARTMENT_LABELS[key],
-              href: `/shop/${key}`,
-            }))}
-          />
-          <FooterLinkColumn title="Help" links={FOOTER_LINKS.help} />
-          <FooterLinkColumn title="Company" links={FOOTER_LINKS.company} />
-          <FooterLinkColumn title="Policies" links={FOOTER_LINKS.policies} />
-        </div>
-
-        <div className="mt-8 border-t border-zinc-200 pt-6">
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-foreground">
-            Shop Departments
-          </p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-            {DEPARTMENT_ORDER.map((key) => (
-              <Link
-                key={key}
-                href={`/shop/${key}`}
-                className="text-xs font-medium text-zinc-500 transition hover:text-black"
-              >
-                {DEPARTMENT_LABELS[key]}
-              </Link>
-            ))}
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
+            <p>© {new Date().getFullYear()} NILESCART. All rights reserved.</p>
+            <div className="flex flex-wrap gap-4">
+              <span>UPI</span>
+              <span>Credit & Debit Cards</span>
+              <span>Net Banking</span>
+              <span>Cash on Delivery</span>
+            </div>
           </div>
         </div>
+      </footer>
+
+      {/* Floating Action Buttons matching Reference UI */}
+      <div className="fixed bottom-6 right-4 sm:right-6 z-30 flex flex-col items-center gap-2.5">
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-lg border border-neutral-200 flex items-center justify-center text-neutral-800 hover:bg-neutral-50 transition-transform hover:-translate-y-0.5 active:scale-95"
+          aria-label="Scroll to top"
+          title="Back to top"
+        >
+          <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            toast.info("NILESCART Style Advisor: Ask our stylist for size & outfit recommendations!")
+          }
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-indigo-500 text-white flex items-center justify-center shadow-md hover:scale-105 transition-transform active:scale-95"
+          aria-label="Style Assistant"
+          title="NILESCART Styling Assistant"
+        >
+          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
       </div>
-
-      {/* Bottom bar */}
-      <div className="border-t border-border bg-brand-white/70">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:flex-row sm:px-6">
-          <p className="text-center text-xs text-brand-gray sm:text-left">
-            © {new Date().getFullYear()} Nilescart Fashion Pvt. Ltd. All rights reserved.
-          </p>
-
-          <div className="flex items-center gap-2">
-            {SOCIAL_LINKS.map(({ label, href, icon }) => (
-              <Link
-                key={label}
-                href={href}
-                aria-label={label}
-                className="flex h-9 w-9 items-center justify-center border border-border text-foreground transition hover:border-brand-amber hover:text-brand-amber"
-              >
-                <SocialIcon name={icon} />
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 text-brand-gray">
-            <CreditCard size={16} className="text-brand-amber" />
-            <span className="text-xs">Visa · Mastercard · UPI · COD</span>
-          </div>
-        </div>
-      </div>
-    </footer>
+    </>
   );
 }

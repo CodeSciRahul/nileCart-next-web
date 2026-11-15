@@ -7,6 +7,7 @@ import AvatarUpload from "@/components/account/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { serializeStoredImage } from "@/lib/storedImage";
+import CustomerPasswordSection from "@/components/account/CustomerPasswordSection";
 import {
   Select,
   SelectContent,
@@ -149,6 +150,8 @@ const ProfilePage = () => {
           {updateProfile.isPending ? "Saving..." : "Save changes"}
         </Button>
       </form>
+
+      <CustomerPasswordSection />
     </div>
   );
 };

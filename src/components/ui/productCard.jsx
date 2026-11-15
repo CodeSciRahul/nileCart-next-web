@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Layers2, Loader2, ShoppingBag } from "lucide-react";
+import { Eye, Loader2, ShoppingBag, Zap } from "lucide-react";
 import WishlistButton from "@/components/wishlist/WishlistButton";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useAddToCart } from "@/hooks/useCart";
@@ -16,7 +16,7 @@ const IMAGE_INTERVAL_MS = 1100;
 
 function formatRupee(value) {
   if (value == null || Number.isNaN(Number(value))) return "—";
-  return `₹${Number(value).toLocaleString("en-IN")}`;
+  return `₹ ${Number(value).toLocaleString("en-IN")}`;
 }
 
 const ProductCard = ({ product }) => {
@@ -37,10 +37,7 @@ const ProductCard = ({ product }) => {
   const discountPercent = product?.discountPercent;
   const defaultSku = product?.variants?.[0]?.sku;
   const href = `/product/${product?.slug}?cat=${product?.category?._id || ""}`;
-  const similarHref = product?.category?.slug
-    ? `/shop/${product.category.slug}`
-    : href;
-  const brandLabel = product?.brand || product?.category?.name || "Nilescart";
+  const gender = product?.gender || (product?.tags?.includes("unisex") ? "unisex" : null);
 
   useEffect(() => {
     if (!hovered || images.length < 2) return undefined;
@@ -57,18 +54,6 @@ const ProductCard = ({ product }) => {
     setHovered(false);
     setImageIndex(0);
   }, []);
-
-  const handleDotClick = (e, index) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setImageIndex(index);
-  };
-
-  const handleViewSimilar = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    router.push(similarHref);
-  };
 
   const handleAddToBag = async (e) => {
     e.preventDefault();
@@ -94,132 +79,120 @@ const ProductCard = ({ product }) => {
     });
   };
 
+  const handleQuickView = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(href);
+  };
+
   return (
     <article
-      className="group flex h-full flex-col bg-transparent"
+      className="group flex h-full flex-col cursor-pointer"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative overflow-hidden bg-zinc-100">
-        <Link
-          href={href}
-          className="relative block aspect-[3/4] overflow-hidden"
-        >
+      <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xs bg-neutral-100 shadow-xs">
+        <Link href={href} className="relative block size-full">
           {images.map((src, index) =>
             src ? (
               <OptimizedImage
                 key={`${src}-${index}`}
                 src={src}
-                alt={
-                  index === 0
-                    ? product?.title || "Product"
-                    : `${product?.title || "Product"} view ${index + 1}`
-                }
+                alt={product?.title || "Product"}
                 fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                className={`object-cover transition-[opacity,transform] duration-500 ease-out ${
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className={`object-cover transition-[opacity,transform] duration-500 ease-out select-none ${
                   index === imageIndex ? "opacity-100" : "opacity-0"
-                } ${hovered ? "scale-[1.04]" : "scale-100"}`}
+                } ${hovered ? "scale-[1.03]" : "scale-100"}`}
                 loading="lazy"
               />
             ) : (
               <span
                 key={`empty-${index}`}
-                className="absolute inset-0 bg-zinc-100"
+                className="absolute inset-0 bg-neutral-100"
                 aria-hidden
               />
             )
           )}
         </Link>
 
-        {/* Savana-style Top-Left Discount Badge */}
-        {discountPercent > 0 && (
-          <div className="absolute left-1.5 top-1.5 z-20 sm:left-2 sm:top-2">
-            <span className="inline-block rounded-none bg-brand-amber px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-black shadow-sm">
+        {/* Top Badges (Gender + Discount) */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
+          {gender && (
+            <span className="bg-white/90 backdrop-blur-xs text-black text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-xs">
+              {gender}
+            </span>
+          )}
+          {discountPercent > 0 && (
+            <span className="bg-[#fdd835] text-black text-[10px] font-black uppercase px-1.5 py-0.5 rounded-xs shadow-xs">
               -{discountPercent}%
             </span>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Top-Right Wishlist Button */}
-        <div className="absolute right-1.5 top-1.5 z-20 sm:right-2 sm:top-2">
+        <div className="absolute top-2 right-2 z-10">
           <WishlistButton
             productId={product?._id}
             iconSize={16}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 p-0 text-black backdrop-blur-sm transition hover:bg-white hover:scale-110 shadow-sm"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 p-0 text-black backdrop-blur-xs transition hover:bg-white hover:scale-110 shadow-sm"
           />
         </div>
 
-        {images.length > 1 && (
-          <div
-            className={`pointer-events-none absolute inset-x-0 z-20 flex justify-center gap-1 transition-opacity duration-300 ${
-              hovered ? "bottom-10 opacity-100" : "bottom-2 opacity-0"
-            }`}
-          >
-            {images.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                aria-label={`Show image ${index + 1}`}
-                onClick={(e) => handleDotClick(e, index)}
-                className={`pointer-events-auto h-0.5 transition-all ${
-                  index === imageIndex
-                    ? "w-3 bg-black"
-                    : "w-1.5 bg-white/80 hover:bg-white"
-                }`}
-              />
-            ))}
-          </div>
-        )}
+        {/* Bottom-Left Fast Delivery Zap Pill */}
+        <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
+          <span className="bg-white/90 backdrop-blur-xs text-neutral-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+            <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+            <span>Fast delivery</span>
+          </span>
+        </div>
 
-        {/* Savana Quick Add overlay on hover */}
-        <div className="absolute inset-x-0 bottom-0 z-30 flex translate-y-full items-center justify-between gap-1 bg-white/95 px-2.5 py-1.5 text-xs font-bold text-black backdrop-blur-sm transition-transform duration-300 group-hover:translate-y-0 shadow-sm">
+        {/* Desktop Quick Actions on Hover */}
+        <div className="absolute inset-x-2 bottom-2 z-20 hidden md:flex items-center gap-1.5 opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+          <button
+            type="button"
+            onClick={handleQuickView}
+            className="flex-1 bg-white/95 hover:bg-white text-black text-xs font-bold py-2 rounded-xs shadow-md transition-colors flex items-center justify-center gap-1.5"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>Quick View</span>
+          </button>
           <button
             type="button"
             onClick={handleAddToBag}
             disabled={addToCartMutation.isPending || !product?._id}
-            className="flex flex-1 items-center justify-center gap-1.5 py-1 text-[11px] font-bold uppercase tracking-wider text-black hover:text-brand-amber transition disabled:opacity-50"
+            className="bg-black hover:bg-neutral-800 text-white p-2 rounded-xs shadow-md transition-colors"
+            title="Add to Bag"
+            aria-label="Add to Bag"
           >
             {addToCartMutation.isPending ? (
-              <Loader2 className="size-3 animate-spin" aria-hidden />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <ShoppingBag className="size-3.5" aria-hidden />
+              <ShoppingBag className="w-4 h-4" />
             )}
-            <span>Add to Bag</span>
-          </button>
-          <span className="text-zinc-300">|</span>
-          <button
-            type="button"
-            onClick={handleViewSimilar}
-            className="p-1 text-zinc-600 hover:text-black transition"
-            title="View Similar"
-          >
-            <Layers2 size={13} aria-hidden />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col pt-2">
+      {/* Product Info */}
+      <div className="mt-2.5 flex flex-1 flex-col">
         <Link href={href} className="block min-w-0">
-          <p className="truncate text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-            {brandLabel}
-          </p>
-          <h3 className="mt-0.5 line-clamp-1 text-[12px] sm:text-[13px] font-medium leading-snug text-foreground group-hover:text-brand-amber transition">
+          <h3 className="line-clamp-1 text-[13px] md:text-[14px] font-bold text-neutral-900 group-hover:text-black transition-colors">
             {product?.title}
           </h3>
 
-          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-[13px] sm:text-[14px] font-black tabular-nums text-foreground">
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-sm md:text-base font-black text-black">
               {formatRupee(price)}
             </span>
             {mrp != null && Number(mrp) > Number(price) ? (
-              <span className="text-[11px] tabular-nums text-zinc-400 line-through">
+              <span className="text-xs text-neutral-600 line-through font-normal">
                 {formatRupee(mrp)}
               </span>
             ) : null}
             {discountPercent > 0 ? (
-              <span className="text-[10px] font-bold tabular-nums text-brand-amber">
-                {discountPercent}% off
+              <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1 py-0.2 rounded">
+                {discountPercent}% OFF
               </span>
             ) : null}
           </div>

@@ -1,71 +1,55 @@
 import Link from "next/link";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 
-const PROMO_TILES = [
-  {
-    title: "Under ₹999",
-    eyebrow: "Budget Trendy",
-    tag: "STREET EDIT",
-    href: "/shop/women",
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "Vacation Edit",
-    eyebrow: "Resort & Beach",
-    tag: "NEW SEASON",
-    href: "/collections",
-    image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "Party & Club",
-    eyebrow: "Glam & Chic",
-    tag: "UP TO 60% OFF",
-    href: "/shop/women",
-    image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=800&q=80",
-  },
-];
+const FALLBACK_CAMPAIGN = {
+  title: "NEW ARRIVALS FROM ₹ 390",
+  eyebrow: "Autumn / Winter 2026 Collection",
+  ctaText: "Shop Collection",
+  ctaLink: "/shop/all",
+  image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=80",
+};
 
-export default function PromoBannerGrid() {
+export default function PromoBannerGrid({ banner = null }) {
+  const currentBanner = banner || FALLBACK_CAMPAIGN;
+  const imageSrc =
+    (typeof currentBanner.image === "string"
+      ? currentBanner.image
+      : currentBanner.image?.url) || FALLBACK_CAMPAIGN.image;
+
+  const href = currentBanner.ctaLink || currentBanner.ctaHref || "/shop/all";
+  const title = currentBanner.title || FALLBACK_CAMPAIGN.title;
+  const eyebrow = currentBanner.subtitle || currentBanner.eyebrow || FALLBACK_CAMPAIGN.eyebrow;
+  const ctaText = currentBanner.ctaText || FALLBACK_CAMPAIGN.ctaText;
+
   return (
-    <section className="py-3 md:py-4">
-      <div className="mx-auto max-w-7xl px-3 sm:px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
-          {PROMO_TILES.map((tile, idx) => (
-            <Link
-              key={tile.title + idx}
-              href={tile.href}
-              className="group relative block overflow-hidden rounded-none bg-zinc-900 aspect-[16/9] sm:aspect-[4/5] md:aspect-[3/4]"
-            >
-              <OptimizedImage
-                src={tile.image}
-                alt={tile.title}
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                loading="lazy"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent transition-opacity group-hover:opacity-90"
-                aria-hidden
-              />
-
-              <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 text-white">
-                <span className="inline-block rounded-none bg-brand-amber px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-black">
-                  {tile.tag}
-                </span>
-                <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-zinc-300">
-                  {tile.eyebrow}
-                </p>
-                <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-white group-hover:text-brand-amber transition">
-                  {tile.title}
-                </h3>
-                <span className="mt-2 inline-flex items-center text-xs font-bold uppercase tracking-wider text-white underline underline-offset-4 group-hover:text-brand-amber">
-                  Shop Now &rarr;
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+    <section className="w-full bg-white py-4 md:py-6">
+      <div className="max-w-[1440px] mx-auto px-4 lg:px-12">
+        <Link
+          href={href}
+          className="relative block w-full overflow-hidden rounded-xs cursor-pointer shadow-xs group"
+        >
+          <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] md:aspect-[24/7] overflow-hidden bg-neutral-900">
+            <OptimizedImage
+              src={imageSrc}
+              alt={title}
+              fill
+              sizes="100vw"
+              className="w-full h-full object-cover select-none transition-transform duration-500 group-hover:scale-[1.008]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent pointer-events-none" />
+            <div className="absolute left-6 md:left-12 bottom-6 md:bottom-10 text-white max-w-md">
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-[#fdd835]">
+                {eyebrow}
+              </span>
+              <h3 className="text-xl md:text-3xl lg:text-4xl font-black uppercase tracking-tight text-white mt-1 mb-3">
+                {title}
+              </h3>
+              <span className="px-5 py-2 bg-white text-black text-xs font-extrabold uppercase rounded-full shadow-md hover:bg-neutral-100 transition-colors inline-block">
+                {ctaText}
+              </span>
+            </div>
+          </div>
+        </Link>
       </div>
     </section>
   );

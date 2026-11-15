@@ -59,36 +59,36 @@ export default function ProductDetailClient({ product }) {
         {/* Badges */}
         <div className="mb-3 flex flex-wrap gap-2">
           {product?.isTrending && (
-            <span className="bg-brand-cream px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground ring-1 ring-brand-amber/30">
+            <span className="bg-black text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-xs">
               Trending
             </span>
           )}
           {product?.isNewArrival && (
-            <span className="bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-200">
+            <span className="bg-[#fdd835] text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-xs">
               New Arrival
             </span>
           )}
           {product?.isOnSale && (
-            <span className="bg-orange-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-orange-700 ring-1 ring-orange-200">
+            <span className="bg-red-600 text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-xs">
               Sale
             </span>
           )}
         </div>
 
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gray">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
           {brandLabel}
         </p>
 
-        <h1 className="mt-1 text-2xl font-black leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+        <h1 className="mt-1 text-2xl font-black leading-tight tracking-tight text-black sm:text-3xl lg:text-4xl">
           {product?.title}
         </h1>
 
         {product?.category?.name && (
-          <p className="mt-1.5 text-sm text-brand-gray">
+          <p className="mt-1.5 text-sm text-neutral-500">
             {product.category.slug ? (
               <Link
                 href={`/shop/${product.category.slug}`}
-                className="underline-offset-2 hover:text-foreground hover:underline"
+                className="underline-offset-2 hover:text-black hover:underline"
               >
                 {product.category.name}
               </Link>
@@ -99,19 +99,19 @@ export default function ProductDetailClient({ product }) {
         )}
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-1.5 bg-brand-cream/80 px-2.5 py-1 ring-1 ring-brand-amber/25">
+          <div className="inline-flex items-center gap-1.5 bg-neutral-100 px-2.5 py-1 border border-neutral-200 rounded-xs">
             <Star
               size={14}
               fill="currentColor"
-              className="text-brand-amber"
+              className="text-[#fdd835]"
             />
-            <span className="text-sm font-bold tabular-nums">
+            <span className="text-sm font-bold tabular-nums text-black">
               {ratingAvg.toFixed(1)}
             </span>
           </div>
           <a
             href="#reviews"
-            className="text-sm text-brand-gray underline-offset-2 hover:text-foreground hover:underline"
+            className="text-sm text-neutral-500 underline-offset-2 hover:text-black hover:underline"
           >
             {ratingCount} {ratingCount === 1 ? "review" : "reviews"}
           </a>

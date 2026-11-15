@@ -14,7 +14,7 @@ function Stars({ value = 0, size = 14 }) {
           size={size}
           fill={star <= rating ? "currentColor" : "none"}
           className={
-            star <= rating ? "text-brand-amber" : "text-brand-amber/25"
+            star <= rating ? "text-[#fdd835]" : "text-neutral-200"
           }
         />
       ))}
@@ -69,11 +69,11 @@ export default function ProductReviewsSection({ product, reviews = [] }) {
   return (
     <section
       id="reviews"
-      className="scroll-mt-28 border-t border-brand-amber/15 py-12 sm:py-16"
+      className="scroll-mt-28 border-t border-neutral-200 py-12 sm:py-16"
     >
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gray">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
             Ratings & reviews
           </p>
           <h2 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
@@ -81,15 +81,15 @@ export default function ProductReviewsSection({ product, reviews = [] }) {
           </h2>
         </div>
 
-        <div className="flex items-center gap-3 border border-brand-amber/20 bg-brand-cream/40 px-4 py-3">
+        <div className="flex items-center gap-3 border border-neutral-200 bg-neutral-50 px-4 py-3">
           <div className="flex items-center gap-1.5">
-            <Star size={20} fill="currentColor" className="text-brand-amber" />
+            <Star size={20} fill="currentColor" className="text-[#fdd835]" />
             <span className="text-2xl font-black tabular-nums">
               {average.toFixed(1)}
             </span>
           </div>
-          <div className="text-xs text-brand-gray">
-            <p className="font-semibold text-foreground">
+          <div className="text-xs text-neutral-500">
+            <p className="font-semibold text-neutral-900">
               {count} {count === 1 ? "rating" : "ratings"}
             </p>
             <p>Verified buyers</p>
@@ -109,11 +109,11 @@ export default function ProductReviewsSection({ product, reviews = [] }) {
           {localReviews.map((review) => (
             <article
               key={review._id}
-              className="border border-brand-amber/20 bg-brand-white p-5 transition hover:border-brand-amber/40"
+              className="border border-neutral-200 bg-white p-5 transition hover:border-black"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center bg-brand-cream text-sm font-bold text-foreground ring-1 ring-brand-amber/25">
+                  <div className="flex size-10 items-center justify-center bg-neutral-100 text-sm font-bold text-black ring-1 ring-neutral-300">
                     {review?.user?.name?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                   <div>

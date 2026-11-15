@@ -61,10 +61,7 @@ export function BrandLogo({
   compact = false,
   variant = "light",
 }) {
-  const kind = compact ? "icon" : "full";
-  const heightClass = compact
-    ? "h-8 w-auto sm:h-9"
-    : "h-8 w-auto sm:h-9 md:h-10";
+  const isDark = variant === "dark";
 
   return (
     <Link
@@ -72,23 +69,13 @@ export function BrandLogo({
       className={`group inline-flex items-center transition-opacity hover:opacity-90 ${className}`}
       aria-label="Nilescart home"
     >
-      {variant === "auto" ? (
-        <>
-          <LogoImage
-            asset={BRAND[kind].light}
-            className={`${heightClass} dark:hidden`}
-          />
-          <LogoImage
-            asset={BRAND[kind].dark}
-            className={`${heightClass} hidden dark:block`}
-          />
-        </>
-      ) : (
-        <LogoImage
-          asset={BRAND[kind][variant] || BRAND[kind].light}
-          className={heightClass}
-        />
-      )}
+      <span
+        className={`text-2xl sm:text-3xl md:text-4xl font-black tracking-[-0.04em] select-none font-sans ${
+          isDark ? "text-white" : "text-black"
+        }`}
+      >
+        {compact ? "Nc" : "Nilescart"}
+      </span>
     </Link>
   );
 }

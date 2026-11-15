@@ -182,18 +182,18 @@ export default function ProductPurchasePanel({
   return (
     <div className="space-y-7">
       {/* Price block */}
-      <div className="space-y-1.5 border-b border-brand-amber/15 pb-5">
+      <div className="space-y-1.5 border-b border-neutral-200 pb-5">
         <div className="flex flex-wrap items-baseline gap-2.5">
-          <span className="text-3xl font-black tabular-nums tracking-tight text-foreground sm:text-4xl">
+          <span className="text-3xl font-black tabular-nums tracking-tight text-neutral-950 sm:text-4xl">
             {formatRupee(price)}
           </span>
           {mrp > price && (
-            <span className="text-lg text-brand-gray line-through tabular-nums">
+            <span className="text-lg text-neutral-500 line-through tabular-nums">
               {formatRupee(mrp)}
             </span>
           )}
           {discount > 0 && (
-            <span className="bg-brand-amber px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-foreground">
+            <span className="bg-[#fdd835] px-2 py-0.5 text-xs font-black uppercase tracking-wide text-black rounded-xs">
               {discount}% OFF
             </span>
           )}
@@ -203,7 +203,7 @@ export default function ProductPurchasePanel({
             You save {formatRupee(savings)}
           </p>
         )}
-        <p className="text-[11px] text-brand-gray">
+        <p className="text-[11px] text-neutral-500">
           Inclusive of all taxes · MRP shown above
         </p>
       </div>
@@ -234,8 +234,8 @@ export default function ProductPurchasePanel({
                   className={cn(
                     "relative size-10 rounded-full border-2 transition duration-200",
                     selected
-                      ? "border-foreground scale-105 shadow-md"
-                      : "border-brand-amber/30 hover:border-brand-amber"
+                      ? "border-black scale-105 shadow-md ring-2 ring-black/20"
+                      : "border-neutral-300 hover:border-black"
                   )}
                   style={{ backgroundColor: opt.colorHex }}
                 >
@@ -287,12 +287,12 @@ export default function ProductPurchasePanel({
                   "relative min-w-[3.25rem] border px-4 py-2.5 text-sm font-semibold transition duration-200",
                   selected &&
                     !disabled &&
-                    "border-foreground bg-foreground text-brand-white",
+                    "border-black bg-black text-white",
                   !selected &&
                     !disabled &&
-                    "border-brand-amber/30 bg-brand-white hover:border-brand-amber",
+                    "border-neutral-200 bg-white hover:border-black text-neutral-900",
                   disabled &&
-                    "cursor-not-allowed border-dashed border-brand-gray/40 text-brand-gray/50 line-through",
+                    "cursor-not-allowed border-dashed border-neutral-300 text-neutral-400 line-through",
                   state.key === "low" &&
                     !selected &&
                     !disabled &&
@@ -331,13 +331,13 @@ export default function ProductPurchasePanel({
       {/* Quantity */}
       <div>
         <h3 className="mb-3 text-sm font-bold tracking-tight">Quantity</h3>
-        <div className="inline-flex items-center border border-brand-amber/25 bg-brand-cream/30">
+        <div className="inline-flex items-center border border-neutral-300 bg-white">
           <button
             type="button"
             aria-label="Decrease quantity"
             disabled={quantity <= 1}
             onClick={() => onQuantityChange(Math.max(1, quantity - 1))}
-            className="flex size-10 items-center justify-center text-foreground transition hover:bg-brand-amber/30 disabled:opacity-40"
+            className="flex size-10 items-center justify-center text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-40"
           >
             <Minus size={16} />
           </button>
@@ -351,7 +351,7 @@ export default function ProductPurchasePanel({
             onClick={() =>
               onQuantityChange(Math.min(maxQty, quantity + 1))
             }
-            className="flex size-10 items-center justify-center text-foreground transition hover:bg-brand-amber/30 disabled:opacity-40"
+            className="flex size-10 items-center justify-center text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-40"
           >
             <Plus size={16} />
           </button>
@@ -359,9 +359,9 @@ export default function ProductPurchasePanel({
       </div>
 
       {/* Delivery check */}
-      <div className="border border-brand-amber/20 bg-brand-cream/25 p-4">
-        <div className="flex items-center gap-2 text-sm font-bold">
-          <MapPin size={16} className="text-brand-amber" />
+      <div className="border border-neutral-200 bg-neutral-50 p-4">
+        <div className="flex items-center gap-2 text-sm font-bold text-neutral-900">
+          <MapPin size={16} className="text-black" />
           Delivery estimate
         </div>
         <div className="mt-3 flex gap-2">
@@ -374,21 +374,21 @@ export default function ProductPurchasePanel({
             onChange={(e) =>
               setPincode(e.target.value.replace(/\D/g, "").slice(0, 6))
             }
-            className="h-10 flex-1 border border-brand-amber/25 bg-brand-white px-3 text-sm outline-none focus:border-brand-amber"
+            className="h-10 flex-1 border border-neutral-300 bg-white px-3 text-sm outline-none focus:border-black"
             aria-label="Delivery pincode"
           />
           <button
             type="button"
             onClick={() => setCheckedPin(pincode)}
             disabled={pincode.length < 6}
-            className="h-10 px-4 text-xs font-bold uppercase tracking-wide bg-foreground text-brand-white transition hover:bg-foreground/90 disabled:opacity-40"
+            className="h-10 px-4 text-xs font-bold uppercase tracking-wide bg-black text-white transition hover:bg-neutral-800 disabled:opacity-40"
           >
             Check
           </button>
         </div>
-        <p className="mt-2 text-xs text-brand-gray">
+        <p className="mt-2 text-xs text-neutral-500">
           Get it by{" "}
-          <span className="font-semibold text-foreground">{delivery.label}</span>
+          <span className="font-semibold text-black">{delivery.label}</span>
           {checkedPin ? ` for ${checkedPin}` : " · enter pincode for accuracy"}
         </p>
       </div>
@@ -399,7 +399,7 @@ export default function ProductPurchasePanel({
           type="button"
           onClick={handleAddToBag}
           disabled={outOfStock || addToCartMutation.isPending || buying}
-          className="flex flex-1 items-center justify-center gap-2 border border-brand-amber bg-brand-cream py-4 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-brand-amber disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex flex-1 items-center justify-center gap-2 bg-black py-4 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {addToCartMutation.isPending && !buying ? (
             <Loader2 size={18} className="animate-spin" />
@@ -417,12 +417,12 @@ export default function ProductPurchasePanel({
           type="button"
           onClick={handleBuyNow}
           disabled={outOfStock || addToCartMutation.isPending || buying}
-          className="flex flex-1 items-center justify-center gap-2 bg-brand-amber py-4 text-sm font-bold uppercase tracking-wide text-foreground transition hover:bg-brand-amber/90 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex flex-1 items-center justify-center gap-2 bg-[#fdd835] py-4 text-sm font-black uppercase tracking-wide text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50 shadow-sm"
         >
           {buying ? (
             <Loader2 size={18} className="animate-spin" />
           ) : (
-            <Zap size={18} />
+            <Zap size={18} className="fill-black" />
           )}
           {buying ? "Please wait..." : "Buy Now"}
         </button>
@@ -431,14 +431,14 @@ export default function ProductPurchasePanel({
           productId={product?._id}
           variant="plain"
           iconSize={20}
-          className="rounded-none! p-4!"
+          className="rounded-none! p-4! border border-neutral-200 hover:border-black bg-white"
         />
 
         <button
           type="button"
           onClick={handleShare}
           aria-label="Share product"
-          className="border border-brand-amber/20 p-4 transition hover:border-brand-amber hover:bg-brand-cream"
+          className="border border-neutral-200 p-4 transition hover:border-black hover:bg-neutral-50 bg-white"
         >
           <Share2 size={20} />
         </button>
@@ -450,12 +450,12 @@ export default function ProductPurchasePanel({
           productId={product?._id}
           variant="plain"
           iconSize={18}
-          className="flex flex-1 items-center justify-center rounded-none! py-3!"
+          className="flex flex-1 items-center justify-center rounded-none! py-3! border border-neutral-200 bg-white"
         />
         <button
           type="button"
           onClick={handleShare}
-          className="flex flex-1 items-center justify-center gap-2 border border-brand-amber/20 py-3 text-xs font-bold uppercase tracking-wide transition hover:bg-brand-cream"
+          className="flex flex-1 items-center justify-center gap-2 border border-neutral-200 py-3 text-xs font-bold uppercase tracking-wide transition hover:bg-neutral-50 bg-white"
         >
           <Share2 size={16} />
           Share
