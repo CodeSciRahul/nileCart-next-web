@@ -50,11 +50,11 @@ export default function ProductStoreSection({ seller }) {
         </h2>
       </div>
 
-      <div className="overflow-hidden border border-brand-amber/25 bg-brand-white">
+      <div className="overflow-hidden border border-neutral-200 bg-white">
         {/* Header strip */}
-        <div className="flex flex-col gap-5 border-b border-brand-amber/15 bg-linear-to-r from-brand-cream/60 via-brand-white to-brand-cream/30 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex flex-col gap-5 border-b border-neutral-200 bg-neutral-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex min-w-0 items-start gap-4">
-            <div className="relative size-16 shrink-0 overflow-hidden border border-brand-amber/25 bg-[#FFECB3] sm:size-20">
+            <div className="relative size-16 shrink-0 overflow-hidden border border-neutral-200 bg-neutral-100 sm:size-20">
               {logoUrl ? (
                 <OptimizedImage
                   src={logoUrl}
@@ -65,13 +65,13 @@ export default function ProductStoreSection({ seller }) {
                   loading="lazy"
                 />
               ) : (
-                <span className="flex size-full items-center justify-center text-2xl font-black text-foreground">
+                <span className="flex size-full items-center justify-center text-2xl font-black text-black">
                   {initial}
                 </span>
               )}
               {isVerified && (
                 <span
-                  className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full bg-emerald-600 text-brand-white ring-2 ring-brand-white"
+                  className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white ring-2 ring-white"
                   title="Verified seller"
                 >
                   <BadgeCheck size={14} />
@@ -81,7 +81,7 @@ export default function ProductStoreSection({ seller }) {
 
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="truncate text-lg font-black tracking-tight text-foreground sm:text-xl">
+                <h3 className="truncate text-lg font-black tracking-tight text-neutral-900 sm:text-xl">
                   {seller.storeName}
                 </h3>
                 {isVerified && (
@@ -93,15 +93,15 @@ export default function ProductStoreSection({ seller }) {
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
-                <span className="inline-flex items-center gap-1.5 bg-brand-cream/80 px-2 py-0.5 font-bold tabular-nums ring-1 ring-brand-amber/25">
+                <span className="inline-flex items-center gap-1.5 bg-white px-2 py-0.5 font-bold tabular-nums border border-neutral-200">
                   <Star
                     size={13}
                     fill="currentColor"
-                    className="text-brand-amber"
+                    className="text-[#fdd835]"
                   />
                   {ratingAvg > 0 ? ratingAvg.toFixed(1) : "New"}
                 </span>
-                <span className="text-brand-gray">
+                <span className="text-neutral-500">
                   {ratingCount > 0
                     ? `${ratingCount.toLocaleString("en-IN")} store ratings`
                     : "No ratings yet"}
@@ -109,8 +109,8 @@ export default function ProductStoreSection({ seller }) {
               </div>
 
               {location && (
-                <p className="mt-2 flex items-center gap-1.5 text-xs text-brand-gray">
-                  <MapPin size={12} className="shrink-0 text-brand-amber" />
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-neutral-500">
+                  <MapPin size={12} className="shrink-0 text-black" />
                   {location}
                 </p>
               )}
@@ -120,7 +120,7 @@ export default function ProductStoreSection({ seller }) {
           {storeHref && (
             <Link
               href={storeHref}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 bg-brand-amber px-5 py-3 text-xs font-bold uppercase tracking-wide text-foreground transition hover:bg-brand-amber/90"
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 bg-black px-5 py-3 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-neutral-800"
             >
               <Store size={15} />
               Visit Store

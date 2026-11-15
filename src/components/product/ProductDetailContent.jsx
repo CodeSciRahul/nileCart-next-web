@@ -35,14 +35,14 @@ export default function ProductDetailContent({
       />
       <Header />
 
-      <main className="flex-1 pb-24 lg:pb-12">
-        <div className="border-b border-brand-amber/10 bg-linear-to-b from-brand-cream/50 to-brand-white">
+      <main className="flex-1 pb-24 lg:pb-12 bg-white">
+        <div className="border-b border-neutral-200 bg-white">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
             <nav
               aria-label="Breadcrumb"
-              className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-brand-gray"
+              className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-neutral-500"
             >
-              <Link href="/" className="hover:text-foreground">
+              <Link href="/" className="hover:text-black">
                 Home
               </Link>
               <span aria-hidden>/</span>
@@ -50,14 +50,14 @@ export default function ProductDetailContent({
                 <>
                   <Link
                     href={categoryPath || "/"}
-                    className="hover:text-foreground"
+                    className="hover:text-black"
                   >
                     {product.category.name}
                   </Link>
                   <span aria-hidden>/</span>
                 </>
               )}
-              <span className="truncate font-medium text-foreground">
+              <span className="truncate font-semibold text-black">
                 {product?.title}
               </span>
             </nav>
@@ -72,7 +72,7 @@ export default function ProductDetailContent({
           <ProductReviewsSection product={product} reviews={reviews} />
 
           {similarProducts.length > 0 && (
-            <section className="border-t border-brand-amber/15 py-12 sm:py-16">
+            <section className="border-t border-neutral-200 py-12 sm:py-16">
               <div className="mb-8 flex items-end justify-between gap-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gray">

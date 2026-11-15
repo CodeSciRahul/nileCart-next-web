@@ -33,52 +33,41 @@ const poppins = localFont({
 export const metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: `${SITE.name} — ${SITE.tagline}`,
-    template: `%s | ${SITE.name}`,
+    default: "nilescart | Official Online Store",
+    template: "%s | nilescart",
   },
-  description: SITE.description,
-  applicationName: SITE.name,
-  authors: [{ name: SITE.name }],
-  creator: SITE.name,
-  publisher: SITE.name,
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
+  description:
+    "Shop the latest luxury contemporary trends at NILESCART. Unisex, menswear, and womenswear collections, knitwear, tailoring, and essentials with easy returns and fast delivery.",
+  applicationName: "NILESCART",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/pwa-192x192.png", type: "image/png", sizes: "192x192" },
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/brand/nilescart_mark.png", type: "image/png", sizes: "512x512" },
     ],
     apple: [
-      { url: "/apple-icon.png", type: "image/png", sizes: "180x180" },
-      { url: "/brand/nilescart_mark.png", type: "image/png", sizes: "512x512" },
+      { url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" },
     ],
   },
   openGraph: {
     type: "website",
-    locale: SITE.locale,
-    siteName: SITE.name,
-    title: `${SITE.name} — ${SITE.tagline}`,
-    description: SITE.description,
+    locale: "en_IN",
+    siteName: "nilescart",
+    title: "nilescart | Official Online Store",
+    description:
+      "Shop the latest luxury contemporary trends at NILESCART. Unisex, menswear, and womenswear collections, knitwear, tailoring, and essentials with easy returns and fast delivery.",
     url: getSiteUrl(),
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE.name} — ${SITE.tagline}`,
-    description: SITE.description,
+    title: "nilescart | Official Online Store",
+    description:
+      "Shop the latest luxury contemporary trends at NILESCART. Unisex, menswear, and womenswear collections, knitwear, tailoring, and essentials with easy returns and fast delivery.",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
   },
   alternates: {
     canonical: "/",
@@ -86,19 +75,17 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#E6A800",
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={poppins.variable}
-      data-scroll-behavior="smooth"
-    >
-      <body className={`${poppins.className} font-sans`}>
+    <html lang="en" className={poppins.variable} data-scroll-behavior="smooth">
+      <body className={`${poppins.className} font-sans bg-[#faf9f6] text-neutral-900 antialiased selection:bg-neutral-900 selection:text-white`}>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <Providers>{children}</Providers>
       </body>

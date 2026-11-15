@@ -20,15 +20,15 @@ export default function ProductTrustBadges() {
       {BADGES.map(({ icon: Icon, label, hint }) => (
         <div
           key={label}
-          className="flex flex-col items-start gap-1.5 border border-brand-amber/20 bg-brand-cream/40 px-3 py-3 transition hover:border-brand-amber/40"
+          className="flex flex-col items-start gap-1.5 border border-neutral-200 bg-neutral-50 px-3 py-3 transition hover:border-black"
         >
-          <span className="flex size-8 items-center justify-center bg-brand-amber/20 text-foreground">
+          <span className="flex size-8 items-center justify-center rounded-xs bg-white text-black shadow-xs">
             <Icon size={16} strokeWidth={2} />
           </span>
-          <p className="text-xs font-bold tracking-tight text-foreground">
+          <p className="text-xs font-bold tracking-tight text-neutral-900">
             {label}
           </p>
-          <p className="text-[10px] leading-snug text-brand-gray">{hint}</p>
+          <p className="text-[10px] leading-snug text-neutral-500">{hint}</p>
         </div>
       ))}
     </div>

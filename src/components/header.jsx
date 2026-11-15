@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, User, Heart, ShoppingBag, X, Truck, Zap, PackageCheck } from "lucide-react";
+import { Menu, User, Heart, ShoppingBag, X, Truck, Zap, PackageCheck, ChevronRight } from "lucide-react";
 import ProfileMenu from "@/components/account/ProfileMenu";
 import UserAvatar from "@/components/account/UserAvatar";
 import { BrandLogo } from "@/components/BrandLogo.jsx";
@@ -24,13 +24,13 @@ const ANNOUNCEMENT_KEY_PREFIX = "nilescart-announcement-dismissed";
 
 function HeaderIconButton({ href, onClick, label, children, badge }) {
   const className =
-    "relative flex h-9 w-9 items-center justify-center rounded-full bg-brand-cream/50 text-foreground ring-1 ring-brand-amber/10 transition hover:bg-brand-amber/15 hover:text-brand-amber hover:ring-brand-amber/25 sm:h-10 sm:w-10";
+    "relative flex h-9 w-9 items-center justify-center rounded-full text-black transition hover:opacity-75 sm:h-10 sm:w-10";
 
   const content = (
     <>
       {children}
       {badge > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-amber px-1 text-[9px] font-bold text-foreground sm:h-[18px] sm:min-w-[18px] sm:text-[10px]">
+        <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-1 text-[9px] font-bold text-white">
           {badge > 99 ? "99+" : badge}
         </span>
       )}
@@ -205,24 +205,17 @@ const Header = ({ announcement = null }) => {
     });
 
   const announcementBar = (
-    <div className="relative bg-black px-4 py-1.5 text-center text-[11px] sm:text-xs font-semibold text-white tracking-wide">
+    <div className="relative bg-black h-7 flex items-center justify-center px-4 text-[11px] font-extrabold uppercase tracking-wider text-[#fdd835]">
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 sm:gap-4 overflow-hidden">
-        <span className="flex items-center gap-1 text-brand-amber font-bold">
-          ⚡ FLASH DEALS
-        </span>
-        <span className="text-zinc-400 hidden xs:inline">|</span>
         <span className="truncate">
-          {announcement?.message || "UP TO 80% OFF • FREE DELIVERY ABOVE ₹790 • COD AVAILABLE"}
-        </span>
-        <span className="hidden md:inline rounded bg-white/20 px-1.5 py-0.2 text-[10px] uppercase font-bold text-white">
-          CODE: NILE20
+          {announcement?.message || "EASY RETURNS / FREE PICK UP"}
         </span>
       </div>
       {announcement?.dismissible && (
         <button
           type="button"
           onClick={dismissAnnouncement}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 opacity-70 transition hover:opacity-100"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-white opacity-70 transition hover:opacity-100"
           aria-label="Dismiss announcement"
         >
           <X size={14} />
@@ -321,6 +314,50 @@ const Header = ({ announcement = null }) => {
               >
                 <ShoppingBag size={18} />
               </HeaderIconButton>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Navigation Sub-Header (Exact Savana UI) */}
+        <div className="border-t border-neutral-100 bg-white">
+          <div className="mx-auto max-w-7xl px-3 sm:px-6">
+            <div
+              id="categories-strip"
+              className="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar py-2.5 scroll-smooth touch-pan-x"
+            >
+              <nav className="flex items-center gap-6 md:gap-8 shrink-0">
+                {DEPARTMENT_ORDER.map((key) => {
+                  const label = DEPARTMENT_LABELS[key];
+                  const deptNav = getDepartmentNav(navDepartments, key, label);
+                  const href = deptNav.slug ? `/shop/${deptNav.slug}` : `/shop/${key}`;
+                  const isActive = pathname === href;
+
+                  return (
+                    <Link
+                      key={key}
+                      href={href}
+                      className={`text-[12px] md:text-[13px] font-bold tracking-tight uppercase whitespace-nowrap transition-colors py-1 ${
+                        isActive
+                          ? "text-black underline underline-offset-8 decoration-2"
+                          : "text-neutral-900 hover:text-black hover:underline hover:underline-offset-8 hover:decoration-2"
+                      }`}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("categories-strip");
+                  el?.scrollBy({ left: 240, behavior: "smooth" });
+                }}
+                className="hidden lg:flex items-center text-neutral-800 hover:text-black shrink-0 pl-2"
+                aria-label="Scroll more categories"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>

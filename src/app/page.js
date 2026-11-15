@@ -5,9 +5,6 @@ import CategoriesSection from "@/components/category";
 import Products from "@/components/products";
 import FlashDealsBanner from "@/components/home/FlashDealsBanner";
 import PromoBannerGrid from "@/components/home/PromoBannerGrid";
-import SavanaPerksStrip from "@/components/home/SavanaPerksStrip";
-import CampaignStrip from "@/components/home/CampaignStrip";
-import DepartmentStrip from "@/components/home/DepartmentStrip";
 import JsonLd from "@/components/seo/JsonLd";
 import { fetchProducts } from "@/lib/data/products";
 import { fetchSubCategories } from "@/lib/data/category";
@@ -18,8 +15,9 @@ import { SITE, getSiteUrl } from "@/lib/site";
 export const revalidate = 60;
 
 export const metadata = buildPageMetadata({
-  title: `${SITE.name} — ${SITE.tagline}`,
-  description: SITE.description,
+  title: "nilescart | Official Online Store",
+  description:
+    "Shop the latest luxury contemporary trends at NILESCART. Unisex, menswear, and womenswear collections, knitwear, tailoring, and essentials with easy returns and fast delivery.",
   path: "/",
   absoluteTitle: true,
 });
@@ -35,75 +33,66 @@ export default async function HomePage() {
 
   try {
     const [homeData, arrivalsData, picksData, categoriesData] =
-      await Promise.all([
+      await Promise.allSettled([
         fetchHome({ device }),
-        fetchProducts({ limit: 10, sort: "-createdAt" }),
-        fetchProducts({ limit: 10, sort: "-discountPercent" }),
+        fetchProducts({ limit: 12, sort: "-createdAt" }),
+        fetchProducts({ limit: 8, sort: "-discountPercent" }),
         fetchSubCategories(),
       ]);
-    home = homeData || home;
-    arrivals = arrivalsData?.products || [];
-    picks = picksData?.products || [];
-    categories = categoriesData?.categories || [];
+
+    if (homeData.status === "fulfilled") home = homeData.value || home;
+    if (arrivalsData.status === "fulfilled") arrivals = arrivalsData.value?.products || [];
+    if (picksData.status === "fulfilled") picks = picksData.value?.products || [];
+    if (categoriesData.status === "fulfilled") categories = categoriesData.value?.categories || [];
+
     heroBanners = await getHeroBanners(home, { device });
   } catch {
-    // Allow builds / API downtime without failing the whole page.
+    // API downtime tolerance
   }
 
+  // Find dynamic campaign banner if configured in home sections from dashboard
+  const campaignSection = home?.sections?.find(
+    (s) => s.type === "banner" || s.key === "campaign_banner" || s.key === "new_arrivals"
+  );
+
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white font-sans antialiased selection:bg-black selection:text-white">
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "Store",
-          name: SITE.name,
-          description: SITE.description,
+          name: "NILESCART",
+          description:
+            "Shop the latest luxury contemporary trends at NILESCART. Unisex, menswear, and womenswear collections, knitwear, tailoring, and essentials with easy returns and fast delivery.",
           url: getSiteUrl(),
         }}
       />
+
+      {/* 1. Header with announcement ticker & categories */}
       <Header announcement={home?.announcement || null} />
-      <main className="flex-1">
-        {/* 1. Hero Fashion Carousel */}
+
+      <main className="flex-1 pb-10">
+        {/* 2. Hero Campaign Showcase & Member Banner */}
         <Banner banners={heroBanners} />
 
-        {/* 2. Savana-style "HOT CATEGORIES" Arched Cards Grid */}
+        {/* 3. 4 Price Point / Collection Tiles */}
         <CategoriesSection categories={categories} />
 
-        {/* 3. Live Flash Deals Strip with Realtime Countdown Timer */}
-        <FlashDealsBanner />
+        {/* 4. Trending Now 4-Card Section */}
+        <FlashDealsBanner items={picks} title="TRENDING NOW" />
 
-        {/* 4. Fresh Drops / New In Products Grid */}
+        {/* 5. Campaign Banner (Manageable from Dashboard) */}
+        <PromoBannerGrid banner={campaignSection} />
+
+        {/* 6. FOR YOU Curated Product Grid with Gender Switcher */}
         <Products
           products={arrivals}
-          eyebrow="Fresh Drops"
-          title="New Arrivals"
-          ctaHref="/collections"
-          ctaLabel="Shop All New"
+          title="FOR YOU"
+          showGenderFilter={true}
         />
-
-        {/* 5. 3-Tile Promotional Campaign Banners */}
-        <PromoBannerGrid />
-
-        {/* 6. Trending Deals / High Discount Products Grid */}
-        {picks.length > 0 && (
-          <Products
-            products={picks}
-            eyebrow="Up to 70% Off"
-            title="Trending Best Sellers"
-            ctaHref="/search"
-            ctaLabel="View All Deals"
-          />
-        )}
-
-        {/* 7. Curated Editorial Campaign Strip */}
-        <CampaignStrip />
-
-        {/* 8. Department Quick Navigation Tiles */}
-        <DepartmentStrip />
-
-        {/* 9. Savana Service & Trust Perks (COD, Free Shipping, 7-Day Returns) */}
-        <SavanaPerksStrip />
       </main>
+
+      {/* 7. Footer & Floating Actions */}
       <Footer />
     </div>
   );

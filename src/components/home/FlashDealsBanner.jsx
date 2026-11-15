@@ -1,85 +1,79 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Zap, Clock, ChevronRight } from "lucide-react";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
-export default function FlashDealsBanner() {
-  const [timeLeft, setTimeLeft] = useState({
-    hours: "04",
-    minutes: "38",
-    seconds: "12",
-  });
+const DEFAULT_TRENDING = [
+  {
+    id: "trend-1",
+    title: "Holiday Sparkles",
+    slug: "sparkle-knit-top",
+    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "trend-2",
+    title: "Elegance Defined",
+    slug: "minimal-slip-dress",
+    image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "trend-3",
+    title: "Formal Co-ords",
+    slug: "tailored-co-ord",
+    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "trend-4",
+    title: "Back to Burgundy",
+    slug: "burgundy-tailored-coat",
+    image: "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80",
+  },
+];
 
-  useEffect(() => {
-    // 6-hour cycle countdown
-    const target = Date.now() + 4 * 3600 * 1000 + 38 * 60 * 1000 + 12 * 1000;
-    const interval = setInterval(() => {
-      const diff = Math.max(0, target - Date.now());
-      const h = Math.floor(diff / (1000 * 60 * 60));
-      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setTimeLeft({
-        hours: String(h).padStart(2, "0"),
-        minutes: String(m).padStart(2, "0"),
-        seconds: String(s).padStart(2, "0"),
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+export default function FlashDealsBanner({ items = [], title = "TRENDING NOW" }) {
+  const displayItems =
+    Array.isArray(items) && items.length >= 4 ? items.slice(0, 4) : DEFAULT_TRENDING;
 
   return (
-    <section className="bg-black text-white py-2.5 px-3 sm:px-6">
-      <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-2.5 sm:gap-4">
-        {/* Left: Flash Sale Title + Icon */}
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-amber text-black shadow-sm">
-            <Zap size={15} className="fill-black" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-display text-sm sm:text-base font-black uppercase tracking-wider text-brand-amber">
-                Flash Deals
-              </span>
-              <span className="hidden sm:inline-block rounded-sm bg-white/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                Up to 80% Off
-              </span>
-            </div>
-            <p className="text-[11px] text-zinc-400 hidden sm:block leading-none mt-0.5">
-              Refreshed daily • Limited quantities available
-            </p>
-          </div>
+    <section className="w-full bg-white py-8 md:py-12 border-t border-neutral-100">
+      <div className="max-w-[1440px] mx-auto px-4 lg:px-12">
+        <div className="text-center mb-6 md:mb-8">
+          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-black">
+            {title}
+          </h2>
         </div>
 
-        {/* Center: Live Countdown Timer */}
-        <div className="flex items-center gap-1.5 text-xs font-semibold">
-          <Clock size={13} className="text-brand-amber hidden xs:block" />
-          <span className="text-zinc-400 text-[11px] hidden md:inline">Ends in:</span>
-          <div className="flex items-center gap-1 font-mono">
-            <span className="flex h-6 min-w-6 items-center justify-center rounded bg-zinc-800 px-1 text-xs font-bold text-white shadow-inner">
-              {timeLeft.hours}
-            </span>
-            <span className="text-brand-amber font-bold">:</span>
-            <span className="flex h-6 min-w-6 items-center justify-center rounded bg-zinc-800 px-1 text-xs font-bold text-white shadow-inner">
-              {timeLeft.minutes}
-            </span>
-            <span className="text-brand-amber font-bold">:</span>
-            <span className="flex h-6 min-w-6 items-center justify-center rounded bg-zinc-800 px-1 text-xs font-bold text-white shadow-inner">
-              {timeLeft.seconds}
-            </span>
-          </div>
-        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-5 lg:gap-6">
+          {displayItems.map((item, idx) => {
+            const imageSrc =
+              (item.image && typeof item.image === "string"
+                ? item.image
+                : item.image?.url || item.images?.[0]?.url || item.images?.[0]) ||
+              DEFAULT_TRENDING[idx % DEFAULT_TRENDING.length].image;
 
-        {/* Right: CTA */}
-        <Link
-          href="/collections"
-          className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-amber hover:text-white transition group"
-        >
-          <span>Shop All Deals</span>
-          <ChevronRight size={14} className="transition group-hover:translate-x-0.5" />
-        </Link>
+            const cardTitle = item.title || item.name || "Trending Look";
+            const href = item.slug ? `/product/${item.slug}` : "/shop/all";
+
+            return (
+              <Link
+                key={item._id || item.id || idx}
+                href={href}
+                className="group flex flex-col items-center cursor-pointer"
+              >
+                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xs bg-neutral-100 shadow-xs transition-transform duration-300 group-hover:scale-[1.015]">
+                  <OptimizedImage
+                    src={imageSrc}
+                    alt={cardTitle}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="mt-3 text-sm md:text-base font-bold text-neutral-900 group-hover:text-black transition-colors text-center">
+                  {cardTitle}
+                </h3>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

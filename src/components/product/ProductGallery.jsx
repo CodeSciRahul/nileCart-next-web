@@ -62,7 +62,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
 
   if (!items.length) {
     return (
-      <div className="flex aspect-3/4 w-full items-center justify-center border border-brand-amber/20 bg-[#FFECB3] text-sm text-brand-gray">
+      <div className="flex aspect-3/4 w-full items-center justify-center border border-neutral-200 bg-neutral-100 text-sm text-neutral-400">
         No images available
       </div>
     );
@@ -85,9 +85,9 @@ export default function ProductGallery({ media = [], title = "Product" }) {
             aria-label={`Thumbnail ${i + 1}`}
             onClick={() => setActive(i)}
             className={cn(
-              "relative aspect-square w-full shrink-0 overflow-hidden border-2 bg-[#FFECB3] transition",
+              "relative aspect-square w-full shrink-0 overflow-hidden border-2 bg-neutral-100 transition",
               i === safeIndex
-                ? "border-brand-amber shadow-sm"
+                ? "border-black shadow-sm"
                 : "border-transparent opacity-80 hover:opacity-100"
             )}
           >
@@ -113,7 +113,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
       <div className="relative min-w-0 flex-1">
         <div
           ref={mainRef}
-          className="group relative aspect-3/4 w-full overflow-hidden border border-brand-amber/20 bg-[#FFECB3]"
+          className="group relative aspect-3/4 w-full overflow-hidden border border-neutral-200 bg-neutral-100"
           onMouseEnter={() => current?.type !== "video" && setZooming(true)}
           onMouseLeave={() => setZooming(false)}
           onMouseMove={onMouseMove}
@@ -147,7 +147,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
 
           {/* Counter */}
           {items.length > 1 && (
-            <span className="absolute bottom-3 left-3 rounded-full bg-foreground/70 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-brand-white backdrop-blur-sm">
+            <span className="absolute bottom-3 left-3 rounded-full bg-foreground/70 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-white backdrop-blur-sm">
               {safeIndex + 1}/{items.length}
             </span>
           )}
@@ -156,7 +156,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
             type="button"
             onClick={() => setLightboxOpen(true)}
             aria-label="Open fullscreen gallery"
-            className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-brand-white/95 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-foreground shadow-sm ring-1 ring-brand-amber/20 transition hover:bg-brand-amber"
+            className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-black shadow-sm ring-1 ring-neutral-300 transition hover:bg-black hover:text-white"
           >
             <Expand size={14} />
             View
@@ -168,7 +168,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
                 type="button"
                 aria-label="Previous image"
                 onClick={() => go(-1)}
-                className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-brand-white/90 p-2 shadow-sm ring-1 ring-brand-amber/15 transition hover:bg-brand-amber lg:flex"
+                className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm ring-1 ring-neutral-200 transition hover:bg-black hover:text-white lg:flex"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -176,7 +176,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
                 type="button"
                 aria-label="Next image"
                 onClick={() => go(1)}
-                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-brand-white/90 p-2 shadow-sm ring-1 ring-brand-amber/15 transition hover:bg-brand-amber lg:flex"
+                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm ring-1 ring-neutral-200 transition hover:bg-black hover:text-white lg:flex"
               >
                 <ChevronRight size={18} />
               </button>
@@ -199,9 +199,9 @@ export default function ProductGallery({ media = [], title = "Product" }) {
                 aria-selected={i === safeIndex}
                 onClick={() => setActive(i)}
                 className={cn(
-                  "relative h-[68px] w-[68px] shrink-0 overflow-hidden border-2 bg-[#FFECB3] transition",
+                  "relative h-[68px] w-[68px] shrink-0 overflow-hidden border-2 bg-neutral-100 transition",
                   i === safeIndex
-                    ? "border-brand-amber"
+                    ? "border-black"
                     : "border-transparent opacity-75"
                 )}
               >
@@ -236,8 +236,8 @@ export default function ProductGallery({ media = [], title = "Product" }) {
                 className={cn(
                   "h-1.5 rounded-full transition-all",
                   i === safeIndex
-                    ? "w-5 bg-brand-amber"
-                    : "w-1.5 bg-brand-amber/35"
+                    ? "w-5 bg-black"
+                    : "w-1.5 bg-neutral-300"
                 )}
               />
             ))}
