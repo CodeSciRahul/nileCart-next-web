@@ -4,6 +4,10 @@ import { showErrorToast } from "./toast.js";
 const shouldShowErrorToast = (meta, error) => {
   if (meta?.errorToast === false) return false;
   if (typeof meta?.errorToast === "function") return meta.errorToast(error);
+
+  const msg = `${typeof error === "string" ? error : error?.message || error?.response?.data?.message || ""}`.toLowerCase();
+  if (msg.includes("category not found")) return false;
+
   return true;
 };
 

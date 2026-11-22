@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, ArrowUp, Loader2, Grid, Rows } from "lucide-react";
 import ShopFilters from "@/components/shop/ShopFilters.jsx";
 import ProductCard from "@/components/ui/productCard.jsx";
 import { Button } from "@/components/ui/button.jsx";
+import { Pagination } from "@/components/ui/pagination.jsx";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll.js";
 import { getCategoryShop } from "@/services/shopService.js";
 import {
   buildShopQueryParams,
@@ -40,6 +42,10 @@ export default function ShopPage({ slug }) {
     queryKey: ["shop", slug, filters],
     queryFn: () => getCategoryShop(slug, buildShopQueryParams(filters)),
     placeholderData: keepPreviousData,
+    retry: false,
+    meta: {
+      errorToast: false,
+    },
   });
 
   const category = data?.category;
@@ -53,9 +59,47 @@ export default function ShopPage({ slug }) {
   const products = data?.products || [];
   const pagination = data?.pagination || { page: 1, pages: 1, total: 0 };
 
+  const [viewMode, setViewMode] = useState("infinite"); // "infinite" | "pages"
+  const [accumulatedProducts, setAccumulatedProducts] = useState([]);
+  const prevCriteriaRef = useRef("");
+
+  const filterCriteriaKey = useMemo(() => {
+    return `${slug}:${filters.sort}:${filters.minPrice}:${filters.maxPrice}:${(filters.brand || []).join(",")}:${(filters.size || []).join(",")}:${(filters.color || []).join(",")}:${filters.isOnSale}:${filters.isTrending}`;
+  }, [slug, filters]);
+
+  useEffect(() => {
+    if (!data?.products) return;
+
+    if (prevCriteriaRef.current !== filterCriteriaKey || (filters.page || 1) <= 1) {
+      prevCriteriaRef.current = filterCriteriaKey;
+      setAccumulatedProducts(data.products);
+    } else {
+      setAccumulatedProducts((prev) => {
+        const existingIds = new Set(prev.map((p) => p._id));
+        const newItems = data.products.filter((p) => !existingIds.has(p._id));
+        return [...prev, ...newItems];
+      });
+    }
+  }, [data?.products, filterCriteriaKey, filters.page]);
+
   const updateFilters = (nextFilters) => {
     router.push(buildShopUrl(slug, nextFilters), { scroll: false });
   };
+
+  const handleLoadMore = () => {
+    if (pagination.page < pagination.pages && !isFetching) {
+      updateFilters({ ...filters, page: (filters.page || 1) + 1 });
+    }
+  };
+
+  const sentinelRef = useInfiniteScroll({
+    onLoadMore: handleLoadMore,
+    hasMore: pagination.page < pagination.pages,
+    isLoading: isFetching,
+    enabled: viewMode === "infinite" && pagination.page < pagination.pages,
+  });
+
+  const displayProducts = viewMode === "infinite" ? accumulatedProducts : products;
 
   const applyPriceFilter = () => {
     updateFilters({
@@ -129,6 +173,34 @@ export default function ShopPage({ slug }) {
                 </option>
               ))}
             </select>
+
+            {/* View Mode Toggle: Infinite Scroll vs Traditional Pages */}
+            <div className="hidden sm:inline-flex items-center p-0.5 rounded-lg border border-neutral-200 bg-white">
+              <button
+                type="button"
+                onClick={() => setViewMode("infinite")}
+                title="Continuous feed with infinite scroll"
+                className={`px-2.5 py-1.5 text-xs font-bold rounded-md transition-all ${
+                  viewMode === "infinite"
+                    ? "bg-black text-[#fdd835] shadow-xs"
+                    : "text-neutral-600 hover:text-black"
+                }`}
+              >
+                ∞ Feed
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("pages")}
+                title="Structured page-by-page navigation"
+                className={`px-2.5 py-1.5 text-xs font-bold rounded-md transition-all ${
+                  viewMode === "pages"
+                    ? "bg-black text-[#fdd835] shadow-xs"
+                    : "text-neutral-600 hover:text-black"
+                }`}
+              >
+                Pages
+              </button>
+            </div>
           </div>
         </div>
 
@@ -178,39 +250,73 @@ export default function ShopPage({ slug }) {
                   </div>
                 ))}
               </div>
-            ) : products.length > 0 ? (
+            ) : displayProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-6 md:grid-cols-3 md:gap-x-3 md:gap-y-8 xl:grid-cols-4">
-                  {products.map((product) => (
+                  {displayProducts.map((product) => (
                     <ProductCard key={product._id} product={product} />
                   ))}
                 </div>
 
-                {pagination.pages > 1 && (
-                  <div className="mt-10 flex items-center justify-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={pagination.page <= 1}
-                      onClick={() =>
-                        updateFilters({ ...filters, page: pagination.page - 1 })
-                      }
-                    >
-                      Previous
-                    </Button>
-                    <span className="px-3 text-sm text-brand-gray">
-                      Page {pagination.page} of {pagination.pages}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={pagination.page >= pagination.pages}
-                      onClick={() =>
-                        updateFilters({ ...filters, page: pagination.page + 1 })
-                      }
-                    >
-                      Next
-                    </Button>
+                {/* View Mode: Pages -> Traditional Pagination */}
+                {viewMode === "pages" && pagination.pages > 1 && (
+                  <Pagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.pages}
+                    totalItems={pagination.total}
+                    disabled={isFetching}
+                    onPageChange={(nextPage) => {
+                      updateFilters({ ...filters, page: nextPage });
+                      window.scrollTo({ top: 120, behavior: "smooth" });
+                    }}
+                  />
+                )}
+
+                {/* View Mode: Infinite Scroll -> Sentinel, Spinner, and End-of-List */}
+                {viewMode === "infinite" && (
+                  <div className="mt-10">
+                    {/* Sentinel for IntersectionObserver */}
+                    <div ref={sentinelRef} className="h-6" aria-hidden />
+
+                    {/* Loading indicator when fetching next batch */}
+                    {isFetching && (
+                      <div className="flex flex-col items-center justify-center py-6 text-neutral-500 gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-black" />
+                        <span className="text-xs font-semibold tracking-wide">
+                          Loading more products...
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Manual Load More button fallback */}
+                    {!isFetching && pagination.page < pagination.pages && (
+                      <div className="text-center py-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleLoadMore}
+                          className="px-6 border-neutral-300 font-bold hover:bg-black hover:text-[#fdd835] transition-colors"
+                        >
+                          Load More Products ({pagination.total - displayProducts.length} remaining)
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* End of results banner */}
+                    {pagination.page >= pagination.pages && displayProducts.length > 0 && (
+                      <div className="mt-8 border-t border-neutral-200 py-8 text-center space-y-2">
+                        <p className="text-xs sm:text-sm font-semibold text-neutral-500">
+                          You&apos;ve viewed all {pagination.total} products in this collection
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-black hover:text-[#fdd835] transition-colors"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" /> Back to top
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </>

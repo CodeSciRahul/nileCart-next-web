@@ -1,15 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import ProductCard from "@/components/ui/productCard";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination.jsx";
 import AuthRequiredState from "@/components/auth/AuthRequiredState";
 import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/hooks/useWishlist";
 import { AUTH_ACTIONS } from "@/lib/authActions";
 
 const WishlistPage = () => {
+  const [page, setPage] = useState(1);
   const { isAuthenticated, loading } = useAuth();
   const { data, isLoading, isError, refetch } = useWishlist();
 
@@ -47,6 +50,9 @@ const WishlistPage = () => {
   }
 
   const products = data?.products || [];
+  const pageSize = 12;
+  const totalPages = Math.ceil(products.length / pageSize) || 1;
+  const pagedProducts = products.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
@@ -75,11 +81,27 @@ const WishlistPage = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-x-2 gap-y-6 sm:grid-cols-3 sm:gap-x-3 sm:gap-y-8 md:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-6 sm:grid-cols-3 sm:gap-x-3 sm:gap-y-8 md:grid-cols-4">
+            {pagedProducts.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-10">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalItems={products.length}
+                onPageChange={(p) => {
+                  setPage(p);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
