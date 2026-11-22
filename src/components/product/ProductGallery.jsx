@@ -12,10 +12,14 @@ const ProductLightbox = dynamic(
 );
 
 /**
- * Premium PDP gallery: vertical thumbs (desktop), swipe (mobile),
- * hover zoom, lightbox, indicators, video support.
+ * Premium PDP gallery: vertical thumbs (desktop), swipe & horizontal thumbs (mobile),
+ * smooth hover zoom, lightbox, indicators, video support.
  */
-export default function ProductGallery({ media = [], title = "Product" }) {
+export default function ProductGallery({
+  media = [],
+  title = "Product",
+  badges = null,
+}) {
   const items = media.filter((m) => m?.src);
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -62,58 +66,60 @@ export default function ProductGallery({ media = [], title = "Product" }) {
 
   if (!items.length) {
     return (
-      <div className="flex aspect-3/4 w-full items-center justify-center border border-neutral-200 bg-neutral-100 text-sm text-neutral-400">
+      <div className="flex aspect-3/4 w-full items-center justify-center rounded-xs border border-neutral-200 bg-neutral-100 text-sm text-neutral-400">
         No images available
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:gap-4">
+    <div className="flex flex-col-reverse gap-3 lg:flex-row lg:gap-3.5">
       {/* Desktop vertical thumbnails */}
-      <div
-        className="hidden max-h-[min(72vh,720px)] w-16 shrink-0 flex-col gap-2 overflow-y-auto overscroll-contain scroll-smooth lg:flex"
-        role="tablist"
-        aria-label="Product thumbnails"
-      >
-        {items.map((item, i) => (
-          <button
-            key={`${item.src}-${i}`}
-            type="button"
-            role="tab"
-            aria-selected={i === safeIndex}
-            aria-label={`Thumbnail ${i + 1}`}
-            onClick={() => setActive(i)}
-            className={cn(
-              "relative aspect-square w-full shrink-0 overflow-hidden border-2 bg-neutral-100 transition",
-              i === safeIndex
-                ? "border-black shadow-sm"
-                : "border-transparent opacity-80 hover:opacity-100"
-            )}
-          >
-            {item.type === "video" ? (
-              <span className="flex size-full items-center justify-center bg-foreground/10">
-                <Play size={14} className="text-foreground" />
-              </span>
-            ) : (
-              <OptimizedImage
-                src={item.src}
-                alt=""
-                fill
-                sizes="64px"
-                className="object-cover"
-                loading="lazy"
-              />
-            )}
-          </button>
-        ))}
-      </div>
+      {items.length > 1 && (
+        <div
+          className="hidden max-h-[min(76vh,680px)] w-20 shrink-0 flex-col gap-2.5 overflow-y-auto overscroll-contain scroll-smooth pr-1 lg:flex"
+          role="tablist"
+          aria-label="Product thumbnails"
+        >
+          {items.map((item, i) => (
+            <button
+              key={`${item.src}-${i}`}
+              type="button"
+              role="tab"
+              aria-selected={i === safeIndex}
+              aria-label={`Thumbnail ${i + 1}`}
+              onClick={() => setActive(i)}
+              className={cn(
+                "relative aspect-3/4 w-full shrink-0 overflow-hidden rounded-xs border-2 bg-neutral-100 transition duration-150",
+                i === safeIndex
+                  ? "border-black shadow-xs ring-1 ring-black/10 opacity-100"
+                  : "border-transparent opacity-70 hover:opacity-100"
+              )}
+            >
+              {item.type === "video" ? (
+                <span className="flex size-full items-center justify-center bg-black/5">
+                  <Play size={16} className="text-black" />
+                </span>
+              ) : (
+                <OptimizedImage
+                  src={item.src}
+                  alt=""
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  loading="lazy"
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main stage */}
       <div className="relative min-w-0 flex-1">
         <div
           ref={mainRef}
-          className="group relative aspect-3/4 w-full overflow-hidden border border-neutral-200 bg-neutral-100"
+          className="group relative aspect-3/4 w-full overflow-hidden rounded-xs border border-neutral-200/90 bg-neutral-100"
           onMouseEnter={() => current?.type !== "video" && setZooming(true)}
           onMouseLeave={() => setZooming(false)}
           onMouseMove={onMouseMove}
@@ -134,41 +140,50 @@ export default function ProductGallery({ media = [], title = "Product" }) {
               src={current?.src}
               alt={`${title} — image ${safeIndex + 1}`}
               fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              sizes="(max-width: 1024px) 100vw, 55vw"
               priority={safeIndex === 0}
               quality={85}
               className={cn(
                 "object-cover transition-transform duration-200 ease-out will-change-transform",
-                zooming ? "scale-[1.85] cursor-zoom-in" : "scale-100"
+                zooming ? "scale-[1.8] cursor-zoom-in" : "scale-100"
               )}
               style={{ transformOrigin: origin }}
             />
           )}
 
-          {/* Counter */}
+          {/* Badges Overlay */}
+          {badges && (
+            <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-1.5 pointer-events-none">
+              {badges}
+            </div>
+          )}
+
+          {/* Image Counter */}
           {items.length > 1 && (
-            <span className="absolute bottom-3 left-3 rounded-full bg-foreground/70 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-white backdrop-blur-sm">
-              {safeIndex + 1}/{items.length}
+            <span className="absolute bottom-3 left-3 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-bold tabular-nums text-white backdrop-blur-xs">
+              {safeIndex + 1} / {items.length}
             </span>
           )}
 
+          {/* Expand / Lightbox Button */}
           <button
             type="button"
             onClick={() => setLightboxOpen(true)}
             aria-label="Open fullscreen gallery"
-            className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-black shadow-sm ring-1 ring-neutral-300 transition hover:bg-black hover:text-white"
+            className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black shadow-sm ring-1 ring-neutral-300 transition hover:bg-black hover:text-white"
           >
-            <Expand size={14} />
+            <Expand size={13} />
             View
           </button>
 
+          {/* Desktop Next / Previous Arrows */}
           {items.length > 1 && (
             <>
               <button
                 type="button"
                 aria-label="Previous image"
                 onClick={() => go(-1)}
-                className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm ring-1 ring-neutral-200 transition hover:bg-black hover:text-white lg:flex"
+                className="absolute left-3 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm ring-1 ring-neutral-200 transition hover:bg-black hover:text-white lg:flex"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -176,7 +191,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
                 type="button"
                 aria-label="Next image"
                 onClick={() => go(1)}
-                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm ring-1 ring-neutral-200 transition hover:bg-black hover:text-white lg:flex"
+                className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm ring-1 ring-neutral-200 transition hover:bg-black hover:text-white lg:flex"
               >
                 <ChevronRight size={18} />
               </button>
@@ -187,7 +202,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
         {/* Mobile horizontal thumbs */}
         {items.length > 1 && (
           <div
-            className="mt-3 flex gap-2 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 lg:hidden"
+            className="mt-2.5 flex gap-2 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 lg:hidden"
             role="tablist"
             aria-label="Product thumbnails"
           >
@@ -199,10 +214,10 @@ export default function ProductGallery({ media = [], title = "Product" }) {
                 aria-selected={i === safeIndex}
                 onClick={() => setActive(i)}
                 className={cn(
-                  "relative h-[68px] w-[68px] shrink-0 overflow-hidden border-2 bg-neutral-100 transition",
+                  "relative h-16 w-14 shrink-0 overflow-hidden rounded-xs border-2 bg-neutral-100 transition",
                   i === safeIndex
-                    ? "border-black"
-                    : "border-transparent opacity-75"
+                    ? "border-black ring-1 ring-black/20"
+                    : "border-transparent opacity-70"
                 )}
               >
                 {item.type === "video" ? (
@@ -214,7 +229,7 @@ export default function ProductGallery({ media = [], title = "Product" }) {
                     src={item.src}
                     alt=""
                     fill
-                    sizes="68px"
+                    sizes="56px"
                     className="object-cover"
                     loading="lazy"
                   />
@@ -223,36 +238,15 @@ export default function ProductGallery({ media = [], title = "Product" }) {
             ))}
           </div>
         )}
-
-        {/* Dot indicators (mobile) */}
-        {items.length > 1 && items.length <= 8 && (
-          <div className="mt-2 flex justify-center gap-1.5 lg:hidden">
-            {items.map((_, i) => (
-              <button
-                key={`dot-${i}`}
-                type="button"
-                aria-label={`Go to image ${i + 1}`}
-                onClick={() => setActive(i)}
-                className={cn(
-                  "h-1.5 rounded-full transition-all",
-                  i === safeIndex
-                    ? "w-5 bg-black"
-                    : "w-1.5 bg-neutral-300"
-                )}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
-      <ProductLightbox
-        media={items}
-        index={safeIndex}
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        onIndexChange={setActive}
-        title={title}
-      />
+      {lightboxOpen && (
+        <ProductLightbox
+          media={items}
+          initialIndex={safeIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 }
