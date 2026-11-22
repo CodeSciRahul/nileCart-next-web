@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/Footer";
-import ProductCard from "@/components/ui/productCard";
+import StoreProductsSection from "./StoreProductsSection";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import JsonLd from "@/components/seo/JsonLd";
 import {
@@ -46,6 +46,7 @@ export default async function StorePage({ params }) {
 
   let seller;
   let products = [];
+  let pagination = { page: 1, pages: 1, total: 0 };
 
   try {
     const sellerData = await fetchSellerBySlug(slug);
@@ -56,6 +57,7 @@ export default async function StorePage({ params }) {
       limit: 24,
     });
     products = productsData?.products || [];
+    pagination = productsData?.pagination || { page: 1, pages: 1, total: products.length };
   } catch (error) {
     if (error?.status === 404) notFound();
     throw error;
@@ -163,26 +165,12 @@ export default async function StorePage({ params }) {
             </h2>
           </div>
 
-          {products.length > 0 ? (
-            <div className="grid grid-cols-2 gap-x-2 gap-y-6 sm:gap-x-3 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-              {products.map((item) => (
-                <ProductCard key={item._id} product={item} />
-              ))}
-            </div>
-          ) : (
-            <div className="border border-dashed border-brand-amber/30 bg-brand-cream/20 px-6 py-16 text-center">
-              <p className="font-bold">No products listed yet</p>
-              <p className="mt-2 text-sm text-brand-gray">
-                Check back soon for new arrivals from {seller.storeName}.
-              </p>
-              <Link
-                href="/"
-                className="mt-6 inline-flex bg-brand-amber px-5 py-2.5 text-xs font-bold uppercase tracking-wide"
-              >
-                Continue shopping
-              </Link>
-            </div>
-          )}
+          <StoreProductsSection
+            initialProducts={products}
+            initialPagination={pagination}
+            sellerId={seller._id}
+            storeName={seller.storeName}
+          />
         </div>
       </main>
       <Footer />

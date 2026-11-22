@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Package, ShoppingBag } from "lucide-react";
 import { useMyOrders } from "@/hooks/useOrders";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination.jsx";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 
 const STATUS_LABELS = {
@@ -25,8 +27,10 @@ const statusColor = (status) => {
 };
 
 const OrdersPage = () => {
-  const { data, isLoading, isError } = useMyOrders();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isFetching, isError } = useMyOrders({ page, limit: 10 });
   const orders = data?.orders || [];
+  const pagination = data?.pagination || { page: 1, pages: 1, total: 0 };
 
   if (isLoading) {
     return <p className="text-sm text-brand-gray">Loading your orders...</p>;
@@ -125,6 +129,21 @@ const OrdersPage = () => {
               </article>
             );
           })}
+        </div>
+      )}
+
+      {pagination.pages > 1 && (
+        <div className="mt-8">
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.pages}
+            totalItems={pagination.total}
+            disabled={isFetching}
+            onPageChange={(p) => {
+              setPage(p);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
         </div>
       )}
     </div>

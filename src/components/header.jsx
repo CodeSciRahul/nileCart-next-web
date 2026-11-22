@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, User, Heart, ShoppingBag, X, Truck, Zap, PackageCheck, ChevronRight } from "lucide-react";
+import { Menu, User, Heart, ShoppingBag, X, Truck, Zap, PackageCheck } from "lucide-react";
 import ProfileMenu from "@/components/account/ProfileMenu";
 import UserAvatar from "@/components/account/UserAvatar";
 import { BrandLogo } from "@/components/BrandLogo.jsx";
@@ -100,6 +100,10 @@ const Header = ({ announcement = null }) => {
     queryKey: ["categories", "navigation"],
     queryFn: getCategoryNavigation,
     staleTime: 5 * 60 * 1000,
+    retry: false,
+    meta: {
+      errorToast: false,
+    },
   });
 
   const navDepartments = useMemo(
@@ -314,50 +318,6 @@ const Header = ({ announcement = null }) => {
               >
                 <ShoppingBag size={18} />
               </HeaderIconButton>
-            </div>
-          </div>
-        </div>
-
-        {/* Category Navigation Sub-Header (Exact Savana UI) */}
-        <div className="border-t border-neutral-100 bg-white">
-          <div className="mx-auto max-w-7xl px-3 sm:px-6">
-            <div
-              id="categories-strip"
-              className="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar py-2.5 scroll-smooth touch-pan-x"
-            >
-              <nav className="flex items-center gap-6 md:gap-8 shrink-0">
-                {DEPARTMENT_ORDER.map((key) => {
-                  const label = DEPARTMENT_LABELS[key];
-                  const deptNav = getDepartmentNav(navDepartments, key, label);
-                  const href = deptNav.slug ? `/shop/${deptNav.slug}` : `/shop/${key}`;
-                  const isActive = pathname === href;
-
-                  return (
-                    <Link
-                      key={key}
-                      href={href}
-                      className={`text-[12px] md:text-[13px] font-bold tracking-tight uppercase whitespace-nowrap transition-colors py-1 ${
-                        isActive
-                          ? "text-black underline underline-offset-8 decoration-2"
-                          : "text-neutral-900 hover:text-black hover:underline hover:underline-offset-8 hover:decoration-2"
-                      }`}
-                    >
-                      {label}
-                    </Link>
-                  );
-                })}
-              </nav>
-              <button
-                type="button"
-                onClick={() => {
-                  const el = document.getElementById("categories-strip");
-                  el?.scrollBy({ left: 240, behavior: "smooth" });
-                }}
-                className="hidden lg:flex items-center text-neutral-800 hover:text-black shrink-0 pl-2"
-                aria-label="Scroll more categories"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>

@@ -30,7 +30,18 @@ export const getErrorMessage = (error) => {
   return serverMessage || "Something went wrong. Please try again.";
 };
 
+export const isCategoryNotFoundError = (error, fallbackMessage) => {
+  const combined = `${typeof error === "string" ? error : error?.message || error?.response?.data?.message || ""} ${
+    typeof fallbackMessage === "string" ? fallbackMessage : ""
+  }`.toLowerCase();
+  return combined.includes("category not found");
+};
+
 export const showErrorToast = (error, fallbackMessage) => {
+  if (isCategoryNotFoundError(error, fallbackMessage)) {
+    // Suppress silently if category is not found
+    return;
+  }
   toast.error(fallbackMessage || getErrorMessage(error));
 };
 

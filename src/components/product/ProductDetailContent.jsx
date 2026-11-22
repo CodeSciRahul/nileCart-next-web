@@ -1,6 +1,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import ProductCard from "@/components/ui/productCard";
 import ProductReviewsSection from "@/components/product/ProductReviewsSection";
 import ProductStoreSection from "@/components/product/ProductStoreSection";
@@ -18,7 +19,7 @@ export default function ProductDetailContent({
     : null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-brand-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <JsonLd
         data={[
           productJsonLd(product),
@@ -35,50 +36,53 @@ export default function ProductDetailContent({
       />
       <Header />
 
-      <main className="flex-1 pb-24 lg:pb-12 bg-white">
-        <div className="border-b border-neutral-200 bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+      <main className="flex-1 pb-20 lg:pb-12 bg-white">
+        <div className="border-b border-neutral-200/80 bg-white">
+          <div className="mx-auto max-w-7xl px-4 pt-3 pb-8 sm:px-6 sm:pt-4 sm:pb-10 lg:px-8 lg:pt-5 lg:pb-12">
+            {/* Breadcrumb Navigation */}
             <nav
               aria-label="Breadcrumb"
-              className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-neutral-500"
+              className="mb-3.5 sm:mb-5 flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-medium text-neutral-500"
             >
-              <Link href="/" className="hover:text-black">
+              <Link href="/" className="hover:text-black transition">
                 Home
               </Link>
-              <span aria-hidden>/</span>
+              <ChevronRight size={12} className="text-neutral-400 shrink-0" />
               {product?.category?.name && (
                 <>
                   <Link
                     href={categoryPath || "/"}
-                    className="hover:text-black"
+                    className="hover:text-black transition truncate max-w-[120px] sm:max-w-none"
                   >
                     {product.category.name}
                   </Link>
-                  <span aria-hidden>/</span>
+                  <ChevronRight size={12} className="text-neutral-400 shrink-0" />
                 </>
               )}
-              <span className="truncate font-semibold text-black">
+              <span className="truncate font-semibold text-neutral-900 max-w-[200px] sm:max-w-md">
                 {product?.title}
               </span>
             </nav>
 
+            {/* Core Product Presentation Island */}
             <ProductDetailClient product={product} />
           </div>
         </div>
 
+        {/* Lower Content Sections */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <ProductStoreSection seller={product?.seller} />
 
           <ProductReviewsSection product={product} reviews={reviews} />
 
           {similarProducts.length > 0 && (
-            <section className="border-t border-neutral-200 py-12 sm:py-16">
-              <div className="mb-8 flex items-end justify-between gap-4">
+            <section className="border-t border-neutral-200 py-10 sm:py-14">
+              <div className="mb-6 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gray">
-                    Inspired by your pick
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
+                    Handpicked Recommendations
                   </p>
-                  <h2 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+                  <h2 className="mt-1 text-xl font-black tracking-tight sm:text-2xl text-neutral-950">
                     You May Also Like
                   </h2>
                 </div>

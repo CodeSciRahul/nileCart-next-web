@@ -1,11 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Star } from "lucide-react";
 import ProductGallery from "@/components/product/ProductGallery";
 import ProductPurchasePanel from "@/components/product/ProductPurchasePanel";
-import ProductTrustBadges from "@/components/product/ProductTrustBadges";
 import {
   getColorOptions,
   getGalleryMedia,
@@ -14,6 +11,7 @@ import {
 
 /**
  * Client island: gallery + purchase state stay in sync when color changes.
+ * Modern, compact 7/5 grid ratio with zero awkward whitespace.
  */
 export default function ProductDetailClient({ product }) {
   const colorOptions = useMemo(
@@ -40,135 +38,64 @@ export default function ProductDetailClient({ product }) {
     [product, selectedVariant]
   );
 
-  const brandLabel =
-    (typeof product?.brand === "object"
-      ? product?.brand?.name
-      : product?.brand) ||
-    product?.seller?.storeName ||
-    product?.category?.name ||
-    "Nilescart";
-
-  const ratingAvg = Number(product?.rating?.average) || 0;
-  const ratingCount = Number(product?.rating?.count) || 0;
+  // High-contrast fashion badge chip for the gallery
+  const badges = useMemo(() => {
+    const list = [];
+    if (product?.isOnSale) {
+      list.push(
+        <span
+          key="sale"
+          className="rounded-xs bg-red-600 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm"
+        >
+          Sale
+        </span>
+      );
+    }
+    if (product?.isTrending) {
+      list.push(
+        <span
+          key="trending"
+          className="rounded-xs bg-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm"
+        >
+          Trending
+        </span>
+      );
+    }
+    if (product?.isNewArrival) {
+      list.push(
+        <span
+          key="new"
+          className="rounded-xs bg-[#fdd835] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-black shadow-sm"
+        >
+          New
+        </span>
+      );
+    }
+    return list.length > 0 ? <>{list}</> : null;
+  }, [product?.isOnSale, product?.isTrending, product?.isNewArrival]);
 
   return (
-    <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
-      <ProductGallery media={media} title={product?.title || "Product"} />
+    <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10 xl:gap-14">
+      {/* Left Column: Product Visuals & Gallery (7 Cols) */}
+      <div className="min-w-0 lg:col-span-7">
+        <ProductGallery
+          media={media}
+          title={product?.title || "Product"}
+          badges={badges}
+        />
+      </div>
 
-      <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-        {/* Badges */}
-        <div className="mb-3 flex flex-wrap gap-2">
-          {product?.isTrending && (
-            <span className="bg-black text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-xs">
-              Trending
-            </span>
-          )}
-          {product?.isNewArrival && (
-            <span className="bg-[#fdd835] text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-xs">
-              New Arrival
-            </span>
-          )}
-          {product?.isOnSale && (
-            <span className="bg-red-600 text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-xs">
-              Sale
-            </span>
-          )}
-        </div>
-
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
-          {brandLabel}
-        </p>
-
-        <h1 className="mt-1 text-2xl font-black leading-tight tracking-tight text-black sm:text-3xl lg:text-4xl">
-          {product?.title}
-        </h1>
-
-        {product?.category?.name && (
-          <p className="mt-1.5 text-sm text-neutral-500">
-            {product.category.slug ? (
-              <Link
-                href={`/shop/${product.category.slug}`}
-                className="underline-offset-2 hover:text-black hover:underline"
-              >
-                {product.category.name}
-              </Link>
-            ) : (
-              product.category.name
-            )}
-          </p>
-        )}
-
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-1.5 bg-neutral-100 px-2.5 py-1 border border-neutral-200 rounded-xs">
-            <Star
-              size={14}
-              fill="currentColor"
-              className="text-[#fdd835]"
-            />
-            <span className="text-sm font-bold tabular-nums text-black">
-              {ratingAvg.toFixed(1)}
-            </span>
-          </div>
-          <a
-            href="#reviews"
-            className="text-sm text-neutral-500 underline-offset-2 hover:text-black hover:underline"
-          >
-            {ratingCount} {ratingCount === 1 ? "review" : "reviews"}
-          </a>
-        </div>
-
-        {product?.description && (
-          <p className="mt-5 text-sm leading-relaxed text-brand-gray line-clamp-4 lg:line-clamp-none">
-            {product.description}
-          </p>
-        )}
-
-        <div className="mt-8">
-          <ProductPurchasePanel
-            product={product}
-            selectedVariant={selectedVariant}
-            onSelectVariant={setSelectedVariant}
-            selectedColorKey={selectedColorKey}
-            onSelectColor={setSelectedColorKey}
-            quantity={quantity}
-            onQuantityChange={setQuantity}
-          />
-        </div>
-
-        <div className="mt-8">
-          <ProductTrustBadges />
-        </div>
-
-        {product?.tags?.length > 0 && (
-          <div className="mt-8">
-            <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-gray">
-              Tags
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {product.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="border border-brand-amber/20 bg-brand-cream/40 px-2.5 py-1 text-xs font-medium text-foreground"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {product?.seller?.storeName && (
-          <a
-            href="#store"
-            className="mt-6 inline-flex items-center gap-1 text-xs font-semibold text-brand-gray underline-offset-2 hover:text-foreground hover:underline"
-          >
-            Sold by{" "}
-            <span className="text-foreground">{product.seller.storeName}</span>
-            {product.seller.approvalStatus === "Approved" && (
-              <span className="ml-1 text-emerald-700">· Verified</span>
-            )}
-          </a>
-        )}
+      {/* Right Column: Product Information, Purchase Actions & Accordion (5 Cols) */}
+      <div className="min-w-0 lg:col-span-5 lg:sticky lg:top-20 lg:self-start">
+        <ProductPurchasePanel
+          product={product}
+          selectedVariant={selectedVariant}
+          onSelectVariant={setSelectedVariant}
+          selectedColorKey={selectedColorKey}
+          onSelectColor={setSelectedColorKey}
+          quantity={quantity}
+          onQuantityChange={setQuantity}
+        />
       </div>
     </div>
   );

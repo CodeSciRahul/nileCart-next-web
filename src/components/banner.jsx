@@ -72,10 +72,10 @@ const Banner = ({ banners = [] }) => {
 
   return (
     <section className="relative w-full overflow-hidden bg-white">
-      <div className="relative w-full max-w-[1440px] mx-auto">
+      <div className="relative w-full">
         {/* Main Hero Container with Multi-Slide Transition & Mobile Touch Swipe */}
         <div
-          className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.35/1] overflow-hidden bg-neutral-900 group select-none touch-pan-y"
+          className="relative w-full aspect-[1376/768] overflow-hidden bg-neutral-900 group select-none touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -105,27 +105,27 @@ const Banner = ({ banners = [] }) => {
             );
           })}
 
-          {/* Gradient Scrim */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none z-[2]" />
+          {/* Directional Scrim: Darker at the bottom-left for high text readability, transparent across center & right to leave images & models fully visible */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent sm:bg-gradient-to-r sm:from-black/75 sm:via-black/20 sm:to-transparent pointer-events-none z-[2]" />
 
-          {/* Central Hanging Luxury Tag matching Savana Layout */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-3 z-[3]">
-            <div className="bg-white/95 backdrop-blur-md px-4 sm:px-10 py-3 sm:py-7 rounded-xl sm:rounded-2xl border-2 border-[#d4af37]/70 shadow-2xl flex flex-col items-center text-center max-w-[240px] sm:max-w-sm pointer-events-auto transition-transform hover:scale-102">
-              <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-xs font-black tracking-[0.2em] uppercase text-neutral-800">
-                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#b38b4c] fill-[#b38b4c]" />
-                <span>{activeSlide?.subtitle || "WARM UP YOUR WARDROBE"}</span>
-                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#b38b4c] fill-[#b38b4c]" />
+          {/* Hero Content: Placed at lower-left, card removed so image is fully visible */}
+          <div className="absolute left-6 sm:left-12 md:left-16 bottom-8 sm:bottom-12 md:bottom-14 max-w-[85%] sm:max-w-lg md:max-w-xl text-left pointer-events-auto z-[3]">
+            {activeSlide?.subtitle && (
+              <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase text-[#fdd835] drop-shadow-md mb-1.5 sm:mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-[#fdd835] fill-[#fdd835]" />
+                <span>{activeSlide.subtitle}</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#fdd835] fill-[#fdd835]" />
               </div>
-              <div className="text-xl sm:text-4xl lg:text-5xl font-black text-black tracking-tight mt-0.5 sm:mt-1 mb-2 sm:mb-3">
-                {activeSlide?.title || "UP TO 50% OFF"}
-              </div>
-              <Link
-                href={resolveHref(activeSlide)}
-                className="px-4 sm:px-8 py-1.5 sm:py-2 bg-gradient-to-r from-[#fef5db] via-[#faebca] to-[#f5dfb3] text-neutral-900 text-[10px] sm:text-sm font-extrabold rounded-full border border-[#d4af37] shadow-md hover:brightness-105 transition-all tracking-wider uppercase active:scale-95"
-              >
-                {activeSlide?.ctaText || "SHOP NOW"}
-              </Link>
-            </div>
+            )}
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-[1.08] drop-shadow-lg mb-3 sm:mb-5">
+              {activeSlide?.title || "UP TO 50% OFF"}
+            </h1>
+            <Link
+              href={resolveHref(activeSlide)}
+              className="inline-flex items-center justify-center px-6 sm:px-8 py-2.5 sm:py-3 bg-[#fdd835] hover:bg-yellow-400 text-black text-xs sm:text-sm font-black tracking-wider uppercase rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
+            >
+              {activeSlide?.ctaText || "SHOP NOW"}
+            </Link>
           </div>
 
           {/* Left & Right Navigation Arrows */}
@@ -180,7 +180,7 @@ const Banner = ({ banners = [] }) => {
           href="/shop/all"
           className="w-full bg-black py-2.5 sm:py-3 px-4 text-center block cursor-pointer select-none transition-colors hover:bg-neutral-950"
         >
-          <div className="max-w-[1440px] mx-auto flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#fdd835]">
+          <div className="w-full flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#fdd835]">
             <span>★ DAY SALE MEMBER PRICES ★</span>
             <span className="hidden sm:inline text-white">UP TO 50% OFF + 3X POINTS</span>
             <span className="rounded bg-white/20 px-2 py-0.5 text-[10px] text-white">

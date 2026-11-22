@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Star } from "lucide-react";
+import { Star, Loader2 } from "lucide-react";
 import ProductReviewComposer from "@/components/product/ProductReviewComposer";
+import { getProductReviews } from "@/services/reviewService";
 
 function Stars({ value = 0, size = 14 }) {
   const rating = Math.round(Number(value) || 0);
@@ -54,6 +55,9 @@ export default function ProductReviewsSection({ product, reviews = [] }) {
   const [localReviews, setLocalReviews] = useState(reviews);
   const [average, setAverage] = useState(Number(product?.rating?.average) || 0);
   const [count, setCount] = useState(Number(product?.rating?.count) || 0);
+  const [reviewPage, setReviewPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(reviews.length < (Number(product?.rating?.count) || 0));
   const productId = product?._id;
 
   const handleReviewSaved = (savedReview, meta = {}) => {
@@ -64,6 +68,36 @@ export default function ProductReviewsSection({ product, reviews = [] }) {
     setAverage(summary.average);
     setCount(summary.count);
     setLocalReviews((prev) => mergeReviews(prev, savedReview));
+  };
+
+  const handleLoadMoreReviews = async () => {
+    if (!productId || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const nextPage = reviewPage + 1;
+      const res = await getProductReviews(productId, { page: nextPage, limit: 10 });
+      const newReviews = res?.reviews || [];
+      const pagination = res?.pagination;
+
+      if (newReviews.length > 0) {
+        setLocalReviews((prev) => {
+          const existingIds = new Set(prev.map((r) => String(r._id)));
+          const filtered = newReviews.filter((r) => !existingIds.has(String(r._id)));
+          return [...prev, ...filtered];
+        });
+        setReviewPage(nextPage);
+      }
+
+      if (pagination) {
+        setHasMore(pagination.page < pagination.pages);
+      } else {
+        setHasMore(newReviews.length === 10);
+      }
+    } catch {
+      setHasMore(false);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   return (
@@ -105,44 +139,66 @@ export default function ProductReviewsSection({ product, reviews = [] }) {
       )}
 
       {localReviews.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {localReviews.map((review) => (
-            <article
-              key={review._id}
-              className="border border-neutral-200 bg-white p-5 transition hover:border-black"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center bg-neutral-100 text-sm font-bold text-black ring-1 ring-neutral-300">
-                    {review?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+        <>
+          <div className="grid gap-4 md:grid-cols-2">
+            {localReviews.map((review) => (
+              <article
+                key={review._id}
+                className="border border-neutral-200 bg-white p-5 transition hover:border-black"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center bg-neutral-100 text-sm font-bold text-black ring-1 ring-neutral-300">
+                      {review?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold">
+                        {review?.user?.name || "Customer"}
+                      </h4>
+                      {review?.isVerifiedPurchase && (
+                        <span className="text-[11px] font-semibold text-emerald-700">
+                          Verified Purchase
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold">
-                      {review?.user?.name || "Customer"}
-                    </h4>
-                    {review?.isVerifiedPurchase && (
-                      <span className="text-[11px] font-semibold text-emerald-700">
-                        Verified Purchase
-                      </span>
-                    )}
-                  </div>
+                  <Stars value={review.rating} />
                 </div>
-                <Stars value={review.rating} />
-              </div>
 
-              {review.title && (
-                <h5 className="mt-4 text-sm font-bold tracking-tight">
-                  {review.title}
-                </h5>
-              )}
-              {review.comment && (
-                <p className="mt-2 text-sm leading-relaxed text-brand-gray">
-                  {review.comment}
-                </p>
-              )}
-            </article>
-          ))}
-        </div>
+                {review.title && (
+                  <h5 className="mt-4 text-sm font-bold tracking-tight">
+                    {review.title}
+                  </h5>
+                )}
+                {review.comment && (
+                  <p className="mt-2 text-sm leading-relaxed text-brand-gray">
+                    {review.comment}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={handleLoadMoreReviews}
+                disabled={isLoadingMore}
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg border border-neutral-300 bg-white hover:bg-black hover:text-[#fdd835] hover:border-black transition-all disabled:opacity-50"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Loading reviews...</span>
+                  </>
+                ) : (
+                  <span>Load More Reviews</span>
+                )}
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="border border-dashed border-brand-amber/30 bg-brand-cream/20 px-6 py-14 text-center">
           <h3 className="text-lg font-bold">No reviews yet</h3>

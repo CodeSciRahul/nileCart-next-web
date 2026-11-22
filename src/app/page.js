@@ -1,13 +1,14 @@
 import Header from "@/components/header";
 import Footer from "@/components/Footer";
 import Banner from "@/components/banner";
-import CategoriesSection from "@/components/category";
+import SpecialOffersSection from "@/components/home/SpecialOffersSection";
+import BestSellersBanner from "@/components/home/BestSellersBanner";
+import TrendingNowSection from "@/components/home/TrendingNowSection";
+import NewArrivalsBanner from "@/components/home/NewArrivalsBanner";
+import ClearanceSaleBanner from "@/components/home/ClearanceSaleBanner";
 import Products from "@/components/products";
-import FlashDealsBanner from "@/components/home/FlashDealsBanner";
-import PromoBannerGrid from "@/components/home/PromoBannerGrid";
 import JsonLd from "@/components/seo/JsonLd";
 import { fetchProducts } from "@/lib/data/products";
-import { fetchSubCategories } from "@/lib/data/category";
 import { fetchHome, getHeroBanners } from "@/lib/data/home";
 import { buildPageMetadata } from "@/lib/seo";
 import { SITE, getSiteUrl } from "@/lib/site";
@@ -28,32 +29,38 @@ export default async function HomePage() {
   let home = { announcement: null, sections: [], popup: null };
   let arrivals = [];
   let picks = [];
-  let categories = [];
   let heroBanners = [];
 
   try {
-    const [homeData, arrivalsData, picksData, categoriesData] =
+    const [homeData, arrivalsData, picksData] =
       await Promise.allSettled([
         fetchHome({ device }),
         fetchProducts({ limit: 12, sort: "-createdAt" }),
         fetchProducts({ limit: 8, sort: "-discountPercent" }),
-        fetchSubCategories(),
       ]);
 
     if (homeData.status === "fulfilled") home = homeData.value || home;
     if (arrivalsData.status === "fulfilled") arrivals = arrivalsData.value?.products || [];
     if (picksData.status === "fulfilled") picks = picksData.value?.products || [];
-    if (categoriesData.status === "fulfilled") categories = categoriesData.value?.categories || [];
 
     heroBanners = await getHeroBanners(home, { device });
   } catch {
     // API downtime tolerance
   }
 
-  // Find dynamic campaign banner if configured in home sections from dashboard
-  const campaignSection = home?.sections?.find(
-    (s) => s.type === "banner" || s.key === "campaign_banner" || s.key === "new_arrivals"
-  );
+  const sections = Array.isArray(home?.sections) ? home.sections : [];
+
+  const findSection = (key, type) =>
+    sections.find(
+      (s) => s.key === key || (type && s.type === type)
+    );
+
+  const specialOffersSection = findSection("special-offers", "special_offers");
+  const bestsellersSection = findSection("bestsellers-banner");
+  const trendingSection = findSection("trending-now", "trending_cards");
+  const newArrivalsSection = findSection("new-arrivals-banner");
+  const clearanceSection = findSection("clearance-sale-banner");
+  const forYouSection = findSection("for-you", "recommended_products");
 
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans antialiased selection:bg-black selection:text-white">
@@ -68,31 +75,38 @@ export default async function HomePage() {
         }}
       />
 
-      {/* 1. Header with announcement ticker & categories */}
+      {/* 1. Header with announcement ticker & search */}
       <Header announcement={home?.announcement || null} />
 
       <main className="flex-1 pb-10">
-        {/* 2. Hero Campaign Showcase & Member Banner */}
+        {/* 1. Hero Campaign Showcase & Member Banner */}
         <Banner banners={heroBanners} />
 
-        {/* 3. 4 Price Point / Collection Tiles */}
-        <CategoriesSection categories={categories} />
+        {/* 2. Special Offers (4 Price-Point Cards) */}
+        <SpecialOffersSection section={specialOffersSection} />
 
-        {/* 4. Trending Now 4-Card Section */}
-        <FlashDealsBanner items={picks} title="TRENDING NOW" />
+        {/* 3. Best Sellers Banner (Hot right now. Best Sellers) */}
+        <BestSellersBanner section={bestsellersSection} />
 
-        {/* 5. Campaign Banner (Manageable from Dashboard) */}
-        <PromoBannerGrid banner={campaignSection} />
+        {/* 4. Trending Now (4 Trend Cards) */}
+        <TrendingNowSection section={trendingSection} products={picks} />
 
-        {/* 6. FOR YOU Curated Product Grid with Gender Switcher */}
+        {/* 5. New Arrivals Full-Width Banner */}
+        <NewArrivalsBanner section={newArrivalsSection} />
+
+        {/* 6. Last Chances Clearance Sale Banner */}
+        <ClearanceSaleBanner section={clearanceSection} />
+
+        {/* 7. FOR YOU Curated Product Grid with Gender Switcher */}
         <Products
           products={arrivals}
-          title="FOR YOU"
+          title={forYouSection?.title || "FOR YOU"}
+          eyebrow={forYouSection?.subtitle}
           showGenderFilter={true}
         />
       </main>
 
-      {/* 7. Footer & Floating Actions */}
+      {/* Footer */}
       <Footer />
     </div>
   );
