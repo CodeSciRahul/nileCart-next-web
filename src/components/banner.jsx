@@ -72,10 +72,10 @@ const Banner = ({ banners = [] }) => {
 
   return (
     <section className="relative w-full overflow-hidden bg-white">
-      <div className="relative w-full max-w-[1440px] mx-auto">
+      <div className="relative w-full">
         {/* Main Hero Container with Multi-Slide Transition & Mobile Touch Swipe */}
         <div
-          className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.35/1] overflow-hidden bg-neutral-900 group select-none touch-pan-y"
+          className="relative w-full aspect-[1376/768] overflow-hidden bg-neutral-900 group select-none touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -180,7 +180,7 @@ const Banner = ({ banners = [] }) => {
           href="/shop/all"
           className="w-full bg-black py-2.5 sm:py-3 px-4 text-center block cursor-pointer select-none transition-colors hover:bg-neutral-950"
         >
-          <div className="max-w-[1440px] mx-auto flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#fdd835]">
+          <div className="w-full flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#fdd835]">
             <span>★ DAY SALE MEMBER PRICES ★</span>
             <span className="hidden sm:inline text-white">UP TO 50% OFF + 3X POINTS</span>
             <span className="rounded bg-white/20 px-2 py-0.5 text-[10px] text-white">
