@@ -38,7 +38,7 @@ export async function serverGet(path, options = {}) {
 
   const response = await fetch(`${getServerApiBaseUrl()}${path}`, {
     headers,
-    signal: AbortSignal.timeout(2000),
+    signal: AbortSignal.timeout(8000),
     ...(fetchCache
       ? { cache: fetchCache }
       : {

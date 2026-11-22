@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import OptimizedImage from "@/components/ui/OptimizedImage";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-
-const FALLBACK_HERO =
-  "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=2400&q=80";
+import { ChevronLeft, ChevronRight, ImagePlus, Sparkles } from "lucide-react";
 
 function resolveHref(banner) {
   return banner?.ctaHref || banner?.ctaLink || "/shop/all";
@@ -14,31 +11,34 @@ function resolveHref(banner) {
 
 function resolveBannerImage(image) {
   if (!image) return null;
-  if (typeof image === "string") return image;
+  if (typeof image === "string") return image.trim() || null;
   return image.url || null;
 }
 
-const Banner = ({ banners = [] }) => {
+const Banner = ({ banners = [], section = null }) => {
   const slides = Array.isArray(banners)
     ? banners.filter(
         (b) =>
           resolveBannerImage(b?.image) ||
-          resolveBannerImage(b?.mobileImage)
+          resolveBannerImage(b?.mobileImage) ||
+          b?.title
       )
     : [];
+
+  const defaultSlide = {
+    title: section?.title || "Hero Banner Title (Set in Dashboard)",
+    subtitle: section?.subtitle || "Hero Banner Subtitle (Set in Dashboard)",
+    ctaText: section?.ctaText || "SHOP NOW",
+    ctaLink: section?.ctaLink || "/shop/all",
+    image:
+      (typeof section?.image === "string" ? section.image : section?.image?.url) ||
+      null,
+  };
 
   const effectiveSlides =
     slides.length > 0
       ? slides
-      : [
-          {
-            title: "UP TO 50% OFF",
-            subtitle: "WARM UP YOUR WARDROBE",
-            ctaText: "SHOP NOW",
-            ctaLink: "/shop/all",
-            image: FALLBACK_HERO,
-          },
-        ];
+      : [defaultSlide];
 
   const [current, setCurrent] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
@@ -70,6 +70,8 @@ const Banner = ({ banners = [] }) => {
     setTouchStartX(null);
   };
 
+  if (section && section.isActive === false) return null;
+
   return (
     <section className="relative w-full overflow-hidden bg-white">
       <div className="relative w-full">
@@ -82,8 +84,7 @@ const Banner = ({ banners = [] }) => {
           {effectiveSlides.map((banner, index) => {
             const img =
               resolveBannerImage(banner.image) ||
-              resolveBannerImage(banner.mobileImage) ||
-              FALLBACK_HERO;
+              resolveBannerImage(banner.mobileImage);
 
             return (
               <div
@@ -93,22 +94,36 @@ const Banner = ({ banners = [] }) => {
                 }`}
                 aria-hidden={active !== index}
               >
-                <OptimizedImage
-                  src={img}
-                  alt={banner.title || "Hero campaign"}
-                  fill
-                  sizes="100vw"
-                  priority={index === 0}
-                  className="w-full h-full object-cover object-center select-none"
-                />
+                {img ? (
+                  <OptimizedImage
+                    src={img}
+                    alt={banner.title || "Hero campaign"}
+                    fill
+                    sizes="100vw"
+                    priority={index === 0}
+                    className="w-full h-full object-cover object-center select-none"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 text-neutral-400 p-6 text-center select-none">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-3 shadow-inner">
+                      <ImagePlus className="w-7 h-7 sm:w-8 sm:h-8 text-neutral-300 stroke-[1.5]" />
+                    </div>
+                    <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-neutral-200">
+                      Hero Banner Image Not Set
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-neutral-500 mt-1 max-w-sm">
+                      Upload hero image in Dashboard &rarr; Banners or Home Sections
+                    </p>
+                  </div>
+                )}
               </div>
             );
           })}
 
-          {/* Directional Scrim: Darker at the bottom-left for high text readability, transparent across center & right to leave images & models fully visible */}
+          {/* Directional Scrim */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent sm:bg-gradient-to-r sm:from-black/75 sm:via-black/20 sm:to-transparent pointer-events-none z-[2]" />
 
-          {/* Hero Content: Placed at lower-left, card removed so image is fully visible */}
+          {/* Hero Content: Placed at lower-left */}
           <div className="absolute left-6 sm:left-12 md:left-16 bottom-8 sm:bottom-12 md:bottom-14 max-w-[85%] sm:max-w-lg md:max-w-xl text-left pointer-events-auto z-[3]">
             {activeSlide?.subtitle && (
               <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase text-[#fdd835] drop-shadow-md mb-1.5 sm:mb-2">
@@ -118,7 +133,7 @@ const Banner = ({ banners = [] }) => {
               </div>
             )}
             <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-[1.08] drop-shadow-lg mb-3 sm:mb-5">
-              {activeSlide?.title || "UP TO 50% OFF"}
+              {activeSlide?.title || "Hero Banner Title (Set in Dashboard)"}
             </h1>
             <Link
               href={resolveHref(activeSlide)}
@@ -175,7 +190,7 @@ const Banner = ({ banners = [] }) => {
           )}
         </div>
 
-        {/* Black Day Sale Member Banner Strip matching Screenshot 5 */}
+        {/* Black Day Sale Member Banner Strip */}
         <Link
           href="/shop/all"
           className="w-full bg-black py-2.5 sm:py-3 px-4 text-center block cursor-pointer select-none transition-colors hover:bg-neutral-950"

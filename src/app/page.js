@@ -13,7 +13,8 @@ import { fetchHome, getHeroBanners } from "@/lib/data/home";
 import { buildPageMetadata } from "@/lib/seo";
 import { SITE, getSiteUrl } from "@/lib/site";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = buildPageMetadata({
   title: "nilescart | Official Online Store",
@@ -55,12 +56,24 @@ export default async function HomePage() {
       (s) => s.key === key || (type && s.type === type)
     );
 
+  const heroSection = findSection("hero-main", "hero_banner");
   const specialOffersSection = findSection("special-offers", "special_offers");
-  const bestsellersSection = findSection("bestsellers-banner");
-  const trendingSection = findSection("trending-now", "trending_cards");
-  const newArrivalsSection = findSection("new-arrivals-banner");
-  const clearanceSection = findSection("clearance-sale-banner");
-  const forYouSection = findSection("for-you", "recommended_products");
+  const bestsellersSection =
+    findSection("bestsellers-banner") ||
+    findSection("bestsellers", "promotional_campaign");
+  const trendingSection =
+    findSection("trending-now", "trending_cards") ||
+    findSection("trending-rail") ||
+    findSection(null, "trending_cards");
+  const newArrivalsSection =
+    findSection("new-arrivals-banner") ||
+    findSection("new-arrivals");
+  const clearanceSection =
+    findSection("clearance-sale-banner") ||
+    findSection("clearance-sale");
+  const forYouSection =
+    findSection("for-you", "recommended_products") ||
+    findSection("top-picks", "recommended_products");
 
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans antialiased selection:bg-black selection:text-white">
@@ -80,7 +93,7 @@ export default async function HomePage() {
 
       <main className="flex-1 pb-10">
         {/* 1. Hero Campaign Showcase & Member Banner */}
-        <Banner banners={heroBanners} />
+        <Banner banners={heroBanners} section={heroSection} />
 
         {/* 2. Special Offers (4 Price-Point Cards) */}
         <SpecialOffersSection section={specialOffersSection} />

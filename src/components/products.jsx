@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/ui/productCard";
 import Reveal from "@/components/motion/Reveal";
-import { RefreshCw, ChevronRight, Loader2, PackageOpen } from "lucide-react";
+import NilescartLoader from "@/components/ui/NilescartLoader";
+import useInfiniteScroll from "@/hooks/useInfiniteScroll";
+import { RefreshCw, ChevronRight, PackageOpen, ArrowDown } from "lucide-react";
 
 const GENDERS = [
   { id: "all", label: "All Pieces" },
@@ -12,60 +14,6 @@ const GENDERS = [
   { id: "women", label: "Women" },
   { id: "men", label: "Men" },
 ];
-
-/** Comprehensive gender matcher checking product.gender, tags, category, and title */
-function matchesGender(p, targetGender) {
-  if (!p || targetGender === "all") return true;
-
-  const g = (p.gender || "").toLowerCase();
-  const tags = Array.isArray(p.tags)
-    ? p.tags.map((t) => String(t).toLowerCase())
-    : [];
-  const catName =
-    (typeof p.category === "object" ? p.category?.name : "")?.toLowerCase() ||
-    "";
-  const catSlug =
-    (typeof p.category === "object" ? p.category?.slug : "")?.toLowerCase() ||
-    "";
-  const title = (p.title || "").toLowerCase();
-
-  const isUnisex =
-    g === "unisex" ||
-    tags.includes("unisex") ||
-    catName.includes("unisex") ||
-    catSlug.includes("unisex") ||
-    title.includes("unisex");
-
-  if (targetGender === "unisex") {
-    return isUnisex;
-  }
-
-  if (targetGender === "men") {
-    const isMenExplicit =
-      g === "men" ||
-      tags.some((t) => ["men", "mens", "male"].includes(t)) ||
-      /\bmen('s)?\b/i.test(catName) ||
-      /\bmen('s)?\b/i.test(catSlug) ||
-      /\bmen('s)?\b/i.test(title);
-
-    return isMenExplicit || isUnisex;
-  }
-
-  if (targetGender === "women") {
-    const isWomenExplicit =
-      g === "women" ||
-      tags.some((t) =>
-        ["women", "womens", "female", "ladies"].includes(t)
-      ) ||
-      /\bwomen('s)?\b/i.test(catName) ||
-      /\bwomen('s)?\b/i.test(catSlug) ||
-      /\bwomen('s)?\b/i.test(title);
-
-    return isWomenExplicit || isUnisex;
-  }
-
-  return true;
-}
 
 const Products = ({
   products = [],
@@ -76,51 +24,120 @@ const Products = ({
   showGenderFilter = true,
 }) => {
   const [activeGender, setActiveGender] = useState("all");
-  const [genderCache, setGenderCache] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [extraProducts, setExtraProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(products.length >= 12);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSwitchingFilter, setIsSwitchingFilter] = useState(false);
+  const [totalCount, setTotalCount] = useState(null);
 
-  const handleGenderChange = (id) => {
+  const displayedProducts =
+    activeGender === "all"
+      ? extraProducts.length > 0
+        ? [...products, ...extraProducts]
+        : products
+      : filteredProducts ?? [];
+
+  // Handle switching gender categories
+  const handleGenderChange = async (id) => {
+    if (id === activeGender) return;
     setActiveGender(id);
-    if (id !== "all" && !genderCache[id]) {
-      setLoading(true);
-      fetch(`/api/products?gender=${encodeURIComponent(id)}&limit=12`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (Array.isArray(data?.products) && data.products.length > 0) {
-            setGenderCache((prev) => ({
-              ...prev,
-              [id]: data.products,
-            }));
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          setLoading(false);
-        });
+    setPage(1);
+
+    if (id === "all") {
+      setFilteredProducts(null);
+      setExtraProducts([]);
+      setHasMore(products.length >= 12);
+      return;
+    }
+
+    setIsSwitchingFilter(true);
+    setHasMore(true);
+
+    try {
+      const url = `/api/products?gender=${encodeURIComponent(id)}&limit=12&page=1&sort=-createdAt`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        const items = Array.isArray(data?.products) ? data.products : [];
+        setFilteredProducts(items);
+        const totalPages = data?.pagination?.pages || 1;
+        setTotalCount(data?.pagination?.total ?? null);
+        setHasMore(items.length >= 12 && 1 < totalPages);
+      }
+    } catch {
+      // API error tolerance
+    } finally {
+      setIsSwitchingFilter(false);
     }
   };
 
-  const displayedProducts = useMemo(() => {
-    if (activeGender === "all") return products;
+  // Infinite Scroll loader
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore || isSwitchingFilter) return;
 
-    // 1. If backend returned dedicated products for this gender, prefer them
-    if (genderCache[activeGender]?.length) {
-      return genderCache[activeGender];
+    const nextPage = page + 1;
+    setIsLoadingMore(true);
+
+    try {
+      const url =
+        activeGender === "all"
+          ? `/api/products?limit=12&page=${nextPage}&sort=-createdAt`
+          : `/api/products?gender=${encodeURIComponent(activeGender)}&limit=12&page=${nextPage}&sort=-createdAt`;
+
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        const newProducts = Array.isArray(data?.products) ? data.products : [];
+
+        if (newProducts.length === 0) {
+          setHasMore(false);
+        } else {
+          if (activeGender === "all") {
+            setExtraProducts((prev) => {
+              const currentAll = [...products, ...prev];
+              const existingIds = new Set(currentAll.map((p) => p._id || p.slug));
+              const uniqueAdditions = newProducts.filter(
+                (p) => !existingIds.has(p._id || p.slug)
+              );
+              return [...prev, ...uniqueAdditions];
+            });
+          } else {
+            setFilteredProducts((prev) => {
+              const existingIds = new Set((prev || []).map((p) => p._id || p.slug));
+              const uniqueAdditions = newProducts.filter(
+                (p) => !existingIds.has(p._id || p.slug)
+              );
+              return [...(prev || []), ...uniqueAdditions];
+            });
+          }
+
+          setPage(nextPage);
+          const totalPages = data?.pagination?.pages || 1;
+          setTotalCount(data?.pagination?.total ?? null);
+          if (nextPage >= totalPages || newProducts.length < 12) {
+            setHasMore(false);
+          }
+        }
+      } else {
+        setHasMore(false);
+      }
+    } catch {
+      setHasMore(false);
+    } finally {
+      setIsLoadingMore(false);
     }
+  }, [activeGender, page, isLoadingMore, hasMore, isSwitchingFilter, products]);
 
-    // 2. Otherwise filter initial products with comprehensive matcher
-    return products.filter((p) => matchesGender(p, activeGender));
-  }, [products, activeGender, genderCache]);
-
-  if (!products.length) {
-    return (
-      <section className="py-8 bg-white">
-        <div className="max-w-[1440px] mx-auto px-4 lg:px-12 text-center text-xs text-neutral-400">
-          No products available right now.
-        </div>
-      </section>
-    );
-  }
+  // Hook for intersection observer sentinel
+  const sentinelRef = useInfiniteScroll({
+    onLoadMore: handleLoadMore,
+    hasMore,
+    isLoading: isLoadingMore || isSwitchingFilter,
+    enabled: hasMore && !isSwitchingFilter,
+    rootMargin: "450px",
+  });
 
   return (
     <section id="for-you-section" className="w-full bg-white py-6 md:py-10">
@@ -173,12 +190,6 @@ const Products = ({
             <span className="bg-neutral-200 px-2 py-0.5 rounded text-black uppercase font-bold">
               {activeGender}
             </span>
-            {loading && (
-              <span className="flex items-center gap-1 text-neutral-400 font-normal">
-                <Loader2 size={12} className="animate-spin" />
-                <span>Updating...</span>
-              </span>
-            )}
             <button
               type="button"
               onClick={() => handleGenderChange("all")}
@@ -190,8 +201,10 @@ const Products = ({
           </div>
         )}
 
-        {/* Product Cards Grid or Empty State */}
-        {displayedProducts.length === 0 && !loading ? (
+        {/* Filter Switching Loader */}
+        {isSwitchingFilter ? (
+          <NilescartLoader text={`Finding ${activeGender} pieces...`} />
+        ) : displayedProducts.length === 0 ? (
           <div className="py-12 sm:py-16 text-center border border-dashed border-neutral-200 rounded-xs bg-neutral-50/50 p-6">
             <PackageOpen className="mx-auto size-10 text-neutral-400 mb-2" />
             <p className="text-sm font-bold text-neutral-900">
@@ -209,16 +222,60 @@ const Products = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5">
-            {displayedProducts.map((product, index) => (
-              <Reveal
-                key={product?._id || product?.slug || index}
-                delay={Math.min(index * 30, 150)}
-              >
-                <ProductCard product={product} />
-              </Reveal>
-            ))}
-          </div>
+          <>
+            {/* Product Cards Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5">
+              {displayedProducts.map((product, index) => (
+                <Reveal
+                  key={product?._id || product?.slug || index}
+                  delay={Math.min((index % 12) * 25, 150)}
+                >
+                  <ProductCard product={product} />
+                </Reveal>
+              ))}
+            </div>
+
+            {/* Infinite Scroll Sentinel */}
+            {hasMore && (
+              <div ref={sentinelRef} className="w-full h-8" aria-hidden />
+            )}
+
+            {/* Nilescart Animated Loader during Infinite Scroll */}
+            {isLoadingMore && (
+              <NilescartLoader text="Loading more contemporary pieces..." />
+            )}
+
+            {/* Manual Load More Button fallback if not currently loading */}
+            {!isLoadingMore && hasMore && (
+              <div className="mt-8 text-center">
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-neutral-300 text-xs font-bold uppercase tracking-wider text-black hover:bg-black hover:text-[#fdd835] hover:border-black transition-all cursor-pointer shadow-xs"
+                >
+                  <ArrowDown className="w-3.5 h-3.5" />
+                  <span>
+                    Load More Pieces
+                    {totalCount != null
+                      ? ` (${totalCount - displayedProducts.length} remaining)`
+                      : ""}
+                  </span>
+                </button>
+              </div>
+            )}
+
+            {/* End of Catalog Notice */}
+            {!hasMore && displayedProducts.length > 0 && (
+              <div className="mt-12 text-center py-8 border-t border-neutral-100 select-none">
+                <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-neutral-400">
+                  ✦ You have viewed all {displayedProducts.length} pieces ✦
+                </p>
+                <p className="text-[10px] text-neutral-400 mt-1">
+                  Check back soon for new season arrivals
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

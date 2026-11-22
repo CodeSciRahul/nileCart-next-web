@@ -20,7 +20,8 @@ export async function fetchHome({ device } = {}) {
 
   try {
     return await serverGet(path, {
-      revalidate: 60,
+      revalidate: 0,
+      cache: "no-store",
       tags: ["home", `home:${resolvedDevice}`],
     });
   } catch {

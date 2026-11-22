@@ -143,3 +143,39 @@
     scrollbar-width: none;
   }
 }
+
+@keyframes nilescartWave {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    color: #171717;
+  }
+  30% {
+    transform: translateY(-8px) scale(1.12);
+    color: #000000;
+    text-shadow: 0 4px 14px rgba(253, 216, 53, 0.45);
+  }
+  60% {
+    transform: translateY(1.5px) scale(0.98);
+    color: #262626;
+  }
+}
+
+@keyframes nilescartBar {
+  0% {
+    transform: translateX(-120%);
+  }
+  50% {
+    transform: translateX(60%);
+  }
+  100% {
+    transform: translateX(240%);
+  }
+}
+
+.animate-nilescart-wave {
+  animation: nilescartWave 1.1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.animate-nilescart-bar {
+  animation: nilescartBar 1.2s ease-in-out infinite;
+}

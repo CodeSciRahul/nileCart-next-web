@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, Loader2, ShoppingBag, Zap } from "lucide-react";
+import { Eye, ImageOff, Loader2, ShoppingBag, Zap } from "lucide-react";
 import WishlistButton from "@/components/wishlist/WishlistButton";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useAddToCart } from "@/hooks/useCart";
@@ -93,26 +93,34 @@ const ProductCard = ({ product }) => {
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xs bg-neutral-100 shadow-xs">
         <Link href={href} className="relative block size-full">
-          {images.map((src, index) =>
-            src ? (
-              <OptimizedImage
-                key={`${src}-${index}`}
-                src={src}
-                alt={product?.title || "Product"}
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className={`object-cover transition-[opacity,transform] duration-500 ease-out select-none ${
-                  index === imageIndex ? "opacity-100" : "opacity-0"
-                } ${hovered ? "scale-[1.03]" : "scale-100"}`}
-                loading="lazy"
-              />
-            ) : (
-              <span
-                key={`empty-${index}`}
-                className="absolute inset-0 bg-neutral-100"
-                aria-hidden
-              />
+          {images.some((s) => Boolean(s)) ? (
+            images.map((src, index) =>
+              src ? (
+                <OptimizedImage
+                  key={`${src}-${index}`}
+                  src={src}
+                  alt={product?.title || "Product"}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className={`object-cover transition-[opacity,transform] duration-500 ease-out select-none ${
+                    index === imageIndex ? "opacity-100" : "opacity-0"
+                  } ${hovered ? "scale-[1.03]" : "scale-100"}`}
+                  loading="lazy"
+                />
+              ) : null
             )
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-100 p-4 text-center select-none text-neutral-400">
+              <div className="w-10 h-10 rounded-full bg-white shadow-xs flex items-center justify-center mb-1.5">
+                <ImageOff className="w-5 h-5 text-neutral-400 stroke-[1.5]" />
+              </div>
+              <span className="text-[11px] font-semibold text-neutral-600">
+                No Product Image
+              </span>
+              <span className="text-[9px] text-neutral-400 mt-0.5">
+                Upload in Dashboard
+              </span>
+            </div>
           )}
         </Link>
 
@@ -178,7 +186,7 @@ const ProductCard = ({ product }) => {
       <div className="mt-2.5 flex flex-1 flex-col">
         <Link href={href} className="block min-w-0">
           <h3 className="line-clamp-1 text-[13px] md:text-[14px] font-bold text-neutral-900 group-hover:text-black transition-colors">
-            {product?.title}
+            {product?.title || "Product Title (Set in Dashboard)"}
           </h3>
 
           <div className="mt-1 flex items-baseline gap-2">
