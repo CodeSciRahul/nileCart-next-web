@@ -2,50 +2,31 @@
 
 import Link from "next/link";
 import OptimizedImage from "@/components/ui/OptimizedImage";
-
-const DEFAULT_TRENDS = [
-  {
-    id: "trend-1",
-    title: "Dark Romance",
-    image: "/images/sections/nc_trend_romance_1794739161666.jpg",
-    link: "/shop/all",
-  },
-  {
-    id: "trend-2",
-    title: "Faux Fur",
-    image: "/images/sections/nc_trend_fauxfur_1794739161586.jpg",
-    link: "/shop/outerwear",
-  },
-  {
-    id: "trend-3",
-    title: "Formal Co-ords",
-    image: "/images/sections/nc_trend_coords_1794739162575.jpg",
-    link: "/shop/suits",
-  },
-  {
-    id: "trend-4",
-    title: "Animal Print Everything",
-    image: "/images/sections/nc_trend_animal_1794739188133.jpg",
-    link: "/shop/all",
-  },
-];
+import { ImagePlus } from "lucide-react";
 
 export default function TrendingNowSection({ section = null, products = [] }) {
   if (section && section.isActive === false) return null;
 
-  const title = section?.title || "TRENDING NOW";
+  const title = section?.title || "TRENDING NOW (Set in Dashboard)";
+
+  const rawItems = Array.isArray(section?.items) ? section.items : [];
+
   const items =
-    Array.isArray(section?.items) && section.items.length > 0
-      ? section.items.map((it, idx) => ({
+    rawItems.length > 0
+      ? rawItems.map((it, idx) => ({
           id: it._id || `trend-${idx}`,
-          title: it.title || it.caption || DEFAULT_TRENDS[idx % DEFAULT_TRENDS.length].title,
+          title: it.title || it.caption || `Trend ${idx + 1} (Set in Dashboard)`,
           image:
-            typeof it.image === "string"
-              ? it.image
-              : it.image?.url || DEFAULT_TRENDS[idx % DEFAULT_TRENDS.length].image,
-          link: it.link || DEFAULT_TRENDS[idx % DEFAULT_TRENDS.length].link,
+            (typeof it.image === "string" ? it.image.trim() : it.image?.url?.trim()) ||
+            null,
+          link: it.link || "/shop/all",
         }))
-      : DEFAULT_TRENDS;
+      : [1, 2, 3, 4].map((i) => ({
+          id: `trend-ph-${i}`,
+          title: `Trend ${i} (Set in Dashboard)`,
+          image: null,
+          link: "/shop/all",
+        }));
 
   return (
     <section className="w-full bg-white py-6 md:py-10">
@@ -62,13 +43,27 @@ export default function TrendingNowSection({ section = null, products = [] }) {
               className="group flex flex-col items-center cursor-pointer"
             >
               <div className="relative w-full aspect-[896/1200] overflow-hidden bg-neutral-100 transition-transform duration-300 group-hover:scale-[1.015]">
-                <OptimizedImage
-                  src={card.image}
-                  alt={card.title}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="w-full h-full object-cover object-center select-none"
-                />
+                {card.image ? (
+                  <OptimizedImage
+                    src={card.image}
+                    alt={card.title}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="w-full h-full object-cover object-center select-none"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-100 p-4 text-center select-none">
+                    <div className="w-10 h-10 rounded-full bg-white shadow-xs flex items-center justify-center mb-2">
+                      <ImagePlus className="w-5 h-5 text-neutral-400 stroke-[1.5]" />
+                    </div>
+                    <span className="text-[12px] font-bold text-neutral-800">
+                      {card.title}
+                    </span>
+                    <span className="mt-2 text-[9px] text-neutral-400 font-medium border-t border-neutral-200 pt-1.5">
+                      Upload Image in Dashboard
+                    </span>
+                  </div>
+                )}
               </div>
               <h3 className="mt-2.5 text-[13px] md:text-[14px] font-bold text-neutral-900 group-hover:text-black transition-colors text-center">
                 {card.title}
@@ -80,4 +75,3 @@ export default function TrendingNowSection({ section = null, products = [] }) {
     </section>
   );
 }
-
